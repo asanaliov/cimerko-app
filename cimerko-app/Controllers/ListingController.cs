@@ -55,6 +55,10 @@ public class ListingController : Controller {
         var userId = CurrentUserId();
         ViewBag.IsSaved = userId != null && await _context.SavedListings.AnyAsync(savedListing =>
             savedListing.UserId == userId && savedListing.ListingId == listing.Id);
+        ViewBag.ExistingRequest = userId == null
+            ? null
+            : await _context.ListingRequests.FirstOrDefaultAsync(request =>
+                request.SenderId == userId && request.ListingId == listing.Id);
 
         return View(listing);
     }

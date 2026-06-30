@@ -8,6 +8,10 @@
 
 <h1>@Model.Title</h1>
 
+@if (TempData["RequestMessage"] != null) {
+    <div class="alert alert-info">@TempData["RequestMessage"]</div>
+}
+
 <dl class="row">
     <dt class="col-sm-3">Type</dt>
     <dd class="col-sm-9">@Model.Type</dd>
@@ -56,3 +60,28 @@
     }
     <a asp-action="Index" class="btn btn-outline-secondary">Back to listings</a>
 </div>
+
+@if (User.Identity?.IsAuthenticated == true && currentUserId != Model.OwnerId) {
+    var existingRequest = ViewBag.ExistingRequest as ListingRequest;
+
+    <hr/>
+    <h2>Listing request</h2>
+
+    @if (existingRequest != null) {
+        <p>
+            You sent a request on @existingRequest.CreatedAt.ToString("dd.MM.yyyy").
+            Current status: <strong>@existingRequest.Status</strong>.
+        </p>
+    }
+    else {
+        <form asp-controller="ListingRequest" asp-action="Create" method="post" class="col-md-6">
+            <input type="hidden" name="listingId" value="@Model.Id"/>
+            <div class="mb-3">
+                <label for="message" class="form-label">Message</label>
+                <textarea id="message" name="message" class="form-control" rows="4" maxlength="1000"
+                          required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send request</button>
+        </form>
+    }
+}

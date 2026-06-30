@@ -1,0 +1,76 @@
+@model IEnumerable<ListingRequest>
+
+@{
+    ViewData["Title"] = "Listing requests";
+    var currentView = ViewBag.CurrentView as string;
+}
+
+<h1>Listing requests</h1>
+
+<div class="btn-group mb-4">
+    <a asp-action="Index" asp-route-view="received"
+       class="btn @(currentView == "received" ? "btn-primary" : "btn-outline-primary")">
+        Received
+    </a>
+    <a asp-action="Index" asp-route-view="sent"
+       class="btn @(currentView == "sent" ? "btn-primary" : "btn-outline-primary")">
+        Sent
+    </a>
+</div>
+
+@if (!Model.Any()) {
+    <div class="alert alert-info">There are no @currentView requests.</div>
+}
+else {
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Listing</th>
+            @if (currentView == "sent") {
+                <th>Owner</th>
+            }
+            else {
+                <th>Sender</th>
+            }
+            <th>Message</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var request in Model) {
+            <tr>
+                <td>
+                    <a asp-controller="Listing" asp-action="Details" asp-route-id="@request.ListingId">
+                        @request.Listing?.Title
+                    </a>
+                </td>
+                @if (currentView == "sent") {
+                    <td>@(request.Listing?.Owner?.FullName ?? request.Listing?.Owner?.Email)</td>
+                }
+                else {
+                    <td>@(request.Sender?.FullName ?? request.Sender?.Email)</td>
+                }
+                <td>@request.Message</td>
+                <td>@request.Status</td>
+                <td>@request.CreatedAt.ToString("dd.MM.yyyy")</td>
+                <td>
+                    @if (currentView == "received" && request.Status == RequestStatus.Pending) {
+                        <form asp-action="UpdateStatus" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@request.Id"/>
+                            <input type="hidden" name="status" value="@RequestStatus.Accepted"/>
+                            <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                        </form>
+                        <form asp-action="UpdateStatus" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@request.Id"/>
+                            <input type="hidden" name="status" value="@RequestStatus.Rejected"/>
+                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
