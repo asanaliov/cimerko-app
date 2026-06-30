@@ -52,6 +52,10 @@ public class ListingController : Controller {
             return NotFound();
         }
 
+        var userId = CurrentUserId();
+        ViewBag.IsSaved = userId != null && await _context.SavedListings.AnyAsync(savedListing =>
+            savedListing.UserId == userId && savedListing.ListingId == listing.Id);
+
         return View(listing);
     }
 

@@ -1,0 +1,46 @@
+@model IEnumerable<SavedListing>
+
+@{
+    ViewData["Title"] = "Saved listings";
+}
+
+<h1>Saved listings</h1>
+
+@if (!Model.Any()) {
+    <div class="alert alert-info">
+        You have not saved any listings yet.
+    </div>
+}
+else {
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Listing</th>
+            <th>City</th>
+            <th>Monthly rent</th>
+            <th>Owner</th>
+            <th>Saved</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var savedListing in Model) {
+            <tr>
+                <td>@savedListing.Listing?.Title</td>
+                <td>@savedListing.Listing?.City</td>
+                <td>@savedListing.Listing?.MonthlyRent.ToString("0.00") €</td>
+                <td>@(savedListing.Listing?.Owner?.FullName ?? savedListing.Listing?.Owner?.Email)</td>
+                <td>@savedListing.SavedAt.ToString("dd.MM.yyyy")</td>
+                <td>
+                    <a asp-controller="Listing" asp-action="Details" asp-route-id="@savedListing.ListingId"
+                       class="btn btn-sm btn-outline-primary">Details</a>
+                    <form asp-action="Remove" method="post" class="d-inline">
+                        <input type="hidden" name="listingId" value="@savedListing.ListingId"/>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
