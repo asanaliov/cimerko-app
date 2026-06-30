@@ -15,6 +15,10 @@
     }
 </div>
 
+@if (TempData["ReviewMessage"] != null) {
+    <div class="alert alert-info">@TempData["ReviewMessage"]</div>
+}
+
 @if (!string.IsNullOrWhiteSpace(Model.ProfileImageUrl)) {
     <img src="@Model.ProfileImageUrl" alt="@displayName" class="img-thumbnail mb-3"
          style="width: 160px; height: 160px; object-fit: cover;"/>
@@ -40,4 +44,61 @@ else {
         <dt class="col-sm-3">Study program</dt>
         <dd class="col-sm-9">@(profile.StudyProgram ?? "Not specified")</dd>
     </dl>
+}
+
+<hr/>
+<h2>Reviews</h2>
+
+@if (!Model.ReviewsReceived.Any()) {
+    <p class="text-muted">This user has no reviews.</p>
+}
+else {
+    @foreach (var review in Model.ReviewsReceived.OrderByDescending(item => item.CreatedAt)) {
+        var reviewerName = string.IsNullOrWhiteSpace(review.Reviewer?.FullName)
+            ? review.Reviewer?.Email
+            : review.Reviewer.FullName;
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">@review.Rating / 5</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    @reviewerName · @review.CreatedAt.ToString("dd.MM.yyyy")
+                </h6>
+                @if (!string.IsNullOrWhiteSpace(review.Comment)) {
+                    <p class="card-text">@review.Comment</p>
+                }
+                @if (currentUserId == review.ReviewerId) {
+                    <form asp-controller="Review" asp-action="Delete" method="post">
+                        <input type="hidden" name="id" value="@review.Id"/>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete review</button>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+}
+
+@if (User.Identity?.IsAuthenticated == true && currentUserId != Model.Id) {
+    <h3>Add review</h3>
+    <form asp-controller="Review" asp-action="Create" method="post" class="col-md-6">
+        <input type="hidden" name="reviewedUserId" value="@Model.Id"/>
+
+        <div class="mb-3">
+            <label for="rating" class="form-label">Rating</label>
+            <select id="rating" name="rating" class="form-select">
+                <option value="5">5</option>
+                <option value="4">4</option>
+                <option value="3">3</option>
+                <option value="2">2</option>
+                <option value="1">1</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="comment" class="form-label">Comment</label>
+            <textarea id="comment" name="comment" class="form-control" rows="4" maxlength="1000"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add review</button>
+    </form>
 }
