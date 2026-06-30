@@ -1,0 +1,75 @@
+@model Listing
+
+@{
+    ViewData["Title"] = "Edit listing";
+}
+
+<h1>Edit listing</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="Id"/>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control"/>
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Type" class="form-label"></label>
+                <select asp-for="Type" asp-items="Html.GetEnumSelectList<ListingType>()" class="form-select"></select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="City" class="form-label"></label>
+                <input asp-for="City" class="form-control"/>
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label"></label>
+                <input asp-for="Address" class="form-control"/>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MonthlyRent" class="form-label"></label>
+                <input asp-for="MonthlyRent" class="form-control"/>
+                <span asp-validation-for="MonthlyRent" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="RoomCount" class="form-label"></label>
+                <input asp-for="RoomCount" class="form-control"/>
+                <span asp-validation-for="RoomCount" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AvailableFrom" class="form-label"></label>
+                <input asp-for="AvailableFrom" type="date" class="form-control"/>
+                <span asp-validation-for="AvailableFrom" class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="IsActive" class="form-check-input"/>
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

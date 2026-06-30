@@ -1,0 +1,43 @@
+@using System.Security.Claims
+@model Listing
+
+@{
+    ViewData["Title"] = "Listing details";
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+
+<h1>@Model.Title</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Type</dt>
+    <dd class="col-sm-9">@Model.Type</dd>
+
+    <dt class="col-sm-3">Description</dt>
+    <dd class="col-sm-9">@Model.Description</dd>
+
+    <dt class="col-sm-3">City</dt>
+    <dd class="col-sm-9">@Model.City</dd>
+
+    <dt class="col-sm-3">Address</dt>
+    <dd class="col-sm-9">@(Model.Address ?? "Not specified")</dd>
+
+    <dt class="col-sm-3">Monthly rent</dt>
+    <dd class="col-sm-9">@Model.MonthlyRent.ToString("0.00") €</dd>
+
+    <dt class="col-sm-3">Rooms</dt>
+    <dd class="col-sm-9">@Model.RoomCount</dd>
+
+    <dt class="col-sm-3">Available from</dt>
+    <dd class="col-sm-9">@(Model.AvailableFrom?.ToString("dd.MM.yyyy") ?? "Immediately")</dd>
+
+    <dt class="col-sm-3">Owner</dt>
+    <dd class="col-sm-9">@(Model.Owner?.FullName ?? Model.Owner?.Email)</dd>
+</dl>
+
+<div>
+    @if (currentUserId == Model.OwnerId) {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+    }
+    <a asp-action="Index" class="btn btn-outline-secondary">Back to listings</a>
+</div>

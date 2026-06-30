@@ -1,0 +1,25 @@
+@model Listing
+
+@{
+    ViewData["Title"] = "Delete listing";
+}
+
+<h1>Delete listing</h1>
+
+<div class="alert alert-warning">
+    Are you sure you want to delete <strong>@Model.Title</strong>?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">City</dt>
+    <dd class="col-sm-9">@Model.City</dd>
+
+    <dt class="col-sm-3">Monthly rent</dt>
+    <dd class="col-sm-9">@Model.MonthlyRent.ToString("0.00") €</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id"/>
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+</form>
