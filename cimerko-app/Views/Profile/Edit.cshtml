@@ -1,0 +1,65 @@
+@model RoommateProfile
+
+@{
+    ViewData["Title"] = "Edit profile";
+}
+
+<h1>Edit profile</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label for="fullName" class="form-label">Full name</label>
+                <input id="fullName" name="fullName" value="@ViewBag.FullName" class="form-control"
+                       maxlength="100" required/>
+                <span class="text-danger">@Html.ValidationMessage("fullName")</span>
+            </div>
+
+            <div class="mb-3">
+                <label for="profileImageUrl" class="form-label">Profile image URL</label>
+                <input id="profileImageUrl" name="profileImageUrl" value="@ViewBag.ProfileImageUrl"
+                       class="form-control"/>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Bio" class="form-label"></label>
+                <textarea asp-for="Bio" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Bio" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Age" class="form-label"></label>
+                <input asp-for="Age" class="form-control"/>
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Gender" class="form-label"></label>
+                <input asp-for="Gender" class="form-control"/>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="University" class="form-label"></label>
+                <input asp-for="University" class="form-control"/>
+                <span asp-validation-for="University" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="StudyProgram" class="form-label"></label>
+                <input asp-for="StudyProgram" class="form-control"/>
+                <span asp-validation-for="StudyProgram" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="MyProfile" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

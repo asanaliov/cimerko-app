@@ -36,7 +36,14 @@ else {
                         <p class="card-text mb-1"><strong>Type:</strong> @listing.Type</p>
                         <p class="card-text mb-1"><strong>City:</strong> @listing.City</p>
                         <p class="card-text mb-1"><strong>Rent:</strong> @listing.MonthlyRent.ToString("0.00") €</p>
-                        <p class="card-text text-muted">Posted by @(listing.Owner?.FullName ?? listing.Owner?.Email)</p>
+                        <p class="card-text text-muted">
+                            Posted by
+                            <a asp-controller="Profile" asp-action="Details" asp-route-id="@listing.OwnerId">
+                                @(string.IsNullOrWhiteSpace(listing.Owner?.FullName)
+                                    ? listing.Owner?.Email
+                                    : listing.Owner.FullName)
+                            </a>
+                        </p>
                     </div>
                     <div class="card-footer bg-white">
                         <a asp-action="Details" asp-route-id="@listing.Id" class="btn btn-outline-primary">Details</a>

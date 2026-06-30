@@ -35,7 +35,11 @@
     <dd class="col-sm-9">@(Model.AvailableFrom?.ToString("dd.MM.yyyy") ?? "Immediately")</dd>
 
     <dt class="col-sm-3">Owner</dt>
-    <dd class="col-sm-9">@(Model.Owner?.FullName ?? Model.Owner?.Email)</dd>
+    <dd class="col-sm-9">
+        <a asp-controller="Profile" asp-action="Details" asp-route-id="@Model.OwnerId">
+            @(string.IsNullOrWhiteSpace(Model.Owner?.FullName) ? Model.Owner?.Email : Model.Owner.FullName)
+        </a>
+    </dd>
 </dl>
 
 <div>
