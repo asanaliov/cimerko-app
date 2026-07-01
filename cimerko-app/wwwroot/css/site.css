@@ -1185,6 +1185,10 @@ body {
 }
 
 .profile-empty-state {
+  padding: 1.4rem;
+  border: 1px dashed #cfdedb;
+  border-radius: 14px;
+  background: #f7fbfa;
   text-align: center;
 }
 
@@ -1195,8 +1199,24 @@ body {
 }
 
 .profile-empty-state p {
-  margin: 0;
+  max-width: 520px;
+  margin: 0 auto;
   color: #7b8494;
+  line-height: 1.6;
+}
+
+.profile-empty-action {
+  margin-top: 1rem;
+  border-color: #84b9b2;
+  color: #176d65;
+  font-weight: 700;
+}
+
+.profile-empty-action:hover,
+.profile-empty-action:focus {
+  border-color: #1f8177;
+  color: #fff;
+  background: #1f8177;
 }
 
 @media (max-width: 900px) {
