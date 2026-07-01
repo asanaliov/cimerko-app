@@ -21,6 +21,7 @@
         ViewBag.CompatibilityPossibleConflicts as IReadOnlyList<string> ?? Array.Empty<string>();
     var profileBadges =
         ViewBag.ProfileBadges as IReadOnlyList<ProfileBadgeViewModel> ?? Array.Empty<ProfileBadgeViewModel>();
+    var showSidebar = showCompatibility || reviews.Count > 0 || canWriteReview;
     var activeListings = Model.Listings
         .Where(listing => listing.IsActive)
         .OrderByDescending(listing => listing.CreatedAt)
@@ -99,7 +100,7 @@
         </div>
     </section>
 
-    <div class="profile-details-grid">
+    <div class="profile-details-grid @(!showSidebar ? "profile-details-grid-single" : "")">
         <main class="profile-details-main">
             <section class="profile-content-card">
                 <div class="profile-card-heading">
@@ -217,7 +218,17 @@
                 @if (activeListings.Count == 0) {
                     <div class="profile-content-card profile-empty-state">
                         <h3>No active listings</h3>
-                        <p>@displayName does not have any active housing listings right now.</p>
+                        <p>
+                            @(isOwnProfile
+                                ? "You have not posted any listings yet."
+                                : "This user has not posted any active listings yet.")
+                        </p>
+                        @if (isOwnProfile) {
+                            <a asp-controller="Listing" asp-action="Create"
+                               class="btn btn-sm btn-outline-primary profile-empty-action">
+                                Post a listing
+                            </a>
+                        }
                     </div>
                 }
                 else {
@@ -262,7 +273,11 @@
                 @if (reviews.Count == 0) {
                     <div class="profile-content-card profile-empty-state">
                         <h3>No reviews yet</h3>
-                        <p>Reviews from other Cimerko members will appear here.</p>
+                        <p>
+                            @(isOwnProfile
+                                ? "You have not received any reviews yet."
+                                : "This user has not received any reviews yet.")
+                        </p>
                     </div>
                 }
                 else {
@@ -341,7 +356,7 @@
             </section>
         </main>
 
-        <aside class="profile-details-sidebar">
+        <aside class="profile-details-sidebar @(!showSidebar ? "d-none" : "")">
             @if (showCompatibility) {
                 <section class="profile-compatibility-card">
                     <span class="profile-kicker">Your compatibility</span>
@@ -382,26 +397,24 @@
                 </section>
             }
 
-            <section class="profile-review-summary-card">
-                <span class="profile-kicker">Reviews</span>
-                <div class="profile-review-score">
-                    <strong>@(reviews.Count == 0 ? "—" : averageRating.ToString("0.0"))</strong>
-                    <span>out of 5</span>
-                </div>
-                <div class="profile-review-summary-stars" aria-label="Average rating">
-                    @for (var star = 1; star <= 5; star++) {
-                        <span class="@(star <= Math.Round(averageRating) ? "is-filled" : "")">★</span>
-                    }
-                </div>
-                <p>
-                    @(reviews.Count == 0
-                        ? "No community reviews have been added yet."
-                        : $"Based on {reviews.Count} {(reviews.Count == 1 ? "review" : "reviews")}.")
-                </p>
-                <div class="profile-review-policy">
-                    Reviews are limited to people connected through an accepted housing request.
-                </div>
-            </section>
+            @if (reviews.Count > 0) {
+                <section class="profile-review-summary-card">
+                    <span class="profile-kicker">Reviews</span>
+                    <div class="profile-review-score">
+                        <strong>@averageRating.ToString("0.0")</strong>
+                        <span>out of 5</span>
+                    </div>
+                    <div class="profile-review-summary-stars" aria-label="Average rating">
+                        @for (var star = 1; star <= 5; star++) {
+                            <span class="@(star <= Math.Round(averageRating) ? "is-filled" : "")">★</span>
+                        }
+                    </div>
+                    <p>Based on @reviews.Count @(reviews.Count == 1 ? "review" : "reviews").</p>
+                    <div class="profile-review-policy">
+                        Reviews are limited to people connected through an accepted housing request.
+                    </div>
+                </section>
+            }
 
             @if (canWriteReview) {
                 <section class="profile-review-form-card">

@@ -662,6 +662,10 @@ body {
   align-items: start;
 }
 
+.profile-details-grid-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .profile-details-main,
 .profile-details-sidebar {
   display: grid;
