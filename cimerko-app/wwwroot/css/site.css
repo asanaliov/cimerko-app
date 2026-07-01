@@ -1018,6 +1018,16 @@ body {
   letter-spacing: -0.055em;
 }
 
+.profile-compatibility-empty {
+  margin: 0.9rem 0;
+}
+
+.profile-compatibility-empty strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #354052;
+}
+
 .profile-compatibility-card p {
   margin: 0 0 0.45rem;
   color: #596477;
