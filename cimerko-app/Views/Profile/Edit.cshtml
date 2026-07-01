@@ -2,70 +2,156 @@
 
 @{
     ViewData["Title"] = "Edit profile";
+    var profileImageUrl = ViewBag.ProfileImageUrl as string;
+    var fullName = ViewBag.FullName as string ?? string.Empty;
+    var initial = string.IsNullOrWhiteSpace(fullName) ? "?" : fullName[..1].ToUpperInvariant();
 }
 
-<h1>Edit profile</h1>
-
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="mb-3">
-                <label for="fullName" class="form-label">Full name</label>
-                <input id="fullName" name="fullName" value="@ViewBag.FullName" class="form-control"
-                       maxlength="100" required/>
-                <span class="text-danger">@Html.ValidationMessage("fullName")</span>
-            </div>
-
-            <div class="mb-3">
-                <label for="profileImageUrl" class="form-label">Profile image URL</label>
-                <input id="profileImageUrl" name="profileImageUrl" value="@ViewBag.ProfileImageUrl"
-                       class="form-control"/>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Bio" class="form-label"></label>
-                <textarea asp-for="Bio" class="form-control" rows="5"></textarea>
-                <span asp-validation-for="Bio" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Age" class="form-label"></label>
-                <input asp-for="Age" class="form-control"/>
-                <span asp-validation-for="Age" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="City" class="form-label"></label>
-                <input asp-for="City" class="form-control" autocomplete="address-level2"/>
-                <span asp-validation-for="City" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Gender" class="form-label"></label>
-                <input asp-for="Gender" class="form-control"/>
-                <span asp-validation-for="Gender" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="University" class="form-label"></label>
-                <input asp-for="University" class="form-control"/>
-                <span asp-validation-for="University" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="StudyProgram" class="form-label"></label>
-                <input asp-for="StudyProgram" class="form-control"/>
-                <span asp-validation-for="StudyProgram" class="text-danger"></span>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a asp-action="MyProfile" class="btn btn-outline-secondary">Cancel</a>
-        </form>
+<div class="profile-edit-shell">
+    <div class="profile-edit-heading">
+        <div>
+            <span class="profile-kicker">Your profile</span>
+            <h1>Edit profile</h1>
+            <p>Keep your details current so potential roommates can get to know you.</p>
+        </div>
+        <a asp-action="MyProfile" class="btn btn-outline-secondary">View profile</a>
     </div>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="profile-edit-form">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+        <div class="profile-edit-grid">
+            <aside class="profile-photo-card">
+                <div class="profile-photo-frame">
+                    <img id="profileImagePreview"
+                         src="@profileImageUrl"
+                         alt="Profile picture preview"
+                         class="profile-photo-preview @(string.IsNullOrWhiteSpace(profileImageUrl) ? "d-none" : "")"/>
+                    <div id="profileImageFallback"
+                         class="profile-photo-fallback @(string.IsNullOrWhiteSpace(profileImageUrl) ? "" : "d-none")">
+                        @initial
+                    </div>
+                </div>
+
+                <div class="profile-photo-copy">
+                    <h2>Profile picture</h2>
+                    <p>Use a clear photo so people can recognize you. JPG, PNG, or WebP up to 5 MB.</p>
+                </div>
+
+                <input id="profileImage" name="profileImage" type="file"
+                       accept="image/jpeg,image/png,image/webp" class="visually-hidden"/>
+                <label for="profileImage" class="btn btn-primary profile-photo-upload">Choose photo</label>
+                <button id="removeProfileImageButton" type="button"
+                        class="btn btn-link text-danger profile-photo-remove @(string.IsNullOrWhiteSpace(profileImageUrl) ? "d-none" : "")">
+                    Remove current photo
+                </button>
+                <input id="removeProfileImage" name="removeProfileImage" type="hidden" value="false"/>
+                <span class="text-danger profile-photo-error">@Html.ValidationMessage("profileImage")</span>
+            </aside>
+
+            <section class="profile-fields-card">
+                <div class="profile-section-heading">
+                    <h2>Personal details</h2>
+                    <p>The information shown on your public roommate profile.</p>
+                </div>
+
+                <div class="mb-4">
+                    <label for="fullName" class="form-label">Full name</label>
+                    <input id="fullName" name="fullName" value="@fullName" class="form-control"
+                           maxlength="100" autocomplete="name" required/>
+                    <span class="text-danger">@Html.ValidationMessage("fullName")</span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Bio" class="form-label"></label>
+                    <textarea asp-for="Bio" class="form-control" rows="5"
+                              placeholder="Share your lifestyle, interests, and what you value in a roommate."></textarea>
+                    <span asp-validation-for="Bio" class="text-danger"></span>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-4">
+                        <label asp-for="Age" class="form-label"></label>
+                        <input asp-for="Age" class="form-control" min="18" max="100"/>
+                        <span asp-validation-for="Age" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-8">
+                        <label asp-for="City" class="form-label"></label>
+                        <input asp-for="City" class="form-control" autocomplete="address-level2"/>
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <label asp-for="Gender" class="form-label"></label>
+                        <input asp-for="Gender" class="form-control"/>
+                        <span asp-validation-for="Gender" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="University" class="form-label"></label>
+                        <input asp-for="University" class="form-control"/>
+                        <span asp-validation-for="University" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="StudyProgram" class="form-label"></label>
+                    <input asp-for="StudyProgram" class="form-control"/>
+                    <span asp-validation-for="StudyProgram" class="text-danger"></span>
+                </div>
+
+                <div class="profile-form-actions">
+                    <a asp-action="MyProfile" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </section>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial"/>
+    <script>
+        (() => {
+            const imageInput = document.getElementById("profileImage");
+            const preview = document.getElementById("profileImagePreview");
+            const fallback = document.getElementById("profileImageFallback");
+            const removeButton = document.getElementById("removeProfileImageButton");
+            const removeInput = document.getElementById("removeProfileImage");
+            let previewUrl;
+
+            imageInput.addEventListener("change", () => {
+                const file = imageInput.files[0];
+                if (!file) {
+                    return;
+                }
+
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                }
+
+                previewUrl = URL.createObjectURL(file);
+                preview.src = previewUrl;
+                preview.classList.remove("d-none");
+                fallback.classList.add("d-none");
+                removeButton.classList.remove("d-none");
+                removeInput.value = "false";
+            });
+
+            removeButton.addEventListener("click", () => {
+                imageInput.value = "";
+                preview.removeAttribute("src");
+                preview.classList.add("d-none");
+                fallback.classList.remove("d-none");
+                removeButton.classList.add("d-none");
+                removeInput.value = "true";
+
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                    previewUrl = undefined;
+                }
+            });
+        })();
+    </script>
 }
