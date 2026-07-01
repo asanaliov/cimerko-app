@@ -5,6 +5,7 @@
 @{
     ViewData["Title"] = "Profile";
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var isOwnProfile = currentUserId == Model.Id;
     var profile = Model.RoommateProfile;
     var displayName = string.IsNullOrWhiteSpace(Model.FullName) ? Model.Email ?? "Cimerko member" : Model.FullName;
     var initial = displayName.Trim()[..1].ToUpperInvariant();
@@ -77,7 +78,7 @@
                 }
             </div>
 
-            @if (currentUserId == Model.Id) {
+            @if (isOwnProfile) {
                 <a asp-action="Edit" class="btn profile-edit-button">Edit profile</a>
             }
         </div>
@@ -108,14 +109,25 @@
 
                 @if (profile == null) {
                     <div class="profile-empty-state">
-                        <h3>Profile details are not available yet</h3>
-                        <p>This member has not completed their roommate profile.</p>
+                        <h3>@(isOwnProfile ? "Complete your profile" : "Profile details are not available yet")</h3>
+                        <p>
+                            @(isOwnProfile
+                                ? "Complete your profile to get better roommate matches."
+                                : "This user has not completed their roommate profile yet.")
+                        </p>
+                        @if (isOwnProfile) {
+                            <a asp-action="Edit" class="btn btn-sm btn-outline-primary profile-empty-action">
+                                Complete profile
+                            </a>
+                        }
                     </div>
                 }
                 else {
                     <p class="profile-bio">
                         @(string.IsNullOrWhiteSpace(profile.Bio)
-                            ? "This member has not added an introduction yet."
+                            ? isOwnProfile
+                                ? "Add an introduction to help potential roommates get to know you."
+                                : "This user has not added an introduction yet."
                             : profile.Bio)
                     </p>
 
@@ -152,8 +164,17 @@
 
                 @if (profile == null || !hasLivingPreferences) {
                     <div class="profile-empty-state">
-                        <h3>No living preferences yet</h3>
-                        <p>This member has not shared their household preferences.</p>
+                        <h3>@(isOwnProfile ? "Add your living preferences" : "No living preferences yet")</h3>
+                        <p>
+                            @(isOwnProfile
+                                ? "Complete your preferences to get better roommate matches."
+                                : "This user has not shared their household preferences yet.")
+                        </p>
+                        @if (isOwnProfile) {
+                            <a asp-action="Edit" class="btn btn-sm btn-outline-primary profile-empty-action">
+                                Add preferences
+                            </a>
+                        }
                     </div>
                 }
                 else {
