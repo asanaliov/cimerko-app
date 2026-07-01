@@ -604,6 +604,45 @@ body {
   line-height: 1.55;
 }
 
+.profile-completion {
+  max-width: 620px;
+  margin-top: 1rem;
+}
+
+.profile-completion-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+  color: #596477;
+  font-size: 0.8rem;
+}
+
+.profile-completion-heading span {
+  color: #176d65;
+  font-weight: 800;
+}
+
+.profile-completion-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e4ecea;
+}
+
+.profile-completion-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #25877c;
+}
+
+.profile-completion p {
+  margin: 0.4rem 0 0;
+  color: #7b8494;
+  font-size: 0.78rem;
+}
+
 .profile-edit-button {
   min-width: 120px;
   padding: 0.68rem 1rem;
