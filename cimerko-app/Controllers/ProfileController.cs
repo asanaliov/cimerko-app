@@ -71,7 +71,7 @@ public class ProfileController : Controller {
     public async Task<IActionResult> Edit(
         string fullName,
         string? profileImageUrl,
-        [Bind("Bio,Age,Gender,University,StudyProgram")] RoommateProfile formProfile) {
+        [Bind("Bio,Age,City,Gender,University,StudyProgram")] RoommateProfile formProfile) {
         var userId = CurrentUserId();
         if (userId == null) {
             return Challenge();
@@ -112,6 +112,7 @@ public class ProfileController : Controller {
 
         profile.Bio = formProfile.Bio;
         profile.Age = formProfile.Age;
+        profile.City = formProfile.City;
         profile.Gender = formProfile.Gender;
         profile.University = formProfile.University;
         profile.StudyProgram = formProfile.StudyProgram;

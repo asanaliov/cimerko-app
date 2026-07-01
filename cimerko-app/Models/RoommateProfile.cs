@@ -16,6 +16,10 @@ public class RoommateProfile {
     [Range(18, 100)]
     public int Age { get; set; }
 
+    [Required]
+    [MaxLength(100)]
+    public string City { get; set; } = string.Empty;
+
     [MaxLength(30)]
     public string? Gender { get; set; }
 

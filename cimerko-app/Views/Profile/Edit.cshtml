@@ -37,6 +37,12 @@
             </div>
 
             <div class="mb-3">
+                <label asp-for="City" class="form-label"></label>
+                <input asp-for="City" class="form-control" autocomplete="address-level2"/>
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
                 <label asp-for="Gender" class="form-label"></label>
                 <input asp-for="Gender" class="form-control"/>
                 <span asp-validation-for="Gender" class="text-danger"></span>
