@@ -56,6 +56,8 @@ public class ProfileController : Controller {
             ViewBag.ShowCompatibility = true;
             ViewBag.CompatibilityScore = compatibility.Score;
             ViewBag.ComparedPreferences = compatibility.ComparedPreferences;
+            ViewBag.CompatibilityStrongMatches = compatibility.StrongMatches;
+            ViewBag.CompatibilityPossibleConflicts = compatibility.PossibleConflicts;
         }
 
         return View(user);

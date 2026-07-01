@@ -13,6 +13,10 @@
     var showCompatibility = ViewBag.ShowCompatibility == true;
     var compatibilityScore = ViewBag.CompatibilityScore as int?;
     var comparedPreferences = ViewBag.ComparedPreferences is int preferenceCount ? preferenceCount : 0;
+    var compatibilityStrongMatches =
+        ViewBag.CompatibilityStrongMatches as IReadOnlyList<string> ?? Array.Empty<string>();
+    var compatibilityPossibleConflicts =
+        ViewBag.CompatibilityPossibleConflicts as IReadOnlyList<string> ?? Array.Empty<string>();
     var activeListings = Model.Listings
         .Where(listing => listing.IsActive)
         .OrderByDescending(listing => listing.CreatedAt)
@@ -317,6 +321,28 @@
                             Based on @comparedPreferences shared
                             @(comparedPreferences == 1 ? "preference" : "preferences").
                         </p>
+                        <div class="profile-compatibility-breakdown">
+                            @if (compatibilityStrongMatches.Count > 0) {
+                                <div>
+                                    <h3>Strong matches</h3>
+                                    <ul class="profile-match-list">
+                                        @foreach (var match in compatibilityStrongMatches) {
+                                            <li>@match</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                            @if (compatibilityPossibleConflicts.Count > 0) {
+                                <div>
+                                    <h3>Possible conflicts</h3>
+                                    <ul class="profile-conflict-list">
+                                        @foreach (var conflict in compatibilityPossibleConflicts) {
+                                            <li>@conflict</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        </div>
                     }
                     else {
                         <div class="profile-compatibility-score">—</div>

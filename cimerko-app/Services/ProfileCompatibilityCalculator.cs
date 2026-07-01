@@ -8,28 +8,39 @@ public static class ProfileCompatibilityCalculator {
     private const double SleepScheduleWeight = 20;
     private const double GuestPreferenceWeight = 15;
     private const double PetsWeight = 10;
+    private const double StrongMatchThreshold = 0.65;
     private const int MinimumComparedPreferences = 2;
 
-    public static (int? Score, int ComparedPreferences) Calculate(
+    public static (
+        int? Score,
+        int ComparedPreferences,
+        IReadOnlyList<string> StrongMatches,
+        IReadOnlyList<string> PossibleConflicts) Calculate(
         RoommateProfile? firstProfile,
         RoommateProfile? secondProfile) {
         if (firstProfile == null || secondProfile == null) {
-            return (null, 0);
+            return (null, 0, Array.Empty<string>(), Array.Empty<string>());
         }
 
         double earnedWeight = 0;
         double availableWeight = 0;
         var comparedPreferences = 0;
+        var strongMatches = new List<string>();
+        var possibleConflicts = new List<string>();
 
         AddCategory(
+            "Smoking",
             firstProfile.SmokingPreference,
             secondProfile.SmokingPreference,
             SmokingWeight,
             ScoreSmoking,
+            strongMatches,
+            possibleConflicts,
             ref earnedWeight,
             ref availableWeight,
             ref comparedPreferences);
         AddCategory(
+            "Cleanliness",
             firstProfile.CleanlinessLevel,
             secondProfile.CleanlinessLevel,
             CleanlinessWeight,
@@ -39,10 +50,13 @@ public static class ProfileCompatibilityCalculator {
                 new[] { "Relaxed", "Balanced", "Very tidy" },
                 0.7,
                 0.15),
+            strongMatches,
+            possibleConflicts,
             ref earnedWeight,
             ref availableWeight,
             ref comparedPreferences);
         AddCategory(
+            "Sleep schedule",
             firstProfile.SleepSchedule,
             secondProfile.SleepSchedule,
             SleepScheduleWeight,
@@ -52,10 +66,13 @@ public static class ProfileCompatibilityCalculator {
                 new[] { "Early bird", "Flexible", "Night owl" },
                 0.65,
                 0),
+            strongMatches,
+            possibleConflicts,
             ref earnedWeight,
             ref availableWeight,
             ref comparedPreferences);
         AddCategory(
+            "Guest preference",
             firstProfile.GuestPreference,
             secondProfile.GuestPreference,
             GuestPreferenceWeight,
@@ -65,34 +82,42 @@ public static class ProfileCompatibilityCalculator {
                 new[] { "Rarely", "Occasionally", "Often" },
                 0.65,
                 0.2),
+            strongMatches,
+            possibleConflicts,
             ref earnedWeight,
             ref availableWeight,
             ref comparedPreferences);
         AddCategory(
+            "Pets",
             firstProfile.PetsPreference,
             secondProfile.PetsPreference,
             PetsWeight,
             ScorePets,
+            strongMatches,
+            possibleConflicts,
             ref earnedWeight,
             ref availableWeight,
             ref comparedPreferences);
 
         if (comparedPreferences < MinimumComparedPreferences) {
-            return (null, comparedPreferences);
+            return (null, comparedPreferences, strongMatches, possibleConflicts);
         }
 
         var score = (int)Math.Round(
             earnedWeight / availableWeight * 100,
             MidpointRounding.AwayFromZero);
 
-        return (score, comparedPreferences);
+        return (score, comparedPreferences, strongMatches, possibleConflicts);
     }
 
     private static void AddCategory(
+        string categoryLabel,
         string? firstPreference,
         string? secondPreference,
         double weight,
         Func<string, string, double> scorePreference,
+        ICollection<string> strongMatches,
+        ICollection<string> possibleConflicts,
         ref double earnedWeight,
         ref double availableWeight,
         ref int comparedPreferences) {
@@ -101,9 +126,17 @@ public static class ProfileCompatibilityCalculator {
             return;
         }
 
-        earnedWeight += weight * scorePreference(firstPreference, secondPreference);
+        var categoryScore = scorePreference(firstPreference, secondPreference);
+        earnedWeight += weight * categoryScore;
         availableWeight += weight;
         comparedPreferences++;
+
+        if (categoryScore >= StrongMatchThreshold) {
+            strongMatches.Add(categoryLabel);
+        }
+        else {
+            possibleConflicts.Add(categoryLabel);
+        }
     }
 
     private static double ScoreSmoking(string firstPreference, string secondPreference) {
