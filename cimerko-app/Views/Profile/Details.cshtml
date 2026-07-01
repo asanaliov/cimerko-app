@@ -9,6 +9,21 @@
     var initial = displayName.Trim()[..1].ToUpperInvariant();
     var reviews = Model.ReviewsReceived.OrderByDescending(review => review.CreatedAt).ToList();
     var averageRating = reviews.Count == 0 ? 0 : reviews.Average(review => review.Rating);
+    var activeListings = Model.Listings
+        .Where(listing => listing.IsActive)
+        .OrderByDescending(listing => listing.CreatedAt)
+        .ToList();
+    var bioPreview = profile?.Bio;
+    if (bioPreview?.Length > 180) {
+        bioPreview = $"{bioPreview[..180].TrimEnd()}…";
+    }
+
+    var hasLivingPreferences =
+        !string.IsNullOrWhiteSpace(profile?.SmokingPreference) ||
+        !string.IsNullOrWhiteSpace(profile?.PetsPreference) ||
+        !string.IsNullOrWhiteSpace(profile?.CleanlinessLevel) ||
+        !string.IsNullOrWhiteSpace(profile?.SleepSchedule) ||
+        !string.IsNullOrWhiteSpace(profile?.GuestPreference);
 }
 
 <div class="profile-details-shell">
@@ -40,6 +55,9 @@
                     }
                     <span>Member since @Model.CreatedAt.ToString("MMM yyyy")</span>
                 </div>
+                @if (!string.IsNullOrWhiteSpace(bioPreview)) {
+                    <p class="profile-hero-bio">@bioPreview</p>
+                }
             </div>
 
             @if (currentUserId == Model.Id) {
@@ -49,16 +67,16 @@
 
         <div class="profile-hero-stats">
             <div>
-                <strong>@(reviews.Count == 0 ? "—" : averageRating.ToString("0.0"))</strong>
-                <span>Average rating</span>
-            </div>
-            <div>
-                <strong>@reviews.Count</strong>
-                <span>@(reviews.Count == 1 ? "Review" : "Reviews")</span>
-            </div>
-            <div>
                 <strong>@(string.IsNullOrWhiteSpace(profile?.University) ? "—" : profile.University)</strong>
                 <span>University</span>
+            </div>
+            <div>
+                <strong>@(string.IsNullOrWhiteSpace(profile?.StudyProgram) ? "—" : profile.StudyProgram)</strong>
+                <span>Study program</span>
+            </div>
+            <div>
+                <strong>@(reviews.Count == 0 ? "New" : $"{averageRating:0.0} / 5")</strong>
+                <span>@(reviews.Count == 1 ? "1 review" : $"{reviews.Count} reviews")</span>
             </div>
         </div>
     </section>
@@ -67,10 +85,8 @@
         <main class="profile-details-main">
             <section class="profile-content-card">
                 <div class="profile-card-heading">
-                    <div>
-                        <span class="profile-kicker">Introduction</span>
-                        <h2>About me</h2>
-                    </div>
+                    <span class="profile-kicker">Introduction</span>
+                    <h2>About</h2>
                 </div>
 
                 @if (profile == null) {
@@ -88,7 +104,7 @@
 
                     <div class="profile-facts">
                         <div class="profile-fact">
-                            <span>Location</span>
+                            <span>City</span>
                             <strong>@profile.City</strong>
                         </div>
                         <div class="profile-fact">
@@ -111,6 +127,89 @@
                 }
             </section>
 
+            <section class="profile-content-card">
+                <div class="profile-card-heading">
+                    <span class="profile-kicker">At home</span>
+                    <h2>Living preferences</h2>
+                </div>
+
+                @if (profile == null || !hasLivingPreferences) {
+                    <div class="profile-empty-state">
+                        <h3>No living preferences yet</h3>
+                        <p>This member has not shared their household preferences.</p>
+                    </div>
+                }
+                else {
+                    <div class="profile-preference-grid">
+                        <div class="profile-preference-item">
+                            <span>Smoking</span>
+                            <strong>@(profile.SmokingPreference ?? "Not specified")</strong>
+                        </div>
+                        <div class="profile-preference-item">
+                            <span>Pets</span>
+                            <strong>@(profile.PetsPreference ?? "Not specified")</strong>
+                        </div>
+                        <div class="profile-preference-item">
+                            <span>Cleanliness</span>
+                            <strong>@(profile.CleanlinessLevel ?? "Not specified")</strong>
+                        </div>
+                        <div class="profile-preference-item">
+                            <span>Sleep schedule</span>
+                            <strong>@(profile.SleepSchedule ?? "Not specified")</strong>
+                        </div>
+                        <div class="profile-preference-item">
+                            <span>Guests</span>
+                            <strong>@(profile.GuestPreference ?? "Not specified")</strong>
+                        </div>
+                    </div>
+                }
+            </section>
+
+            <section class="profile-listings-section">
+                <div class="profile-section-title">
+                    <div>
+                        <span class="profile-kicker">Housing</span>
+                        <h2>Active listings</h2>
+                    </div>
+                    @if (activeListings.Count > 0) {
+                        <span class="profile-section-count">@activeListings.Count active</span>
+                    }
+                </div>
+
+                @if (activeListings.Count == 0) {
+                    <div class="profile-content-card profile-empty-state">
+                        <h3>No active listings</h3>
+                        <p>@displayName does not have any active housing listings right now.</p>
+                    </div>
+                }
+                else {
+                    <div class="profile-listing-grid">
+                        @foreach (var listing in activeListings) {
+                            var listingType = listing.Type switch {
+                                ListingType.RoomOffer => "Room offer",
+                                ListingType.RoommateWanted => "Roommate wanted",
+                                ListingType.LookingForPlace => "Looking for a place",
+                                _ => listing.Type.ToString()
+                            };
+
+                            <article class="profile-listing-card">
+                                <div>
+                                    <span class="profile-listing-type">@listingType</span>
+                                    <h3>@listing.Title</h3>
+                                    <p>@listing.City · @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</p>
+                                </div>
+                                <div class="profile-listing-footer">
+                                    <strong>@listing.MonthlyRent.ToString("0") € <small>/ month</small></strong>
+                                    <a asp-controller="Listing" asp-action="Details" asp-route-id="@listing.Id">
+                                        View listing
+                                    </a>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+
             <section class="profile-reviews-section">
                 <div class="profile-section-title">
                     <div>
@@ -118,13 +217,12 @@
                         <h2>Reviews</h2>
                     </div>
                     @if (reviews.Count > 0) {
-                        <span class="profile-review-count">@reviews.Count total</span>
+                        <span class="profile-section-count">@averageRating.ToString("0.0") / 5</span>
                     }
                 </div>
 
                 @if (reviews.Count == 0) {
                     <div class="profile-content-card profile-empty-state">
-                        <div class="profile-empty-icon" aria-hidden="true">★</div>
                         <h3>No reviews yet</h3>
                         <p>Reviews from other Cimerko members will appear here.</p>
                     </div>
@@ -180,20 +278,20 @@
         </main>
 
         <aside class="profile-details-sidebar">
-            <section class="profile-rating-card">
-                <span class="profile-kicker">Reputation</span>
-                <div class="profile-rating-score">
+            <section class="profile-review-summary-card">
+                <span class="profile-kicker">Reviews</span>
+                <div class="profile-review-score">
                     <strong>@(reviews.Count == 0 ? "—" : averageRating.ToString("0.0"))</strong>
                     <span>out of 5</span>
                 </div>
-                <div class="profile-rating-stars" aria-label="Average rating">
+                <div class="profile-review-summary-stars" aria-label="Average rating">
                     @for (var star = 1; star <= 5; star++) {
                         <span class="@(star <= Math.Round(averageRating) ? "is-filled" : "")">★</span>
                     }
                 </div>
                 <p>
                     @(reviews.Count == 0
-                        ? "No community ratings have been added yet."
+                        ? "No community reviews have been added yet."
                         : $"Based on {reviews.Count} {(reviews.Count == 1 ? "review" : "reviews")}.")
                 </p>
             </section>
@@ -201,17 +299,15 @@
             @if (User.Identity?.IsAuthenticated == true && currentUserId != Model.Id) {
                 <section class="profile-review-form-card">
                     <div class="profile-card-heading">
-                        <div>
-                            <span class="profile-kicker">Share feedback</span>
-                            <h2>Write a review</h2>
-                        </div>
+                        <span class="profile-kicker">Share feedback</span>
+                        <h2>Write a review</h2>
                     </div>
 
                     <form asp-controller="Review" asp-action="Create" method="post">
                         <input type="hidden" name="reviewedUserId" value="@Model.Id"/>
 
                         <div class="mb-3">
-                            <label for="rating" class="form-label">Your rating</label>
+                            <label for="rating" class="form-label">Rating</label>
                             <select id="rating" name="rating" class="form-select">
                                 <option value="5">5 — Excellent</option>
                                 <option value="4">4 — Very good</option>
@@ -223,8 +319,8 @@
 
                         <div class="mb-3">
                             <label for="comment" class="form-label">Comment</label>
-                            <textarea id="comment" name="comment" class="form-control" rows="5" maxlength="1000"
-                                      placeholder="What should others know about this member?"></textarea>
+                            <textarea id="comment" name="comment" class="form-control" rows="4" maxlength="1000"
+                                      placeholder="Share your experience with this member."></textarea>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">Publish review</button>

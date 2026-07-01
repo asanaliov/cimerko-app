@@ -28,6 +28,7 @@ public class ProfileController : Controller {
 
         var user = await _context.Users
             .Include(item => item.RoommateProfile)
+            .Include(item => item.Listings.Where(listing => listing.IsActive))
             .Include(item => item.ReviewsReceived)
             .ThenInclude(review => review.Reviewer)
             .FirstOrDefaultAsync(item => item.Id == id);
