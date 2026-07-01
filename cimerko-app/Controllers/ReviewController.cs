@@ -18,7 +18,15 @@ public class ReviewController : Controller {
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(string reviewedUserId, int rating, string? comment) {
+    public async Task<IActionResult> Create(
+        string reviewedUserId,
+        int rating,
+        int? smokingRating,
+        int? petsRating,
+        int? cleanlinessRating,
+        int? sleepScheduleRating,
+        int? guestPreferenceRating,
+        string? comment) {
         var reviewerId = CurrentUserId();
         if (reviewerId == null) {
             return Challenge();
@@ -42,16 +50,36 @@ public class ReviewController : Controller {
             return Forbid();
         }
 
+        var detailedRatings = new[] {
+            smokingRating,
+            petsRating,
+            cleanlinessRating,
+            sleepScheduleRating,
+            guestPreferenceRating
+        };
+
+        if (rating is < 1 or > 5 ||
+            detailedRatings.Any(value => !value.HasValue || value.Value is < 1 or > 5)) {
+            TempData["ReviewMessage"] = "Choose a score from 1 to 5 for every review category.";
+            return RedirectToAction("Details", "Profile", new { id = reviewedUserId });
+        }
+
         var review = new Review {
             ReviewerId = reviewerId,
             ReviewedUserId = reviewedUserId,
             Rating = rating,
+            SmokingRating = smokingRating,
+            PetsRating = petsRating,
+            CleanlinessRating = cleanlinessRating,
+            SleepScheduleRating = sleepScheduleRating,
+            GuestPreferenceRating = guestPreferenceRating,
             Comment = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim(),
             CreatedAt = DateTime.UtcNow
         };
 
         if (!TryValidateModel(review)) {
-            TempData["ReviewMessage"] = "Rating must be from 1 to 5 and the comment must be at most 1000 characters.";
+            TempData["ReviewMessage"] =
+                "All review ratings must be from 1 to 5 and the comment must be at most 1000 characters.";
             return RedirectToAction("Details", "Profile", new { id = reviewedUserId });
         }
 

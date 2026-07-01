@@ -46,6 +46,17 @@ public class ProfileController : Controller {
                                      ((request.SenderId == visitorId && request.Listing!.OwnerId == id) ||
                                       (request.SenderId == id && request.Listing!.OwnerId == visitorId)));
 
+        if (visitorId != null && visitorId != id) {
+            var visitorProfile = await _context.RoommateProfiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(profile => profile.UserId == visitorId);
+
+            var compatibility = CalculateCompatibility(visitorProfile, user.RoommateProfile);
+            ViewBag.ShowCompatibility = true;
+            ViewBag.CompatibilityScore = compatibility.Score;
+            ViewBag.ComparedPreferences = compatibility.ComparedPreferences;
+        }
+
         return View(user);
     }
 
@@ -230,6 +241,43 @@ public class ProfileController : Controller {
 
     private string WebRootPath() {
         return _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+    }
+
+    private static (int? Score, int ComparedPreferences) CalculateCompatibility(
+        RoommateProfile? visitorProfile,
+        RoommateProfile? viewedProfile) {
+        if (visitorProfile == null || viewedProfile == null) {
+            return (null, 0);
+        }
+
+        var preferencePairs = new (string? Visitor, string? Viewed)[] {
+            (visitorProfile.SmokingPreference, viewedProfile.SmokingPreference),
+            (visitorProfile.PetsPreference, viewedProfile.PetsPreference),
+            (visitorProfile.CleanlinessLevel, viewedProfile.CleanlinessLevel),
+            (visitorProfile.SleepSchedule, viewedProfile.SleepSchedule),
+            (visitorProfile.GuestPreference, viewedProfile.GuestPreference)
+        };
+
+        var comparablePreferences = preferencePairs
+            .Where(pair =>
+                !string.IsNullOrWhiteSpace(pair.Visitor) &&
+                !string.IsNullOrWhiteSpace(pair.Viewed))
+            .ToList();
+
+        if (comparablePreferences.Count == 0) {
+            return (null, 0);
+        }
+
+        var matches = comparablePreferences.Count(pair =>
+            string.Equals(
+                pair.Visitor!.Trim(),
+                pair.Viewed!.Trim(),
+                StringComparison.OrdinalIgnoreCase));
+        var score = (int)Math.Round(
+            matches * 100d / comparablePreferences.Count,
+            MidpointRounding.AwayFromZero);
+
+        return (score, comparablePreferences.Count);
     }
 
     private string? CurrentUserId() {

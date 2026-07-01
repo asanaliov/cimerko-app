@@ -10,6 +10,9 @@
     var reviews = Model.ReviewsReceived.OrderByDescending(review => review.CreatedAt).ToList();
     var averageRating = reviews.Count == 0 ? 0 : reviews.Average(review => review.Rating);
     var canWriteReview = ViewBag.CanWriteReview == true;
+    var showCompatibility = ViewBag.ShowCompatibility == true;
+    var compatibilityScore = ViewBag.CompatibilityScore as int?;
+    var comparedPreferences = ViewBag.ComparedPreferences is int preferenceCount ? preferenceCount : 0;
     var activeListings = Model.Listings
         .Where(listing => listing.IsActive)
         .OrderByDescending(listing => listing.CreatedAt)
@@ -235,6 +238,12 @@
                                 ? review.Reviewer?.Email ?? "Cimerko member"
                                 : review.Reviewer.FullName;
                             var reviewerInitial = reviewerName.Trim()[..1].ToUpperInvariant();
+                            var hasDetailedRatings =
+                                review.SmokingRating.HasValue ||
+                                review.PetsRating.HasValue ||
+                                review.CleanlinessRating.HasValue ||
+                                review.SleepScheduleRating.HasValue ||
+                                review.GuestPreferenceRating.HasValue;
 
                             <article class="profile-review-card">
                                 <header class="profile-review-header">
@@ -264,6 +273,26 @@
                                     <p>@review.Comment</p>
                                 }
 
+                                @if (hasDetailedRatings) {
+                                    <div class="profile-review-breakdown">
+                                        @if (review.SmokingRating.HasValue) {
+                                            <div><span>Smoking</span><strong>@review.SmokingRating / 5</strong></div>
+                                        }
+                                        @if (review.PetsRating.HasValue) {
+                                            <div><span>Pets</span><strong>@review.PetsRating / 5</strong></div>
+                                        }
+                                        @if (review.CleanlinessRating.HasValue) {
+                                            <div><span>Cleanliness</span><strong>@review.CleanlinessRating / 5</strong></div>
+                                        }
+                                        @if (review.SleepScheduleRating.HasValue) {
+                                            <div><span>Sleep schedule</span><strong>@review.SleepScheduleRating / 5</strong></div>
+                                        }
+                                        @if (review.GuestPreferenceRating.HasValue) {
+                                            <div><span>Guests</span><strong>@review.GuestPreferenceRating / 5</strong></div>
+                                        }
+                                    </div>
+                                }
+
                                 @if (currentUserId == review.ReviewerId) {
                                     <form asp-controller="Review" asp-action="Delete" method="post"
                                           class="profile-review-delete">
@@ -279,6 +308,24 @@
         </main>
 
         <aside class="profile-details-sidebar">
+            @if (showCompatibility) {
+                <section class="profile-compatibility-card">
+                    <span class="profile-kicker">Your compatibility</span>
+                    @if (compatibilityScore.HasValue) {
+                        <div class="profile-compatibility-score">@compatibilityScore%</div>
+                        <p>
+                            Based on @comparedPreferences shared
+                            @(comparedPreferences == 1 ? "preference" : "preferences").
+                        </p>
+                    }
+                    else {
+                        <div class="profile-compatibility-score">—</div>
+                        <p>Complete more living preferences on both profiles to calculate a match.</p>
+                    }
+                    <small>Matching preferences are weighted equally.</small>
+                </section>
+            }
+
             <section class="profile-review-summary-card">
                 <span class="profile-kicker">Reviews</span>
                 <div class="profile-review-score">
@@ -311,8 +358,73 @@
                         <input type="hidden" name="reviewedUserId" value="@Model.Id"/>
 
                         <div class="mb-3">
-                            <label for="rating" class="form-label">Rating</label>
+                            <label for="rating" class="form-label">Overall rating</label>
                             <select id="rating" name="rating" class="form-select">
+                                <option value="5">5 — Excellent</option>
+                                <option value="4">4 — Very good</option>
+                                <option value="3">3 — Good</option>
+                                <option value="2">2 — Fair</option>
+                                <option value="1">1 — Poor</option>
+                            </select>
+                        </div>
+
+                        <div class="profile-review-details-heading">
+                            <strong>Living compatibility</strong>
+                            <span>Rate each area from 1 to 5.</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="smokingRating" class="form-label">Smoking habits</label>
+                            <select id="smokingRating" name="smokingRating" class="form-select" required>
+                                <option value="">Choose a rating</option>
+                                <option value="5">5 — Excellent</option>
+                                <option value="4">4 — Very good</option>
+                                <option value="3">3 — Good</option>
+                                <option value="2">2 — Fair</option>
+                                <option value="1">1 — Poor</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="petsRating" class="form-label">Pet responsibility</label>
+                            <select id="petsRating" name="petsRating" class="form-select" required>
+                                <option value="">Choose a rating</option>
+                                <option value="5">5 — Excellent</option>
+                                <option value="4">4 — Very good</option>
+                                <option value="3">3 — Good</option>
+                                <option value="2">2 — Fair</option>
+                                <option value="1">1 — Poor</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="cleanlinessRating" class="form-label">Cleanliness</label>
+                            <select id="cleanlinessRating" name="cleanlinessRating" class="form-select" required>
+                                <option value="">Choose a rating</option>
+                                <option value="5">5 — Excellent</option>
+                                <option value="4">4 — Very good</option>
+                                <option value="3">3 — Good</option>
+                                <option value="2">2 — Fair</option>
+                                <option value="1">1 — Poor</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sleepScheduleRating" class="form-label">Sleep schedule</label>
+                            <select id="sleepScheduleRating" name="sleepScheduleRating" class="form-select" required>
+                                <option value="">Choose a rating</option>
+                                <option value="5">5 — Excellent</option>
+                                <option value="4">4 — Very good</option>
+                                <option value="3">3 — Good</option>
+                                <option value="2">2 — Fair</option>
+                                <option value="1">1 — Poor</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="guestPreferenceRating" class="form-label">Guest habits</label>
+                            <select id="guestPreferenceRating" name="guestPreferenceRating" class="form-select" required>
+                                <option value="">Choose a rating</option>
                                 <option value="5">5 — Excellent</option>
                                 <option value="4">4 — Very good</option>
                                 <option value="3">3 — Good</option>

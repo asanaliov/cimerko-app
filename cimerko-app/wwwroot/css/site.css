@@ -624,6 +624,7 @@ body {
 }
 
 .profile-content-card,
+.profile-compatibility-card,
 .profile-review-summary-card,
 .profile-review-form-card,
 .profile-review-card,
@@ -904,6 +905,34 @@ body {
   white-space: pre-line;
 }
 
+.profile-review-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.profile-review-breakdown > div {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid #e6eaf0;
+  border-radius: 10px;
+  background: #fbfcfd;
+}
+
+.profile-review-breakdown span {
+  color: #7b8494;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.profile-review-breakdown strong {
+  color: #283348;
+  font-size: 0.86rem;
+}
+
 .profile-review-delete {
   margin-top: 0.75rem;
 }
@@ -914,9 +943,37 @@ body {
   text-decoration: none;
 }
 
+.profile-compatibility-card,
 .profile-review-summary-card,
 .profile-review-form-card {
   padding: 1.5rem;
+}
+
+.profile-compatibility-card {
+  background:
+    radial-gradient(circle at 90% 10%, rgba(31, 129, 119, 0.12), transparent 25%),
+    #fff;
+}
+
+.profile-compatibility-score {
+  margin: 0.7rem 0 0.35rem;
+  color: #176d65;
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.profile-compatibility-card p {
+  margin: 0 0 0.45rem;
+  color: #596477;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.profile-compatibility-card small {
+  color: #8a93a1;
+  font-size: 0.74rem;
 }
 
 .profile-review-summary-card {
@@ -966,6 +1023,24 @@ body {
   color: rgba(255, 255, 255, 0.68);
   font-size: 0.78rem;
   line-height: 1.5;
+}
+
+.profile-review-details-heading {
+  display: grid;
+  gap: 0.15rem;
+  margin: 1.25rem 0 1rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #e8ebf0;
+}
+
+.profile-review-details-heading strong {
+  color: #283348;
+  font-size: 0.9rem;
+}
+
+.profile-review-details-heading span {
+  color: #7b8494;
+  font-size: 0.78rem;
 }
 
 .profile-review-form-card .form-label {
