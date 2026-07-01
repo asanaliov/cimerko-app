@@ -101,6 +101,68 @@
                     <span asp-validation-for="StudyProgram" class="text-danger"></span>
                 </div>
 
+                <div class="profile-section-heading profile-preferences-heading">
+                    <h2>Living preferences</h2>
+                    <p>Help potential roommates understand what sharing a home with you would be like.</p>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <label asp-for="SmokingPreference" class="form-label"></label>
+                        <select asp-for="SmokingPreference" class="form-select">
+                            <option value="">Not specified</option>
+                            <option value="No smoking">No smoking</option>
+                            <option value="Outside only">Outside only</option>
+                            <option value="Smoking is okay">Smoking is okay</option>
+                        </select>
+                        <span asp-validation-for="SmokingPreference" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="PetsPreference" class="form-label"></label>
+                        <select asp-for="PetsPreference" class="form-select">
+                            <option value="">Not specified</option>
+                            <option value="No pets">No pets</option>
+                            <option value="Pets are welcome">Pets are welcome</option>
+                            <option value="Ask first">Ask first</option>
+                        </select>
+                        <span asp-validation-for="PetsPreference" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <label asp-for="CleanlinessLevel" class="form-label"></label>
+                        <select asp-for="CleanlinessLevel" class="form-select">
+                            <option value="">Not specified</option>
+                            <option value="Relaxed">Relaxed</option>
+                            <option value="Balanced">Balanced</option>
+                            <option value="Very tidy">Very tidy</option>
+                        </select>
+                        <span asp-validation-for="CleanlinessLevel" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="SleepSchedule" class="form-label"></label>
+                        <select asp-for="SleepSchedule" class="form-select">
+                            <option value="">Not specified</option>
+                            <option value="Early bird">Early bird</option>
+                            <option value="Flexible">Flexible</option>
+                            <option value="Night owl">Night owl</option>
+                        </select>
+                        <span asp-validation-for="SleepSchedule" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="GuestPreference" class="form-label"></label>
+                    <select asp-for="GuestPreference" class="form-select">
+                        <option value="">Not specified</option>
+                        <option value="Rarely">Rarely</option>
+                        <option value="Occasionally">Occasionally</option>
+                        <option value="Often">Often</option>
+                    </select>
+                    <span asp-validation-for="GuestPreference" class="text-danger"></span>
+                </div>
+
                 <div class="profile-form-actions">
                     <a asp-action="MyProfile" class="btn btn-outline-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">Save changes</button>

@@ -28,4 +28,24 @@ public class RoommateProfile {
 
     [MaxLength(100)]
     public string? StudyProgram { get; set; }
+
+    [MaxLength(30)]
+    [Display(Name = "Smoking preference")]
+    public string? SmokingPreference { get; set; }
+
+    [MaxLength(30)]
+    [Display(Name = "Pets preference")]
+    public string? PetsPreference { get; set; }
+
+    [MaxLength(30)]
+    [Display(Name = "Cleanliness level")]
+    public string? CleanlinessLevel { get; set; }
+
+    [MaxLength(30)]
+    [Display(Name = "Sleep schedule")]
+    public string? SleepSchedule { get; set; }
+
+    [MaxLength(30)]
+    [Display(Name = "Guest preference")]
+    public string? GuestPreference { get; set; }
 }

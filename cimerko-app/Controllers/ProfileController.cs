@@ -77,7 +77,8 @@ public class ProfileController : Controller {
         string fullName,
         IFormFile? profileImage,
         bool removeProfileImage,
-        [Bind("Bio,Age,City,Gender,University,StudyProgram")] RoommateProfile formProfile) {
+        [Bind("Bio,Age,City,Gender,University,StudyProgram,SmokingPreference,PetsPreference,CleanlinessLevel,SleepSchedule,GuestPreference")]
+        RoommateProfile formProfile) {
         var userId = CurrentUserId();
         if (userId == null) {
             return Challenge();
@@ -134,6 +135,11 @@ public class ProfileController : Controller {
         profile.Gender = formProfile.Gender;
         profile.University = formProfile.University;
         profile.StudyProgram = formProfile.StudyProgram;
+        profile.SmokingPreference = formProfile.SmokingPreference;
+        profile.PetsPreference = formProfile.PetsPreference;
+        profile.CleanlinessLevel = formProfile.CleanlinessLevel;
+        profile.SleepSchedule = formProfile.SleepSchedule;
+        profile.GuestPreference = formProfile.GuestPreference;
 
         var previousImageUrl = user.ProfileImageUrl;
         string? newImagePath = null;
