@@ -9,6 +9,7 @@
     var initial = displayName.Trim()[..1].ToUpperInvariant();
     var reviews = Model.ReviewsReceived.OrderByDescending(review => review.CreatedAt).ToList();
     var averageRating = reviews.Count == 0 ? 0 : reviews.Average(review => review.Rating);
+    var canWriteReview = ViewBag.CanWriteReview == true;
     var activeListings = Model.Listings
         .Where(listing => listing.IsActive)
         .OrderByDescending(listing => listing.CreatedAt)
@@ -294,9 +295,12 @@
                         ? "No community reviews have been added yet."
                         : $"Based on {reviews.Count} {(reviews.Count == 1 ? "review" : "reviews")}.")
                 </p>
+                <div class="profile-review-policy">
+                    Reviews are limited to people connected through an accepted housing request.
+                </div>
             </section>
 
-            @if (User.Identity?.IsAuthenticated == true && currentUserId != Model.Id) {
+            @if (canWriteReview) {
                 <section class="profile-review-form-card">
                     <div class="profile-card-heading">
                         <span class="profile-kicker">Share feedback</span>

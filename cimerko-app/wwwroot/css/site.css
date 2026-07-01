@@ -959,6 +959,15 @@ body {
   font-size: 0.85rem;
 }
 
+.profile-review-policy {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
 .profile-review-form-card .form-label {
   color: #354052;
   font-size: 0.85rem;

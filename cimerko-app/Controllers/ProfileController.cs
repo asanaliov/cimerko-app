@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using cimerko_app.Data;
 using cimerko_app.Models;
+using cimerko_app.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,14 @@ public class ProfileController : Controller {
         if (user == null) {
             return NotFound();
         }
+
+        var visitorId = CurrentUserId();
+        ViewBag.CanWriteReview = visitorId != null &&
+                                 visitorId != id &&
+                                 await _context.ListingRequests.AnyAsync(request =>
+                                     request.Status == RequestStatus.Accepted &&
+                                     ((request.SenderId == visitorId && request.Listing!.OwnerId == id) ||
+                                      (request.SenderId == id && request.Listing!.OwnerId == visitorId)));
 
         return View(user);
     }

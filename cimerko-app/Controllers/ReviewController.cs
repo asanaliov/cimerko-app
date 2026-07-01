@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using cimerko_app.Data;
 using cimerko_app.Models;
+using cimerko_app.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,15 @@ public class ReviewController : Controller {
         var reviewedUserExists = await _context.Users.AnyAsync(user => user.Id == reviewedUserId);
         if (!reviewedUserExists) {
             return NotFound();
+        }
+
+        var hasHousingRelationship = await _context.ListingRequests.AnyAsync(request =>
+            request.Status == RequestStatus.Accepted &&
+            ((request.SenderId == reviewerId && request.Listing!.OwnerId == reviewedUserId) ||
+             (request.SenderId == reviewedUserId && request.Listing!.OwnerId == reviewerId)));
+
+        if (!hasHousingRelationship) {
+            return Forbid();
         }
 
         var review = new Review {
