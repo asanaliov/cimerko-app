@@ -1,4 +1,5 @@
 @using System.Security.Claims
+@using cimerko_app.Models.ViewModels
 @model ApplicationUser
 
 @{
@@ -17,6 +18,8 @@
         ViewBag.CompatibilityStrongMatches as IReadOnlyList<string> ?? Array.Empty<string>();
     var compatibilityPossibleConflicts =
         ViewBag.CompatibilityPossibleConflicts as IReadOnlyList<string> ?? Array.Empty<string>();
+    var profileBadges =
+        ViewBag.ProfileBadges as IReadOnlyList<ProfileBadgeViewModel> ?? Array.Empty<ProfileBadgeViewModel>();
     var activeListings = Model.Listings
         .Where(listing => listing.IsActive)
         .OrderByDescending(listing => listing.CreatedAt)
@@ -63,6 +66,13 @@
                     }
                     <span>Member since @Model.CreatedAt.ToString("MMM yyyy")</span>
                 </div>
+                @if (profileBadges.Count > 0) {
+                    <div class="profile-badges" aria-label="Profile badges">
+                        @foreach (var badge in profileBadges) {
+                            <span class="profile-badge @badge.CssClass">@badge.Text</span>
+                        }
+                    </div>
+                }
                 @if (!string.IsNullOrWhiteSpace(bioPreview)) {
                     <p class="profile-hero-bio">@bioPreview</p>
                 }

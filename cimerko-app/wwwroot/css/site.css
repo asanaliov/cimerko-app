@@ -546,6 +546,56 @@ body {
   transform: translateY(-50%);
 }
 
+.profile-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 27px;
+  padding: 0.32rem 0.62rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.profile-badge-student,
+.profile-badge-listings {
+  border-color: #cfe4df;
+  color: #176d65;
+  background: #edf8f5;
+}
+
+.profile-badge-owner {
+  border-color: #d7deea;
+  color: #435069;
+  background: #f2f5f9;
+}
+
+.profile-badge-rated {
+  border-color: #f0d7a7;
+  color: #92611c;
+  background: #fff7e8;
+}
+
+.profile-badge-new {
+  border-color: #cfdff3;
+  color: #39658f;
+  background: #eef6ff;
+}
+
+.profile-badge-match {
+  border-color: #bfe3cf;
+  color: #257147;
+  background: #eaf8f0;
+}
+
 .profile-hero-bio {
   max-width: 620px;
   margin: 0.8rem 0 0;

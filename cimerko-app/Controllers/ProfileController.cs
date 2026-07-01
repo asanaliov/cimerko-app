@@ -2,6 +2,7 @@ using System.Security.Claims;
 using cimerko_app.Data;
 using cimerko_app.Models;
 using cimerko_app.Models.Enums;
+using cimerko_app.Models.ViewModels;
 using cimerko_app.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,18 +48,22 @@ public class ProfileController : Controller {
                                      ((request.SenderId == visitorId && request.Listing!.OwnerId == id) ||
                                       (request.SenderId == id && request.Listing!.OwnerId == visitorId)));
 
+        int? compatibilityScore = null;
         if (visitorId != null && visitorId != id) {
             var visitorProfile = await _context.RoommateProfiles
                 .AsNoTracking()
                 .FirstOrDefaultAsync(profile => profile.UserId == visitorId);
 
             var compatibility = ProfileCompatibilityCalculator.Calculate(visitorProfile, user.RoommateProfile);
+            compatibilityScore = compatibility.Score;
             ViewBag.ShowCompatibility = true;
             ViewBag.CompatibilityScore = compatibility.Score;
             ViewBag.ComparedPreferences = compatibility.ComparedPreferences;
             ViewBag.CompatibilityStrongMatches = compatibility.StrongMatches;
             ViewBag.CompatibilityPossibleConflicts = compatibility.PossibleConflicts;
         }
+
+        ViewBag.ProfileBadges = BuildProfileBadges(user, compatibilityScore);
 
         return View(user);
     }
@@ -244,6 +249,47 @@ public class ProfileController : Controller {
 
     private string WebRootPath() {
         return _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+    }
+
+    private static IReadOnlyList<ProfileBadgeViewModel> BuildProfileBadges(
+        ApplicationUser user,
+        int? compatibilityScore) {
+        var badges = new List<ProfileBadgeViewModel>();
+        var profile = user.RoommateProfile;
+        var activeListingCount = user.Listings.Count(listing => listing.IsActive);
+        var reviewCount = user.ReviewsReceived.Count;
+        var averageRating = reviewCount == 0
+            ? 0
+            : user.ReviewsReceived.Average(review => review.Rating);
+        var now = DateTime.UtcNow;
+
+        if (!string.IsNullOrWhiteSpace(profile?.University) ||
+            !string.IsNullOrWhiteSpace(profile?.StudyProgram)) {
+            badges.Add(new ProfileBadgeViewModel("Student Profile", "profile-badge-student"));
+        }
+
+        if (activeListingCount > 0) {
+            badges.Add(new ProfileBadgeViewModel("Listing Owner", "profile-badge-owner"));
+            badges.Add(new ProfileBadgeViewModel(
+                $"{activeListingCount} active {(activeListingCount == 1 ? "listing" : "listings")}",
+                "profile-badge-listings"));
+        }
+
+        if (reviewCount >= 3 && averageRating >= 4.5) {
+            badges.Add(new ProfileBadgeViewModel("Highly Rated", "profile-badge-rated"));
+        }
+
+        if (user.CreatedAt != default &&
+            user.CreatedAt >= now.AddDays(-30) &&
+            user.CreatedAt <= now) {
+            badges.Add(new ProfileBadgeViewModel("New User", "profile-badge-new"));
+        }
+
+        if (compatibilityScore >= 75) {
+            badges.Add(new ProfileBadgeViewModel("Good Match", "profile-badge-match"));
+        }
+
+        return badges;
     }
 
     private string? CurrentUserId() {
