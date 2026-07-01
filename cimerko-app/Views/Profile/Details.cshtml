@@ -5,103 +5,232 @@
     ViewData["Title"] = "Profile";
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
     var profile = Model.RoommateProfile;
-    var displayName = string.IsNullOrWhiteSpace(Model.FullName) ? Model.Email : Model.FullName;
+    var displayName = string.IsNullOrWhiteSpace(Model.FullName) ? Model.Email ?? "Cimerko member" : Model.FullName;
+    var initial = displayName.Trim()[..1].ToUpperInvariant();
+    var reviews = Model.ReviewsReceived.OrderByDescending(review => review.CreatedAt).ToList();
+    var averageRating = reviews.Count == 0 ? 0 : reviews.Average(review => review.Rating);
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>@displayName</h1>
-    @if (currentUserId == Model.Id) {
-        <a asp-action="Edit" class="btn btn-primary">Edit profile</a>
+<div class="profile-details-shell">
+    @if (TempData["ReviewMessage"] != null) {
+        <div class="alert alert-info profile-details-alert" role="status">@TempData["ReviewMessage"]</div>
     }
-</div>
 
-@if (TempData["ReviewMessage"] != null) {
-    <div class="alert alert-info">@TempData["ReviewMessage"]</div>
-}
-
-@if (!string.IsNullOrWhiteSpace(Model.ProfileImageUrl)) {
-    <img src="@Model.ProfileImageUrl" alt="@displayName" class="img-thumbnail mb-3"
-         style="width: 160px; height: 160px; object-fit: cover;"/>
-}
-
-@if (profile == null) {
-    <div class="alert alert-info">This user has not completed a roommate profile.</div>
-}
-else {
-    <dl class="row">
-        <dt class="col-sm-3">Bio</dt>
-        <dd class="col-sm-9">@(profile.Bio ?? "Not specified")</dd>
-
-        <dt class="col-sm-3">Age</dt>
-        <dd class="col-sm-9">@profile.Age</dd>
-
-        <dt class="col-sm-3">City</dt>
-        <dd class="col-sm-9">@profile.City</dd>
-
-        <dt class="col-sm-3">Gender</dt>
-        <dd class="col-sm-9">@(profile.Gender ?? "Not specified")</dd>
-
-        <dt class="col-sm-3">University</dt>
-        <dd class="col-sm-9">@(profile.University ?? "Not specified")</dd>
-
-        <dt class="col-sm-3">Study program</dt>
-        <dd class="col-sm-9">@(profile.StudyProgram ?? "Not specified")</dd>
-    </dl>
-}
-
-<hr/>
-<h2>Reviews</h2>
-
-@if (!Model.ReviewsReceived.Any()) {
-    <p class="text-muted">This user has no reviews.</p>
-}
-else {
-    @foreach (var review in Model.ReviewsReceived.OrderByDescending(item => item.CreatedAt)) {
-        var reviewerName = string.IsNullOrWhiteSpace(review.Reviewer?.FullName)
-            ? review.Reviewer?.Email
-            : review.Reviewer.FullName;
-
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">@review.Rating / 5</h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                    @reviewerName · @review.CreatedAt.ToString("dd.MM.yyyy")
-                </h6>
-                @if (!string.IsNullOrWhiteSpace(review.Comment)) {
-                    <p class="card-text">@review.Comment</p>
+    <section class="profile-hero">
+        <div class="profile-hero-accent"></div>
+        <div class="profile-hero-content">
+            <div class="profile-hero-avatar" aria-label="@displayName profile picture">
+                @if (!string.IsNullOrWhiteSpace(Model.ProfileImageUrl)) {
+                    <img src="@Model.ProfileImageUrl" alt="@displayName"/>
                 }
-                @if (currentUserId == review.ReviewerId) {
-                    <form asp-controller="Review" asp-action="Delete" method="post">
-                        <input type="hidden" name="id" value="@review.Id"/>
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete review</button>
-                    </form>
+                else {
+                    <span aria-hidden="true">@initial</span>
                 }
             </div>
-        </div>
-    }
-}
 
-@if (User.Identity?.IsAuthenticated == true && currentUserId != Model.Id) {
-    <h3>Add review</h3>
-    <form asp-controller="Review" asp-action="Create" method="post" class="col-md-6">
-        <input type="hidden" name="reviewedUserId" value="@Model.Id"/>
+            <div class="profile-hero-identity">
+                <span class="profile-kicker">Roommate profile</span>
+                <h1>@displayName</h1>
+                <div class="profile-hero-meta">
+                    @if (!string.IsNullOrWhiteSpace(profile?.City)) {
+                        <span>@profile.City</span>
+                    }
+                    @if (profile?.Age > 0) {
+                        <span>@profile.Age years old</span>
+                    }
+                    <span>Member since @Model.CreatedAt.ToString("MMM yyyy")</span>
+                </div>
+            </div>
 
-        <div class="mb-3">
-            <label for="rating" class="form-label">Rating</label>
-            <select id="rating" name="rating" class="form-select">
-                <option value="5">5</option>
-                <option value="4">4</option>
-                <option value="3">3</option>
-                <option value="2">2</option>
-                <option value="1">1</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="comment" class="form-label">Comment</label>
-            <textarea id="comment" name="comment" class="form-control" rows="4" maxlength="1000"></textarea>
+            @if (currentUserId == Model.Id) {
+                <a asp-action="Edit" class="btn profile-edit-button">Edit profile</a>
+            }
         </div>
 
-        <button type="submit" class="btn btn-primary">Add review</button>
-    </form>
-}
+        <div class="profile-hero-stats">
+            <div>
+                <strong>@(reviews.Count == 0 ? "—" : averageRating.ToString("0.0"))</strong>
+                <span>Average rating</span>
+            </div>
+            <div>
+                <strong>@reviews.Count</strong>
+                <span>@(reviews.Count == 1 ? "Review" : "Reviews")</span>
+            </div>
+            <div>
+                <strong>@(string.IsNullOrWhiteSpace(profile?.University) ? "—" : profile.University)</strong>
+                <span>University</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="profile-details-grid">
+        <main class="profile-details-main">
+            <section class="profile-content-card">
+                <div class="profile-card-heading">
+                    <div>
+                        <span class="profile-kicker">Introduction</span>
+                        <h2>About me</h2>
+                    </div>
+                </div>
+
+                @if (profile == null) {
+                    <div class="profile-empty-state">
+                        <h3>Profile details are not available yet</h3>
+                        <p>This member has not completed their roommate profile.</p>
+                    </div>
+                }
+                else {
+                    <p class="profile-bio">
+                        @(string.IsNullOrWhiteSpace(profile.Bio)
+                            ? "This member has not added an introduction yet."
+                            : profile.Bio)
+                    </p>
+
+                    <div class="profile-facts">
+                        <div class="profile-fact">
+                            <span>Location</span>
+                            <strong>@profile.City</strong>
+                        </div>
+                        <div class="profile-fact">
+                            <span>Age</span>
+                            <strong>@profile.Age</strong>
+                        </div>
+                        <div class="profile-fact">
+                            <span>Gender</span>
+                            <strong>@(profile.Gender ?? "Not specified")</strong>
+                        </div>
+                        <div class="profile-fact">
+                            <span>University</span>
+                            <strong>@(profile.University ?? "Not specified")</strong>
+                        </div>
+                        <div class="profile-fact profile-fact-wide">
+                            <span>Study program</span>
+                            <strong>@(profile.StudyProgram ?? "Not specified")</strong>
+                        </div>
+                    </div>
+                }
+            </section>
+
+            <section class="profile-reviews-section">
+                <div class="profile-section-title">
+                    <div>
+                        <span class="profile-kicker">Community feedback</span>
+                        <h2>Reviews</h2>
+                    </div>
+                    @if (reviews.Count > 0) {
+                        <span class="profile-review-count">@reviews.Count total</span>
+                    }
+                </div>
+
+                @if (reviews.Count == 0) {
+                    <div class="profile-content-card profile-empty-state">
+                        <div class="profile-empty-icon" aria-hidden="true">★</div>
+                        <h3>No reviews yet</h3>
+                        <p>Reviews from other Cimerko members will appear here.</p>
+                    </div>
+                }
+                else {
+                    <div class="profile-review-list">
+                        @foreach (var review in reviews) {
+                            var reviewerName = string.IsNullOrWhiteSpace(review.Reviewer?.FullName)
+                                ? review.Reviewer?.Email ?? "Cimerko member"
+                                : review.Reviewer.FullName;
+                            var reviewerInitial = reviewerName.Trim()[..1].ToUpperInvariant();
+
+                            <article class="profile-review-card">
+                                <header class="profile-review-header">
+                                    <a asp-controller="Profile" asp-action="Details" asp-route-id="@review.ReviewerId"
+                                       class="profile-reviewer">
+                                        <span class="profile-reviewer-avatar">
+                                            @if (!string.IsNullOrWhiteSpace(review.Reviewer?.ProfileImageUrl)) {
+                                                <img src="@review.Reviewer.ProfileImageUrl" alt=""/>
+                                            }
+                                            else {
+                                                <span aria-hidden="true">@reviewerInitial</span>
+                                            }
+                                        </span>
+                                        <span>
+                                            <strong>@reviewerName</strong>
+                                            <small>@review.CreatedAt.ToString("dd MMM yyyy")</small>
+                                        </span>
+                                    </a>
+                                    <div class="profile-review-stars" aria-label="@review.Rating out of 5 stars">
+                                        @for (var star = 1; star <= 5; star++) {
+                                            <span class="@(star <= review.Rating ? "is-filled" : "")">★</span>
+                                        }
+                                    </div>
+                                </header>
+
+                                @if (!string.IsNullOrWhiteSpace(review.Comment)) {
+                                    <p>@review.Comment</p>
+                                }
+
+                                @if (currentUserId == review.ReviewerId) {
+                                    <form asp-controller="Review" asp-action="Delete" method="post"
+                                          class="profile-review-delete">
+                                        <input type="hidden" name="id" value="@review.Id"/>
+                                        <button type="submit" class="btn btn-link text-danger">Delete review</button>
+                                    </form>
+                                }
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        </main>
+
+        <aside class="profile-details-sidebar">
+            <section class="profile-rating-card">
+                <span class="profile-kicker">Reputation</span>
+                <div class="profile-rating-score">
+                    <strong>@(reviews.Count == 0 ? "—" : averageRating.ToString("0.0"))</strong>
+                    <span>out of 5</span>
+                </div>
+                <div class="profile-rating-stars" aria-label="Average rating">
+                    @for (var star = 1; star <= 5; star++) {
+                        <span class="@(star <= Math.Round(averageRating) ? "is-filled" : "")">★</span>
+                    }
+                </div>
+                <p>
+                    @(reviews.Count == 0
+                        ? "No community ratings have been added yet."
+                        : $"Based on {reviews.Count} {(reviews.Count == 1 ? "review" : "reviews")}.")
+                </p>
+            </section>
+
+            @if (User.Identity?.IsAuthenticated == true && currentUserId != Model.Id) {
+                <section class="profile-review-form-card">
+                    <div class="profile-card-heading">
+                        <div>
+                            <span class="profile-kicker">Share feedback</span>
+                            <h2>Write a review</h2>
+                        </div>
+                    </div>
+
+                    <form asp-controller="Review" asp-action="Create" method="post">
+                        <input type="hidden" name="reviewedUserId" value="@Model.Id"/>
+
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Your rating</label>
+                            <select id="rating" name="rating" class="form-select">
+                                <option value="5">5 — Excellent</option>
+                                <option value="4">4 — Very good</option>
+                                <option value="3">3 — Good</option>
+                                <option value="2">2 — Fair</option>
+                                <option value="1">1 — Poor</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Comment</label>
+                            <textarea id="comment" name="comment" class="form-control" rows="5" maxlength="1000"
+                                      placeholder="What should others know about this member?"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Publish review</button>
+                    </form>
+                </section>
+            }
+        </aside>
+    </div>
+</div>
