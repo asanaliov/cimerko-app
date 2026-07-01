@@ -64,6 +64,7 @@ public class ProfileController : Controller {
         }
 
         ViewBag.ProfileBadges = BuildProfileBadges(user, compatibilityScore);
+        ViewBag.ProfileCompletionPercentage = CalculateProfileCompletion(user);
 
         return View(user);
     }
@@ -249,6 +250,33 @@ public class ProfileController : Controller {
 
     private string WebRootPath() {
         return _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+    }
+
+    private static int CalculateProfileCompletion(ApplicationUser user) {
+        const int totalFields = 12;
+        var profile = user.RoommateProfile;
+        var textFields = new[] {
+            user.ProfileImageUrl,
+            user.FullName,
+            profile?.Bio,
+            profile?.City,
+            profile?.University,
+            profile?.StudyProgram,
+            profile?.SmokingPreference,
+            profile?.PetsPreference,
+            profile?.CleanlinessLevel,
+            profile?.SleepSchedule,
+            profile?.GuestPreference
+        };
+
+        var completedFields = textFields.Count(value => !string.IsNullOrWhiteSpace(value));
+        if (profile?.Age is >= 18 and <= 100) {
+            completedFields++;
+        }
+
+        return (int)Math.Round(
+            completedFields / (double)totalFields * 100,
+            MidpointRounding.AwayFromZero);
     }
 
     private static IReadOnlyList<ProfileBadgeViewModel> BuildProfileBadges(
