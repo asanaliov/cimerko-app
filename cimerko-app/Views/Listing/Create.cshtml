@@ -158,7 +158,7 @@
                             </svg>
                         </span>
                         <span>
-                            <strong>Choose listing images</strong>
+                            <strong id="listingImagesLabel">Choose listing images</strong>
                             <small>Upload up to 5 JPG, PNG, or WebP images.</small>
                         </span>
                     </label>
@@ -167,6 +167,13 @@
                            type="file"
                            accept="image/jpeg,image/png,image/webp"
                            multiple/>
+                </div>
+                <div id="listingImageSelection"
+                     class="listing-image-selection"
+                     aria-live="polite"
+                     hidden>
+                    <p id="listingImageCount"></p>
+                    <div id="listingImagePreviews" class="listing-image-preview-grid"></div>
                 </div>
                 @Html.ValidationMessage(
                     "listingImages",
@@ -223,4 +230,38 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial"/>
+    <script>
+        (() => {
+            const input = document.getElementById("listingImages");
+            const label = document.getElementById("listingImagesLabel");
+            const selection = document.getElementById("listingImageSelection");
+            const count = document.getElementById("listingImageCount");
+            const previews = document.getElementById("listingImagePreviews");
+            let previewUrls = [];
+
+            input.addEventListener("change", () => {
+                previewUrls.forEach(url => URL.revokeObjectURL(url));
+                previewUrls = [];
+                previews.replaceChildren();
+
+                const files = Array.from(input.files);
+                selection.hidden = files.length === 0;
+                label.textContent = files.length === 0
+                    ? "Choose listing images"
+                    : "Change selected images";
+                count.textContent = files.length === 1
+                    ? "1 image selected"
+                    : `${files.length} images selected`;
+
+                files.slice(0, 5).forEach(file => {
+                    const previewUrl = URL.createObjectURL(file);
+                    const image = document.createElement("img");
+                    previewUrls.push(previewUrl);
+                    image.src = previewUrl;
+                    image.alt = file.name;
+                    previews.appendChild(image);
+                });
+            });
+        })();
+    </script>
 }

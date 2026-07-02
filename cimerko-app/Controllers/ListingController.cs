@@ -138,7 +138,10 @@ public class ListingController : Controller {
     }
 
     public IActionResult Create() {
-        return View();
+        return View(new Listing {
+            RoomCount = 1,
+            RoommatesNeeded = 1
+        });
     }
 
     [HttpPost]
@@ -157,6 +160,7 @@ public class ListingController : Controller {
         listing.IsActive = true;
         ModelState.Remove(nameof(Listing.OwnerId));
 
+        var hadUploadedImages = listingImages?.Any(image => image.Length > 0) == true;
         var validImages = await ValidateListingImagesAsync(listingImages, 0);
 
         if (ModelState.IsValid) {
@@ -185,6 +189,12 @@ public class ListingController : Controller {
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        if (hadUploadedImages) {
+            ModelState.AddModelError(
+                "listingImages",
+                "Please select your images again after correcting the form errors.");
         }
 
         return View(listing);
