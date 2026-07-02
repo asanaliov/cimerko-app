@@ -140,32 +140,6 @@ body {
   grid-area: 1 / 1;
 }
 
-.site-settings-link {
-  display: grid;
-  width: 38px;
-  height: 38px;
-  padding: 0 !important;
-  place-items: center;
-  border-radius: 50%;
-  color: #596477;
-}
-
-.site-settings-link:hover,
-.site-settings-link:focus {
-  color: #176d65;
-  background: #edf8f5;
-}
-
-.site-settings-link svg {
-  width: 19px;
-  height: 19px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.7;
-}
-
 .site-logout-form {
   margin: 0;
 }
@@ -3775,6 +3749,41 @@ body {
   background: #1f8177;
 }
 
+.profile-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-settings-button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #cdd7d5;
+  border-radius: 11px;
+  color: #596477;
+  background: #fff;
+}
+
+.profile-settings-button:hover,
+.profile-settings-button:focus {
+  border-color: #1f8177;
+  color: #fff;
+  background: #1f8177;
+}
+
+.profile-settings-button svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
 .profile-hero-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -4434,8 +4443,12 @@ body {
     display: none;
   }
 
-  .profile-edit-button {
+  .profile-hero-actions {
     width: 100%;
+  }
+
+  .profile-edit-button {
+    flex: 1;
   }
 
   .profile-hero-stats {
