@@ -33,7 +33,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ListingRequest" asp-action="Index">Requests</a>
                         </li>
-                        <vc:notification-nav></vc:notification-nav>
+                        @await Component.InvokeAsync("NotificationNav")
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="MyProfile">My profile</a>
                         </li>
