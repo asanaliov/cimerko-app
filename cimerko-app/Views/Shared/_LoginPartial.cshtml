@@ -17,7 +17,17 @@
                asp-area="Identity"
                asp-page="/Account/Manage/Index"
                title="Manage account">
-                <span class="site-user-avatar" aria-hidden="true">@initial</span>
+                <span class="site-user-avatar" aria-hidden="true">
+                    @if (!string.IsNullOrWhiteSpace(currentUser?.ProfileImageUrl)) {
+                        <img src="@currentUser.ProfileImageUrl"
+                             alt=""
+                             onerror="this.hidden=true;this.nextElementSibling.classList.remove('d-none')"/>
+                        <span class="site-user-initial d-none">@initial</span>
+                    }
+                    else {
+                        <span class="site-user-initial">@initial</span>
+                    }
+                </span>
                 <span>@firstName</span>
             </a>
         </li>
