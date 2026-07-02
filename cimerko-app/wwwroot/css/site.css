@@ -757,6 +757,13 @@ body {
   background: #1f8177;
 }
 
+.saved-listings-empty p {
+  max-width: 440px;
+  margin-right: auto;
+  margin-left: auto;
+  line-height: 1.6;
+}
+
 .listing-details-page {
   max-width: 1180px;
   margin: 0 auto;

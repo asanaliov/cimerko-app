@@ -21,8 +21,18 @@
     </header>
 
     @if (savedListings.Count == 0) {
-        <div class="alert alert-info">
-            You have not saved any listings yet.
+        <div class="listing-empty-state saved-listings-empty">
+            <div class="listing-empty-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 4.5h12v16l-6-3.8-6 3.8z"/>
+                    <path d="M9 9h6"/>
+                </svg>
+            </div>
+            <h2>You have not saved any listings yet.</h2>
+            <p>Browse available places and save the ones you want to revisit.</p>
+            <a asp-controller="Listing" asp-action="Index" class="btn listing-empty-action">
+                Browse listings
+            </a>
         </div>
     }
     else {
