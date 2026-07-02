@@ -32,6 +32,88 @@ body {
   text-align: start;
 }
 
+.listing-filter-form {
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid rgba(23, 32, 51, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(32, 48, 76, 0.07);
+}
+
+.listing-filter-heading {
+  margin-bottom: 0.25rem;
+}
+
+.listing-filter-heading h2 {
+  margin-bottom: 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.listing-filter-heading p {
+  margin-bottom: 0;
+  color: #687386;
+}
+
+.listing-filter-form .form-label {
+  color: #354052;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.listing-filter-form .form-control,
+.listing-filter-form .form-select {
+  min-height: 46px;
+  border-color: #d9dee8;
+  border-radius: 11px;
+  background-color: #fbfcfe;
+}
+
+.listing-filter-form .form-control:focus,
+.listing-filter-form .form-select:focus {
+  border-color: #25877c;
+  background-color: #fff;
+  box-shadow: 0 0 0 0.22rem rgba(37, 135, 124, 0.14);
+}
+
+.listing-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.listing-filter-actions .btn {
+  min-width: 125px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.listing-filter-actions .btn-primary {
+  border-color: #1f8177;
+  background: #1f8177;
+}
+
+.listing-filter-actions .btn-primary:hover,
+.listing-filter-actions .btn-primary:focus {
+  border-color: #176d65;
+  background: #176d65;
+}
+
+@media (max-width: 576px) {
+  .listing-filter-form {
+    padding: 1.1rem;
+  }
+
+  .listing-filter-actions {
+    flex-direction: column;
+  }
+
+  .listing-filter-actions .btn {
+    width: 100%;
+  }
+}
+
 .auth-shell {
   padding: 2.5rem 0 4rem;
 }
