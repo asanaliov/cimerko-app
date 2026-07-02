@@ -43,7 +43,29 @@
     </nav>
 
     @if (requests.Count == 0) {
-        <div class="alert alert-info">There are no @currentView requests.</div>
+        <div class="requests-empty-state">
+            <div class="requests-empty-icon">
+                @if (isSentView) {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m3 11 18-8-8 18-2-7zM11 14 21 3"/>
+                    </svg>
+                }
+                else {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 5h16v14H4zM4 8l8 6 8-6"/>
+                    </svg>
+                }
+            </div>
+            <h2>@(isSentView ? "No sent requests yet" : "No requests received yet")</h2>
+            <p>
+                @(isSentView
+                    ? "Browse available places and contact a listing owner when you find a good match."
+                    : "When someone is interested in one of your listings, their message will appear here.")
+            </p>
+            <a asp-controller="Listing" asp-action="Index" class="btn requests-empty-action">
+                @(isSentView ? "Browse listings" : "View listings")
+            </a>
+        </div>
     }
     else {
         <div class="requests-list">

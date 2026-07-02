@@ -1996,6 +1996,64 @@ body {
   gap: 1rem;
 }
 
+.requests-empty-state {
+  padding: 4rem 1.5rem;
+  border: 1px dashed #ced8d6;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.65);
+  text-align: center;
+}
+
+.requests-empty-icon {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1rem;
+  place-items: center;
+  border-radius: 50%;
+  color: #1f8177;
+  background: #e6f4f0;
+}
+
+.requests-empty-icon svg {
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.requests-empty-state h2 {
+  margin: 0 0 0.4rem;
+  color: #253044;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.requests-empty-state p {
+  max-width: 500px;
+  margin: 0 auto;
+  color: #7b8494;
+  line-height: 1.6;
+}
+
+.requests-empty-action {
+  margin-top: 1rem;
+  border: 1px solid #bfd3cf;
+  border-radius: 9px;
+  color: #176d65;
+  font-weight: 800;
+}
+
+.requests-empty-action:hover,
+.requests-empty-action:focus {
+  border-color: #1f8177;
+  color: #fff;
+  background: #1f8177;
+}
+
 .request-card {
   overflow: hidden;
   border: 1px solid rgba(23, 32, 51, 0.09);
