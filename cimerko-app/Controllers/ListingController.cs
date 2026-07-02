@@ -94,7 +94,9 @@ public class ListingController : Controller {
 
         var listing = await _context.Listings
             .Include(item => item.Owner)
+            .ThenInclude(owner => owner!.RoommateProfile)
             .Include(item => item.Images)
+            .AsNoTracking()
             .FirstOrDefaultAsync(item => item.Id == id);
 
         if (listing == null) {
@@ -102,14 +104,37 @@ public class ListingController : Controller {
         }
 
         var userId = CurrentUserId();
-        ViewBag.IsSaved = userId != null && await _context.SavedListings.AnyAsync(savedListing =>
-            savedListing.UserId == userId && savedListing.ListingId == listing.Id);
-        ViewBag.ExistingRequest = userId == null
+        var isOwner = userId == listing.OwnerId;
+        var isSaved = userId != null && !isOwner &&
+                      await _context.SavedListings.AnyAsync(savedListing =>
+                          savedListing.UserId == userId && savedListing.ListingId == listing.Id);
+        var existingRequest = userId == null || isOwner
             ? null
-            : await _context.ListingRequests.FirstOrDefaultAsync(request =>
+            : await _context.ListingRequests
+                .AsNoTracking()
+                .FirstOrDefaultAsync(request =>
                 request.SenderId == userId && request.ListingId == listing.Id);
 
-        return View(listing);
+        var ownerSummary = await _context.Users
+            .Where(user => user.Id == listing.OwnerId)
+            .Select(user => new {
+                ReviewCount = user.ReviewsReceived.Count,
+                AverageRating = user.ReviewsReceived
+                    .Select(review => (double?)review.Rating)
+                    .Average(),
+                ActiveListingCount = user.Listings.Count(ownerListing => ownerListing.IsActive)
+            })
+            .FirstOrDefaultAsync();
+
+        return View(new ListingDetailsViewModel {
+            Listing = listing,
+            IsOwner = isOwner,
+            IsSaved = isSaved,
+            ExistingRequest = existingRequest,
+            OwnerReviewCount = ownerSummary?.ReviewCount ?? 0,
+            OwnerAverageRating = ownerSummary?.AverageRating,
+            OwnerActiveListingCount = ownerSummary?.ActiveListingCount ?? 0
+        });
     }
 
     public IActionResult Create() {

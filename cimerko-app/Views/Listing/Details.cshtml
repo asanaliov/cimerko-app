@@ -1,10 +1,9 @@
-@using System.Security.Claims
-@model Listing
+@model cimerko_app.Models.ViewModels.ListingDetailsViewModel
 
 @{
     ViewData["Title"] = "Listing details";
-    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-    var listingImages = Model.Images
+    var listing = Model.Listing;
+    var listingImages = listing.Images
         .OrderByDescending(image => image.IsPrimary)
         .ThenBy(image => image.CreatedAt)
         .ToList();
@@ -20,7 +19,7 @@
                     <path d="M43 54h10M91 46h5M91 55h5"/>
                 </svg>
                 <img src="@image.ImageUrl"
-                     alt="@Model.Title"
+                     alt="@listing.Title"
                      loading="lazy"
                      onerror="this.hidden=true"/>
             </div>
@@ -38,7 +37,7 @@ else {
     </div>
 }
 
-<h1>@Model.Title</h1>
+<h1>@listing.Title</h1>
 
 @if (TempData["RequestMessage"] != null) {
     <div class="alert alert-info">@TempData["RequestMessage"]</div>
@@ -46,50 +45,50 @@ else {
 
 <dl class="row">
     <dt class="col-sm-3">Type</dt>
-    <dd class="col-sm-9">@Model.Type</dd>
+    <dd class="col-sm-9">@listing.Type</dd>
 
     <dt class="col-sm-3">Description</dt>
-    <dd class="col-sm-9">@Model.Description</dd>
+    <dd class="col-sm-9">@listing.Description</dd>
 
     <dt class="col-sm-3">City</dt>
-    <dd class="col-sm-9">@Model.City</dd>
+    <dd class="col-sm-9">@listing.City</dd>
 
     <dt class="col-sm-3">Address</dt>
-    <dd class="col-sm-9">@(Model.Address ?? "Not specified")</dd>
+    <dd class="col-sm-9">@(listing.Address ?? "Not specified")</dd>
 
     <dt class="col-sm-3">Monthly rent</dt>
-    <dd class="col-sm-9">@Model.MonthlyRent.ToString("0.00") €</dd>
+    <dd class="col-sm-9">@listing.MonthlyRent.ToString("0.00") €</dd>
 
     <dt class="col-sm-3">Rooms</dt>
-    <dd class="col-sm-9">@Model.RoomCount</dd>
+    <dd class="col-sm-9">@listing.RoomCount</dd>
 
     <dt class="col-sm-3">Available from</dt>
-    <dd class="col-sm-9">@(Model.AvailableFrom?.ToString("dd.MM.yyyy") ?? "Immediately")</dd>
+    <dd class="col-sm-9">@(listing.AvailableFrom?.ToString("dd.MM.yyyy") ?? "Immediately")</dd>
 
     <dt class="col-sm-3">Owner</dt>
     <dd class="col-sm-9">
-        <a asp-controller="Profile" asp-action="Details" asp-route-id="@Model.OwnerId">
-            @(string.IsNullOrWhiteSpace(Model.Owner?.FullName) ? Model.Owner?.Email : Model.Owner.FullName)
+        <a asp-controller="Profile" asp-action="Details" asp-route-id="@listing.OwnerId">
+            @(string.IsNullOrWhiteSpace(listing.Owner?.FullName) ? listing.Owner?.Email : listing.Owner.FullName)
         </a>
     </dd>
 </dl>
 
 <div>
-    @if (currentUserId == Model.OwnerId) {
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
-        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+    @if (Model.IsOwner) {
+        <a asp-action="Edit" asp-route-id="@listing.Id" class="btn btn-primary">Edit</a>
+        <a asp-action="Delete" asp-route-id="@listing.Id" class="btn btn-danger">Delete</a>
     }
     else if (User.Identity?.IsAuthenticated == true) {
-        @if (ViewBag.IsSaved == true) {
+        @if (Model.IsSaved) {
             <form asp-controller="SavedListing" asp-action="Remove" method="post" class="d-inline">
-                <input type="hidden" name="listingId" value="@Model.Id"/>
+                <input type="hidden" name="listingId" value="@listing.Id"/>
                 <input type="hidden" name="returnTo" value="details"/>
                 <button type="submit" class="btn btn-outline-danger">Remove from saved</button>
             </form>
         }
         else {
             <form asp-controller="SavedListing" asp-action="Save" method="post" class="d-inline">
-                <input type="hidden" name="listingId" value="@Model.Id"/>
+                <input type="hidden" name="listingId" value="@listing.Id"/>
                 <button type="submit" class="btn btn-outline-primary">Save listing</button>
             </form>
         }
@@ -97,21 +96,19 @@ else {
     <a asp-action="Index" class="btn btn-outline-secondary">Back to listings</a>
 </div>
 
-@if (User.Identity?.IsAuthenticated == true && currentUserId != Model.OwnerId) {
-    var existingRequest = ViewBag.ExistingRequest as ListingRequest;
-
+@if (User.Identity?.IsAuthenticated == true && !Model.IsOwner) {
     <hr/>
     <h2>Listing request</h2>
 
-    @if (existingRequest != null) {
+    @if (Model.ExistingRequest != null) {
         <p>
-            You sent a request on @existingRequest.CreatedAt.ToString("dd.MM.yyyy").
-            Current status: <strong>@existingRequest.Status</strong>.
+            You sent a request on @Model.ExistingRequest.CreatedAt.ToString("dd.MM.yyyy").
+            Current status: <strong>@Model.ExistingRequest.Status</strong>.
         </p>
     }
     else {
         <form asp-controller="ListingRequest" asp-action="Create" method="post" class="col-md-6">
-            <input type="hidden" name="listingId" value="@Model.Id"/>
+            <input type="hidden" name="listingId" value="@listing.Id"/>
             <div class="mb-3">
                 <label for="message" class="form-label">Message</label>
                 <textarea id="message" name="message" class="form-control" rows="4" maxlength="1000"
