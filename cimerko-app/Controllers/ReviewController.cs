@@ -50,6 +50,15 @@ public class ReviewController : Controller {
             return Forbid();
         }
 
+        var alreadyReviewed = await _context.Reviews.AnyAsync(review =>
+            review.ReviewerId == reviewerId &&
+            review.ReviewedUserId == reviewedUserId);
+
+        if (alreadyReviewed) {
+            TempData["ReviewMessage"] = "You have already reviewed this user.";
+            return RedirectToAction("Details", "Profile", new { id = reviewedUserId });
+        }
+
         var detailedRatings = new[] {
             smokingRating,
             petsRating,

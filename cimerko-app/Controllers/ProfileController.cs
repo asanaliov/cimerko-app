@@ -41,12 +41,20 @@ public class ProfileController : Controller {
         }
 
         var visitorId = CurrentUserId();
-        ViewBag.CanWriteReview = visitorId != null &&
-                                 visitorId != id &&
-                                 await _context.ListingRequests.AnyAsync(request =>
-                                     request.Status == RequestStatus.Accepted &&
-                                     ((request.SenderId == visitorId && request.Listing!.OwnerId == id) ||
-                                      (request.SenderId == id && request.Listing!.OwnerId == visitorId)));
+        var canWriteReview = false;
+        if (visitorId != null && visitorId != id) {
+            var alreadyReviewed = await _context.Reviews.AnyAsync(review =>
+                review.ReviewerId == visitorId &&
+                review.ReviewedUserId == id);
+
+            canWriteReview = !alreadyReviewed &&
+                             await _context.ListingRequests.AnyAsync(request =>
+                                 request.Status == RequestStatus.Accepted &&
+                                 ((request.SenderId == visitorId && request.Listing!.OwnerId == id) ||
+                                  (request.SenderId == id && request.Listing!.OwnerId == visitorId)));
+        }
+
+        ViewBag.CanWriteReview = canWriteReview;
 
         int? compatibilityScore = null;
         if (visitorId != null && visitorId != id) {

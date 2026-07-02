@@ -67,5 +67,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .WithMany(user => user.ReviewsReceived)
             .HasForeignKey(review => review.ReviewedUserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Review>()
+            .HasIndex(review => new { review.ReviewerId, review.ReviewedUserId })
+            .IsUnique();
     }
 }
