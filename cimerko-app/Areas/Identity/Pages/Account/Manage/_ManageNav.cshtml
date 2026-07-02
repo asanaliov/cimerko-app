@@ -1,0 +1,45 @@
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString();
+    string LinkClass(string pageName) =>
+        currentPage?.EndsWith($"/{pageName}", StringComparison.OrdinalIgnoreCase) == true
+            ? "account-manage-link is-active"
+            : "account-manage-link";
+}
+
+<nav class="account-manage-nav" aria-label="Account settings">
+    <a class="@LinkClass("Index")" asp-page="./Index">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21c.5-5 3.2-7.5 8-7.5S19.5 16 20 21"/>
+        </svg>
+        Profile
+    </a>
+    <a class="@LinkClass("Email")" asp-page="./Email">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="2"/>
+            <path d="m4 7 8 6 8-6"/>
+        </svg>
+        Email
+    </a>
+    <a class="@LinkClass("ChangePassword")" asp-page="./ChangePassword">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="4" y="10" width="16" height="11" rx="2"/>
+            <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/>
+        </svg>
+        Password
+    </a>
+    <a class="@LinkClass("TwoFactorAuthentication")" asp-page="./TwoFactorAuthentication">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3 5 6v5c0 4.8 2.6 8 7 10 4.4-2 7-5.2 7-10V6z"/>
+            <path d="m9 12 2 2 4-4"/>
+        </svg>
+        Two-factor auth
+    </a>
+    <a class="@LinkClass("PersonalData")" asp-page="./PersonalData">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 3h10l4 4v14H3V3z"/>
+            <path d="M17 3v5h4M7 13h10M7 17h7"/>
+        </svg>
+        Personal data
+    </a>
+</nav>
