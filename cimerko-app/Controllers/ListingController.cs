@@ -27,6 +27,7 @@ public class ListingController : Controller {
         var query = _context.Listings
             .Include(listing => listing.Owner)
             .ThenInclude(owner => owner!.RoommateProfile)
+            .Include(listing => listing.Images)
             .Where(listing => listing.IsActive)
             .AsQueryable();
 
@@ -93,6 +94,7 @@ public class ListingController : Controller {
 
         var listing = await _context.Listings
             .Include(item => item.Owner)
+            .Include(item => item.Images)
             .FirstOrDefaultAsync(item => item.Id == id);
 
         if (listing == null) {

@@ -191,16 +191,26 @@
                     ? listing.Owner?.Email ?? "Cimerko member"
                     : listing.Owner.FullName;
                 var ownerInitial = ownerName.Trim()[..1].ToUpperInvariant();
+                var primaryImage = listing.Images
+                    .OrderByDescending(image => image.IsPrimary)
+                    .ThenBy(image => image.CreatedAt)
+                    .FirstOrDefault();
 
                 <article class="listing-card">
                     <div class="listing-card-accent">
                         <span class="listing-type-badge">@typeLabel</span>
                         <span class="listing-posted-date">@listing.CreatedAt.ToString("dd MMM")</span>
-                        <svg viewBox="0 0 120 90" aria-hidden="true">
+                        <svg class="listing-card-placeholder" viewBox="0 0 120 90" aria-hidden="true">
                             <path d="M18 70V35l30-20 30 20v35"/>
                             <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
                             <path d="M43 54h10M91 46h5M91 55h5"/>
                         </svg>
+                        @if (primaryImage != null) {
+                            <img src="@primaryImage.ImageUrl"
+                                 alt="@listing.Title"
+                                 loading="lazy"
+                                 onerror="this.hidden=true"/>
+                        }
                     </div>
 
                     <div class="listing-card-body">

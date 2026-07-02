@@ -4,6 +4,38 @@
 @{
     ViewData["Title"] = "Listing details";
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var listingImages = Model.Images
+        .OrderByDescending(image => image.IsPrimary)
+        .ThenBy(image => image.CreatedAt)
+        .ToList();
+}
+
+@if (listingImages.Count > 0) {
+    <div class="listing-details-gallery @(listingImages.Count == 1 ? "listing-details-gallery-single" : "")">
+        @foreach (var image in listingImages) {
+            <div class="listing-details-image">
+                <svg viewBox="0 0 120 90" aria-hidden="true">
+                    <path d="M18 70V35l30-20 30 20v35"/>
+                    <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
+                    <path d="M43 54h10M91 46h5M91 55h5"/>
+                </svg>
+                <img src="@image.ImageUrl"
+                     alt="@Model.Title"
+                     loading="lazy"
+                     onerror="this.hidden=true"/>
+            </div>
+        }
+    </div>
+}
+else {
+    <div class="listing-details-placeholder">
+        <svg viewBox="0 0 120 90" aria-hidden="true">
+            <path d="M18 70V35l30-20 30 20v35"/>
+            <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
+            <path d="M43 54h10M91 46h5M91 55h5"/>
+        </svg>
+        <span>No images added</span>
+    </div>
 }
 
 <h1>@Model.Title</h1>

@@ -393,7 +393,7 @@ body {
     linear-gradient(135deg, #e8f5f1 0%, #f3f8f6 55%, #e0efec 100%);
 }
 
-.listing-card-accent > svg {
+.listing-card-accent > .listing-card-placeholder {
   position: absolute;
   right: 0.8rem;
   bottom: -0.25rem;
@@ -407,10 +407,19 @@ body {
   opacity: 0.68;
 }
 
+.listing-card-accent > img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .listing-type-badge,
 .listing-posted-date {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: inline-flex;
   padding: 0.36rem 0.58rem;
   border: 1px solid rgba(31, 129, 119, 0.14);
@@ -658,6 +667,71 @@ body {
   background: #1f8177;
 }
 
+.listing-details-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 210px;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.listing-details-gallery-single {
+  grid-template-columns: 1fr;
+  grid-auto-rows: minmax(300px, 430px);
+}
+
+.listing-details-image,
+.listing-details-placeholder {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  place-items: center;
+  color: #8bbeb5;
+  background:
+    radial-gradient(circle at 90% 15%, rgba(255, 255, 255, 0.7), transparent 29%),
+    linear-gradient(135deg, #e8f5f1 0%, #f3f8f6 55%, #e0efec 100%);
+}
+
+.listing-details-gallery:not(.listing-details-gallery-single) .listing-details-image:first-child {
+  grid-row: span 2;
+}
+
+.listing-details-image > svg,
+.listing-details-placeholder > svg {
+  width: 145px;
+  height: 110px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  opacity: 0.72;
+}
+
+.listing-details-image > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.listing-details-placeholder {
+  min-height: 260px;
+  margin: 1.5rem 0;
+  align-content: center;
+  gap: 0.6rem;
+  border-radius: 18px;
+}
+
+.listing-details-placeholder span {
+  color: #687386;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 @media (max-width: 900px) {
   .listing-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -717,6 +791,15 @@ body {
   .listing-clear-filters {
     padding: 0.4rem;
     text-align: center;
+  }
+
+  .listing-details-gallery {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 230px;
+  }
+
+  .listing-details-gallery:not(.listing-details-gallery-single) .listing-details-image:first-child {
+    grid-row: auto;
   }
 }
 
