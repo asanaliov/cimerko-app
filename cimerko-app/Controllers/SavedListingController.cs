@@ -25,6 +25,8 @@ public class SavedListingController : Controller {
             .Where(savedListing => savedListing.UserId == userId)
             .Include(savedListing => savedListing.Listing)
             .ThenInclude(listing => listing!.Owner)
+            .Include(savedListing => savedListing.Listing)
+            .ThenInclude(listing => listing!.Images)
             .OrderByDescending(savedListing => savedListing.SavedAt)
             .ToListAsync();
 
