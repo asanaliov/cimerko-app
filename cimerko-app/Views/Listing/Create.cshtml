@@ -100,7 +100,7 @@
                     </div>
                 </div>
 
-                <div class="listing-form-fields listing-form-fields-three">
+                <div class="listing-form-fields listing-form-fields-four">
                     <div class="listing-form-field">
                         <label asp-for="MonthlyRent">Monthly rent</label>
                         <div class="listing-form-input-suffix">
@@ -119,6 +119,13 @@
                         <label asp-for="RoomCount">Rooms</label>
                         <input asp-for="RoomCount" type="number" min="1" max="20" placeholder="1"/>
                         <span asp-validation-for="RoomCount" class="listing-form-error"></span>
+                    </div>
+
+                    <div class="listing-form-field">
+                        <label asp-for="RoommatesNeeded"></label>
+                        <input asp-for="RoommatesNeeded" type="number" min="1" max="10" placeholder="1"/>
+                        <small class="listing-form-field-hint">How many roommates are you looking for?</small>
+                        <span asp-validation-for="RoommatesNeeded" class="listing-form-error"></span>
                     </div>
 
                     <div class="listing-form-field">

@@ -29,6 +29,11 @@ public class Listing {
     [Range(1, 20)]
     public int RoomCount { get; set; }
 
+    [Required]
+    [Range(1, 10)]
+    [Display(Name = "Roommates needed")]
+    public int RoommatesNeeded { get; set; } = 1;
+
     public DateTime? AvailableFrom { get; set; }
 
     public bool IsActive { get; set; } = true;

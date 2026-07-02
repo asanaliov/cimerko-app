@@ -54,6 +54,13 @@
             </div>
 
             <div class="mb-3">
+                <label asp-for="RoommatesNeeded" class="form-label"></label>
+                <input asp-for="RoommatesNeeded" type="number" min="1" max="10" class="form-control"/>
+                <div class="form-text">How many roommates are you looking for?</div>
+                <span asp-validation-for="RoommatesNeeded" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
                 <label asp-for="AvailableFrom" class="form-label"></label>
                 <input asp-for="AvailableFrom" type="date" class="form-control"/>
                 <span asp-validation-for="AvailableFrom" class="text-danger"></span>

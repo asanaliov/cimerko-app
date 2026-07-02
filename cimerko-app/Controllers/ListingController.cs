@@ -144,7 +144,7 @@ public class ListingController : Controller {
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        [Bind("Title,Description,Type,City,Address,MonthlyRent,RoomCount,AvailableFrom")]
+        [Bind("Title,Description,Type,City,Address,MonthlyRent,RoomCount,RoommatesNeeded,AvailableFrom")]
         Listing listing,
         List<IFormFile>? listingImages) {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -209,7 +209,7 @@ public class ListingController : Controller {
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
         int id,
-        [Bind("Id,Title,Description,Type,City,Address,MonthlyRent,RoomCount,AvailableFrom,IsActive")]
+        [Bind("Id,Title,Description,Type,City,Address,MonthlyRent,RoomCount,RoommatesNeeded,AvailableFrom,IsActive")]
         Listing formListing,
         List<IFormFile>? listingImages,
         List<int>? removeImageIds) {
@@ -244,6 +244,7 @@ public class ListingController : Controller {
         listing.Address = formListing.Address;
         listing.MonthlyRent = formListing.MonthlyRent;
         listing.RoomCount = formListing.RoomCount;
+        listing.RoommatesNeeded = formListing.RoommatesNeeded;
         listing.AvailableFrom = formListing.AvailableFrom;
         listing.IsActive = formListing.IsActive;
 
