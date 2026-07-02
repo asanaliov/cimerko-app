@@ -35,7 +35,7 @@ public class SavedListingController : Controller {
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Save(int listingId) {
+    public async Task<IActionResult> Save(int listingId, string? returnUrl) {
         var userId = CurrentUserId();
         if (userId == null) {
             return Challenge();
@@ -62,12 +62,16 @@ public class SavedListingController : Controller {
             await _context.SaveChangesAsync();
         }
 
+        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)) {
+            return LocalRedirect(returnUrl);
+        }
+
         return RedirectToAction("Details", "Listing", new { id = listingId });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Remove(int listingId, string? returnTo) {
+    public async Task<IActionResult> Remove(int listingId, string? returnTo, string? returnUrl) {
         var userId = CurrentUserId();
         if (userId == null) {
             return Challenge();
@@ -79,6 +83,10 @@ public class SavedListingController : Controller {
         if (savedListing != null) {
             _context.SavedListings.Remove(savedListing);
             await _context.SaveChangesAsync();
+        }
+
+        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)) {
+            return LocalRedirect(returnUrl);
         }
 
         if (returnTo == "details") {

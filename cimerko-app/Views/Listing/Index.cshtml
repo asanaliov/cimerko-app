@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Listings";
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 }
 
 <div class="listing-page">
@@ -195,11 +197,32 @@
                     .OrderByDescending(image => image.IsPrimary)
                     .ThenBy(image => image.CreatedAt)
                     .FirstOrDefault();
+                var canSave = currentUserId != null && currentUserId != listing.OwnerId;
+                var isSaved = Model.SavedListingIds.Contains(listing.Id);
 
                 <article class="listing-card">
                     <div class="listing-card-accent">
                         <span class="listing-type-badge">@typeLabel</span>
-                        <span class="listing-posted-date">@listing.CreatedAt.ToString("dd MMM")</span>
+                        <span class="listing-posted-date @(canSave ? "listing-posted-date-saveable" : "")">
+                            @listing.CreatedAt.ToString("dd MMM")
+                        </span>
+                        @if (canSave) {
+                            <form asp-controller="SavedListing"
+                                  asp-action="@(isSaved ? "Remove" : "Save")"
+                                  method="post"
+                                  class="listing-card-save-form">
+                                <input type="hidden" name="listingId" value="@listing.Id"/>
+                                <input type="hidden" name="returnUrl" value="@returnUrl"/>
+                                <button type="submit"
+                                        class="listing-card-save-button @(isSaved ? "is-saved" : "")"
+                                        title="@(isSaved ? "Remove from saved listings" : "Save listing")"
+                                        aria-label="@(isSaved ? $"Remove {listing.Title} from saved listings" : $"Save {listing.Title}")">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M6 4.5h12v16l-6-3.8-6 3.8z"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        }
                         <svg class="listing-card-placeholder" viewBox="0 0 120 90" aria-hidden="true">
                             <path d="M18 70V35l30-20 30 20v35"/>
                             <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>

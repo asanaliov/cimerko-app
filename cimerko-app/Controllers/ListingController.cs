@@ -83,6 +83,14 @@ public class ListingController : Controller {
             .OrderByDescending(listing => listing.CreatedAt)
             .ToListAsync();
 
+        var userId = CurrentUserId();
+        if (userId != null) {
+            model.SavedListingIds = await _context.SavedListings
+                .Where(savedListing => savedListing.UserId == userId)
+                .Select(savedListing => savedListing.ListingId)
+                .ToHashSetAsync();
+        }
+
         return View(model);
     }
 

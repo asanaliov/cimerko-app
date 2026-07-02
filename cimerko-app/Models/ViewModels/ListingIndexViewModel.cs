@@ -33,6 +33,8 @@ public class ListingIndexViewModel {
 
     public IReadOnlyList<Listing> Listings { get; set; } = Array.Empty<Listing>();
 
+    public HashSet<int> SavedListingIds { get; set; } = [];
+
     public bool HasActiveFilters =>
         !string.IsNullOrWhiteSpace(Title) ||
         !string.IsNullOrWhiteSpace(City) ||
