@@ -72,7 +72,7 @@ public class ProfileController : Controller {
         }
 
         ViewBag.ProfileBadges = BuildProfileBadges(user, compatibilityScore);
-        ViewBag.ProfileCompletionPercentage = CalculateProfileCompletion(user);
+        ViewBag.ProfileCompletion = CalculateProfileCompletion(user);
 
         return View(user);
     }
@@ -260,31 +260,33 @@ public class ProfileController : Controller {
         return _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
     }
 
-    private static int CalculateProfileCompletion(ApplicationUser user) {
-        const int totalFields = 12;
+    private static ProfileCompletionViewModel CalculateProfileCompletion(ApplicationUser user) {
         var profile = user.RoommateProfile;
-        var textFields = new[] {
-            user.ProfileImageUrl,
-            user.FullName,
-            profile?.Bio,
-            profile?.City,
-            profile?.University,
-            profile?.StudyProgram,
-            profile?.SmokingPreference,
-            profile?.PetsPreference,
-            profile?.CleanlinessLevel,
-            profile?.SleepSchedule,
-            profile?.GuestPreference
+        var profileFields = new[] {
+            new { Name = "Profile image", IsComplete = !string.IsNullOrWhiteSpace(user.ProfileImageUrl) },
+            new { Name = "Full name", IsComplete = !string.IsNullOrWhiteSpace(user.FullName) },
+            new { Name = "Bio", IsComplete = !string.IsNullOrWhiteSpace(profile?.Bio) },
+            new { Name = "Age", IsComplete = profile?.Age is >= 18 and <= 100 },
+            new { Name = "City", IsComplete = !string.IsNullOrWhiteSpace(profile?.City) },
+            new { Name = "University", IsComplete = !string.IsNullOrWhiteSpace(profile?.University) },
+            new { Name = "Study program", IsComplete = !string.IsNullOrWhiteSpace(profile?.StudyProgram) },
+            new { Name = "Smoking preference", IsComplete = !string.IsNullOrWhiteSpace(profile?.SmokingPreference) },
+            new { Name = "Pets preference", IsComplete = !string.IsNullOrWhiteSpace(profile?.PetsPreference) },
+            new { Name = "Cleanliness level", IsComplete = !string.IsNullOrWhiteSpace(profile?.CleanlinessLevel) },
+            new { Name = "Sleep schedule", IsComplete = !string.IsNullOrWhiteSpace(profile?.SleepSchedule) },
+            new { Name = "Guest preference", IsComplete = !string.IsNullOrWhiteSpace(profile?.GuestPreference) }
         };
 
-        var completedFields = textFields.Count(value => !string.IsNullOrWhiteSpace(value));
-        if (profile?.Age is >= 18 and <= 100) {
-            completedFields++;
-        }
-
-        return (int)Math.Round(
-            completedFields / (double)totalFields * 100,
+        var missingFields = profileFields
+            .Where(field => !field.IsComplete)
+            .Select(field => field.Name)
+            .ToList();
+        var completedFields = profileFields.Length - missingFields.Count;
+        var percentage = (int)Math.Round(
+            completedFields / (double)profileFields.Length * 100,
             MidpointRounding.AwayFromZero);
+
+        return new ProfileCompletionViewModel(percentage, missingFields);
     }
 
     private static IReadOnlyList<ProfileBadgeViewModel> BuildProfileBadges(

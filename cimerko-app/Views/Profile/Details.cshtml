@@ -21,8 +21,9 @@
         ViewBag.CompatibilityPossibleConflicts as IReadOnlyList<string> ?? Array.Empty<string>();
     var profileBadges =
         ViewBag.ProfileBadges as IReadOnlyList<ProfileBadgeViewModel> ?? Array.Empty<ProfileBadgeViewModel>();
-    var profileCompletionPercentage =
-        ViewBag.ProfileCompletionPercentage is int percentage ? percentage : 0;
+    var profileCompletion =
+        ViewBag.ProfileCompletion as ProfileCompletionViewModel ??
+        new ProfileCompletionViewModel(0, Array.Empty<string>());
     var showSidebar = showCompatibility || reviews.Count > 0 || canWriteReview;
     var activeListings = Model.Listings
         .Where(listing => listing.IsActive)
@@ -82,25 +83,39 @@
                 <div class="profile-completion">
                     <div class="profile-completion-heading">
                         <strong>Profile completion</strong>
-                        <span>@profileCompletionPercentage%</span>
+                        <span>@profileCompletion.ProfileCompletionPercentage%</span>
                     </div>
                     <div class="profile-completion-track"
                          role="progressbar"
                          aria-label="Profile completion"
                          aria-valuemin="0"
                          aria-valuemax="100"
-                         aria-valuenow="@profileCompletionPercentage">
-                        <span style="width: @(profileCompletionPercentage)%"></span>
+                         aria-valuenow="@profileCompletion.ProfileCompletionPercentage">
+                        <span style="width: @(profileCompletion.ProfileCompletionPercentage)%"></span>
                     </div>
-                    @if (profileCompletionPercentage < 100) {
+                    @if (profileCompletion.IsProfileComplete) {
+                        <p>Your profile is complete.</p>
+                    }
+                    else {
                         <p>
                             @(isOwnProfile
                                 ? "Complete your profile to get better roommate matches."
-                                : "Profile is partially completed.")
+                                : "This profile is partially completed.")
                         </p>
-                    }
-                    else {
-                        <p>Profile is complete.</p>
+                        <details class="profile-missing-details">
+                            <summary>View missing fields</summary>
+                            <strong>Missing information</strong>
+                            <ul>
+                                @foreach (var field in profileCompletion.MissingProfileFields) {
+                                    <li>@field</li>
+                                }
+                            </ul>
+                            @if (isOwnProfile) {
+                                <a asp-action="Edit" class="btn btn-sm btn-outline-primary">
+                                    Complete your profile
+                                </a>
+                            }
+                        </details>
                     }
                 </div>
             </div>
