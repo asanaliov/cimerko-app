@@ -83,7 +83,24 @@ public class ListingRequestController : Controller {
             return RedirectToAction("Details", "Listing", new { id = listingId });
         }
 
+        var senderName = await _context.Users
+            .Where(user => user.Id == userId)
+            .Select(user => user.FullName)
+            .FirstOrDefaultAsync();
+        if (string.IsNullOrWhiteSpace(senderName)) {
+            senderName = "A user";
+        }
+
         _context.ListingRequests.Add(listingRequest);
+        _context.Notifications.Add(new Notification {
+            RecipientId = listing.OwnerId,
+            ActorId = userId,
+            Title = "New listing request",
+            Message = $"{senderName} sent a request for your listing: {listing.Title}.",
+            ListingId = listing.Id,
+            ListingRequest = listingRequest,
+            CreatedAt = DateTime.UtcNow
+        });
         await _context.SaveChangesAsync();
 
         TempData["RequestMessage"] = "Your request was sent.";
@@ -110,7 +127,23 @@ public class ListingRequestController : Controller {
             return NotFound();
         }
 
+        if (listingRequest.Status == status) {
+            return RedirectToAction(nameof(Index));
+        }
+
         listingRequest.Status = status;
+        var decision = status == RequestStatus.Accepted ? "accepted" : "rejected";
+        _context.Notifications.Add(new Notification {
+            RecipientId = listingRequest.SenderId,
+            ActorId = userId,
+            Title = status == RequestStatus.Accepted
+                ? "Request accepted"
+                : "Request rejected",
+            Message = $"Your request for {listingRequest.Listing.Title} was {decision}.",
+            ListingId = listingRequest.ListingId,
+            ListingRequestId = listingRequest.Id,
+            CreatedAt = DateTime.UtcNow
+        });
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
