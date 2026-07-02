@@ -263,23 +263,59 @@ public class ProfileController : Controller {
     private static ProfileCompletionViewModel CalculateProfileCompletion(ApplicationUser user) {
         var profile = user.RoommateProfile;
         var profileFields = new[] {
-            new { Name = "Profile image", IsComplete = !string.IsNullOrWhiteSpace(user.ProfileImageUrl) },
-            new { Name = "Full name", IsComplete = !string.IsNullOrWhiteSpace(user.FullName) },
-            new { Name = "Bio", IsComplete = !string.IsNullOrWhiteSpace(profile?.Bio) },
-            new { Name = "Age", IsComplete = profile?.Age is >= 18 and <= 100 },
-            new { Name = "City", IsComplete = !string.IsNullOrWhiteSpace(profile?.City) },
-            new { Name = "University", IsComplete = !string.IsNullOrWhiteSpace(profile?.University) },
-            new { Name = "Study program", IsComplete = !string.IsNullOrWhiteSpace(profile?.StudyProgram) },
-            new { Name = "Smoking preference", IsComplete = !string.IsNullOrWhiteSpace(profile?.SmokingPreference) },
-            new { Name = "Pets preference", IsComplete = !string.IsNullOrWhiteSpace(profile?.PetsPreference) },
-            new { Name = "Cleanliness level", IsComplete = !string.IsNullOrWhiteSpace(profile?.CleanlinessLevel) },
-            new { Name = "Sleep schedule", IsComplete = !string.IsNullOrWhiteSpace(profile?.SleepSchedule) },
-            new { Name = "Guest preference", IsComplete = !string.IsNullOrWhiteSpace(profile?.GuestPreference) }
+            new {
+                Name = "Profile image",
+                EditAnchor = "profileImageFallback",
+                IsComplete = !string.IsNullOrWhiteSpace(user.ProfileImageUrl)
+            },
+            new {
+                Name = "Full name",
+                EditAnchor = "fullName",
+                IsComplete = !string.IsNullOrWhiteSpace(user.FullName)
+            },
+            new { Name = "Bio", EditAnchor = "Bio", IsComplete = !string.IsNullOrWhiteSpace(profile?.Bio) },
+            new { Name = "Age", EditAnchor = "Age", IsComplete = profile?.Age is >= 18 and <= 100 },
+            new { Name = "City", EditAnchor = "City", IsComplete = !string.IsNullOrWhiteSpace(profile?.City) },
+            new {
+                Name = "University",
+                EditAnchor = "University",
+                IsComplete = !string.IsNullOrWhiteSpace(profile?.University)
+            },
+            new {
+                Name = "Study program",
+                EditAnchor = "StudyProgram",
+                IsComplete = !string.IsNullOrWhiteSpace(profile?.StudyProgram)
+            },
+            new {
+                Name = "Smoking preference",
+                EditAnchor = "SmokingPreference",
+                IsComplete = !string.IsNullOrWhiteSpace(profile?.SmokingPreference)
+            },
+            new {
+                Name = "Pets preference",
+                EditAnchor = "PetsPreference",
+                IsComplete = !string.IsNullOrWhiteSpace(profile?.PetsPreference)
+            },
+            new {
+                Name = "Cleanliness level",
+                EditAnchor = "CleanlinessLevel",
+                IsComplete = !string.IsNullOrWhiteSpace(profile?.CleanlinessLevel)
+            },
+            new {
+                Name = "Sleep schedule",
+                EditAnchor = "SleepSchedule",
+                IsComplete = !string.IsNullOrWhiteSpace(profile?.SleepSchedule)
+            },
+            new {
+                Name = "Guest preference",
+                EditAnchor = "GuestPreference",
+                IsComplete = !string.IsNullOrWhiteSpace(profile?.GuestPreference)
+            }
         };
 
         var missingFields = profileFields
             .Where(field => !field.IsComplete)
-            .Select(field => field.Name)
+            .Select(field => new MissingProfileFieldViewModel(field.Name, field.EditAnchor))
             .ToList();
         var completedFields = profileFields.Length - missingFields.Count;
         var percentage = (int)Math.Round(
