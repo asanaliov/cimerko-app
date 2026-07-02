@@ -170,7 +170,9 @@ public class ListingController : Controller {
             return NotFound();
         }
 
-        var listing = await _context.Listings.FindAsync(id);
+        var listing = await _context.Listings
+            .Include(item => item.Images)
+            .FirstOrDefaultAsync(item => item.Id == id);
         if (listing == null || listing.OwnerId != CurrentUserId()) {
             return NotFound();
         }
@@ -183,19 +185,30 @@ public class ListingController : Controller {
     public async Task<IActionResult> Edit(
         int id,
         [Bind("Id,Title,Description,Type,City,Address,MonthlyRent,RoomCount,AvailableFrom,IsActive")]
-        Listing formListing) {
+        Listing formListing,
+        List<IFormFile>? listingImages,
+        List<int>? removeImageIds) {
         if (id != formListing.Id) {
             return NotFound();
         }
 
-        var listing = await _context.Listings.FindAsync(id);
+        var listing = await _context.Listings
+            .Include(item => item.Images)
+            .FirstOrDefaultAsync(item => item.Id == id);
         if (listing == null || listing.OwnerId != CurrentUserId()) {
             return NotFound();
         }
 
         ModelState.Remove(nameof(Listing.OwnerId));
+        var requestedRemovalIds = removeImageIds?.ToHashSet() ?? [];
+        var imagesToRemove = listing.Images
+            .Where(image => requestedRemovalIds.Contains(image.Id))
+            .ToList();
+        var remainingImageCount = listing.Images.Count - imagesToRemove.Count;
+        var validImages = await ValidateListingImagesAsync(listingImages, remainingImageCount);
 
         if (!ModelState.IsValid) {
+            formListing.Images = listing.Images;
             return View(formListing);
         }
 
@@ -209,7 +222,44 @@ public class ListingController : Controller {
         listing.AvailableFrom = formListing.AvailableFrom;
         listing.IsActive = formListing.IsActive;
 
-        await _context.SaveChangesAsync();
+        foreach (var image in imagesToRemove) {
+            listing.Images.Remove(image);
+            _context.ListingImages.Remove(image);
+        }
+
+        var savedImagePaths = new List<string>();
+
+        try {
+            foreach (var image in validImages) {
+                var savedImage = await SaveListingImageAsync(image.File, image.Extension);
+                savedImagePaths.Add(savedImage.FilePath);
+                listing.Images.Add(new ListingImage {
+                    ImageUrl = savedImage.ImageUrl,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+
+            if (listing.Images.Count > 0 && listing.Images.All(image => !image.IsPrimary)) {
+                listing.Images
+                    .OrderBy(image => image.CreatedAt)
+                    .First()
+                    .IsPrimary = true;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+        catch {
+            foreach (var path in savedImagePaths) {
+                DeleteFileIfPresent(path);
+            }
+
+            throw;
+        }
+
+        foreach (var image in imagesToRemove) {
+            DeleteLocalListingImage(image.ImageUrl);
+        }
+
         return RedirectToAction(nameof(Details), new { id = listing.Id });
     }
 
@@ -232,13 +282,23 @@ public class ListingController : Controller {
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id) {
-        var listing = await _context.Listings.FindAsync(id);
+        var listing = await _context.Listings
+            .Include(item => item.Images)
+            .FirstOrDefaultAsync(item => item.Id == id);
         if (listing == null || listing.OwnerId != CurrentUserId()) {
             return NotFound();
         }
 
+        var imageUrls = listing.Images
+            .Select(image => image.ImageUrl)
+            .ToList();
+
         _context.Listings.Remove(listing);
         await _context.SaveChangesAsync();
+
+        foreach (var imageUrl in imageUrls) {
+            DeleteLocalListingImage(imageUrl);
+        }
 
         return RedirectToAction(nameof(Index));
     }
@@ -318,8 +378,14 @@ public class ListingController : Controller {
         var fileName = $"{Guid.NewGuid():N}{extension}";
         var filePath = Path.Combine(uploadsDirectory, fileName);
 
-        await using var output = System.IO.File.Create(filePath);
-        await image.CopyToAsync(output, HttpContext.RequestAborted);
+        try {
+            await using var output = System.IO.File.Create(filePath);
+            await image.CopyToAsync(output, HttpContext.RequestAborted);
+        }
+        catch {
+            DeleteFileIfPresent(filePath);
+            throw;
+        }
 
         return ($"{ListingImageUrlPrefix}{fileName}", filePath);
     }
@@ -328,6 +394,20 @@ public class ListingController : Controller {
         if (path != null && System.IO.File.Exists(path)) {
             System.IO.File.Delete(path);
         }
+    }
+
+    private void DeleteLocalListingImage(string? imageUrl) {
+        if (string.IsNullOrWhiteSpace(imageUrl) ||
+            !imageUrl.StartsWith(ListingImageUrlPrefix, StringComparison.Ordinal)) {
+            return;
+        }
+
+        var fileName = Path.GetFileName(imageUrl);
+        if (imageUrl != $"{ListingImageUrlPrefix}{fileName}") {
+            return;
+        }
+
+        DeleteFileIfPresent(Path.Combine(WebRootPath(), "uploads", "listing-images", fileName));
     }
 
     private string WebRootPath() {

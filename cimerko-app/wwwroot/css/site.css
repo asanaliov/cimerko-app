@@ -732,6 +732,115 @@ body {
   font-weight: 700;
 }
 
+.listing-edit-images {
+  padding: 1.1rem;
+  border: 1px solid #e2e7eb;
+  border-radius: 13px;
+  background: #fbfcfd;
+}
+
+.listing-edit-images-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+.listing-edit-images-heading h2 {
+  margin: 0 0 0.15rem;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.listing-edit-images-heading p {
+  margin: 0;
+  color: #8a93a2;
+  font-size: 0.73rem;
+}
+
+.listing-edit-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.listing-edit-image {
+  overflow: hidden;
+  border: 1px solid #dce2e7;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.listing-edit-image-preview {
+  position: relative;
+  display: grid;
+  height: 105px;
+  place-items: center;
+  color: #8bbeb5;
+  background: #e8f5f1;
+}
+
+.listing-edit-image-preview svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.listing-edit-image-preview img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.listing-edit-image-remove {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.65rem;
+  color: #687386;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.listing-edit-image-remove input {
+  accent-color: #b3484e;
+}
+
+.listing-edit-image:has(input:checked) {
+  border-color: #d97a7f;
+  background: #fff7f7;
+}
+
+.listing-edit-image-upload {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.listing-edit-image-upload label {
+  color: #4d586b;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.listing-edit-image-upload small {
+  color: #8a93a2;
+  font-size: 0.7rem;
+}
+
+.listing-edit-image-error {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.72rem;
+}
+
 @media (max-width: 900px) {
   .listing-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -800,6 +909,10 @@ body {
 
   .listing-details-gallery:not(.listing-details-gallery-single) .listing-details-image:first-child {
     grid-row: auto;
+  }
+
+  .listing-edit-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
