@@ -1,120 +1,402 @@
 @model cimerko_app.Models.ViewModels.ListingDetailsViewModel
 
 @{
-    ViewData["Title"] = "Listing details";
+    ViewData["Title"] = Model.Listing.Title;
     var listing = Model.Listing;
+    var owner = listing.Owner;
+    var ownerProfile = owner?.RoommateProfile;
+    var ownerName = string.IsNullOrWhiteSpace(owner?.FullName)
+        ? "Cimerko member"
+        : owner.FullName;
+    var ownerInitial = ownerName.Trim()[..1].ToUpperInvariant();
     var listingImages = listing.Images
         .OrderByDescending(image => image.IsPrimary)
         .ThenBy(image => image.CreatedAt)
         .ToList();
+    var typeLabel = listing.Type switch {
+        ListingType.RoomOffer => "Room available",
+        ListingType.RoommateWanted => "Roommate wanted",
+        ListingType.LookingForPlace => "Looking for a place",
+        _ => "Housing listing"
+    };
+    var availableLabel = listing.AvailableFrom.HasValue
+        ? listing.AvailableFrom.Value.ToString("dd MMM yyyy")
+        : "Available now";
+    var requestStatusClass = Model.ExistingRequest?.Status switch {
+        RequestStatus.Accepted => "listing-details-request-accepted",
+        RequestStatus.Rejected => "listing-details-request-rejected",
+        _ => "listing-details-request-pending"
+    };
 }
 
-@if (listingImages.Count > 0) {
-    <div class="listing-details-gallery @(listingImages.Count == 1 ? "listing-details-gallery-single" : "")">
-        @foreach (var image in listingImages) {
-            <div class="listing-details-image">
+<div class="listing-details-page">
+    <a asp-action="Index" class="listing-details-back">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m15 18-6-6 6-6"/>
+        </svg>
+        Back to listings
+    </a>
+
+    @if (TempData["RequestMessage"] != null) {
+        <div class="listing-details-alert" role="status">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 11v5M12 8h.01"/>
+            </svg>
+            @TempData["RequestMessage"]
+        </div>
+    }
+
+    @if (!listing.IsActive) {
+        <div class="listing-details-inactive-notice">
+            <strong>This listing is no longer active.</strong>
+            <span>You can still view its information, but new requests are closed.</span>
+        </div>
+    }
+
+    @if (listingImages.Count > 0) {
+        <section class="listing-details-media @(listingImages.Count == 1 ? "listing-details-media-single" : "")"
+                 aria-label="Listing photos">
+            <div class="listing-details-main-image">
                 <svg viewBox="0 0 120 90" aria-hidden="true">
                     <path d="M18 70V35l30-20 30 20v35"/>
                     <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
                     <path d="M43 54h10M91 46h5M91 55h5"/>
                 </svg>
-                <img src="@image.ImageUrl"
-                     alt="@listing.Title"
-                     loading="lazy"
+                <img src="@listingImages[0].ImageUrl"
+                     alt="Main photo of @listing.Title"
                      onerror="this.hidden=true"/>
+                <span class="listing-details-photo-count">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="3" y="5" width="18" height="16" rx="2"/>
+                        <circle cx="9" cy="10" r="2"/>
+                        <path d="m21 16-5-5L5 21"/>
+                    </svg>
+                    @listingImages.Count @(listingImages.Count == 1 ? "photo" : "photos")
+                </span>
             </div>
-        }
-    </div>
-}
-else {
-    <div class="listing-details-placeholder">
-        <svg viewBox="0 0 120 90" aria-hidden="true">
-            <path d="M18 70V35l30-20 30 20v35"/>
-            <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
-            <path d="M43 54h10M91 46h5M91 55h5"/>
-        </svg>
-        <span>No images added</span>
-    </div>
-}
 
-<h1>@listing.Title</h1>
-
-@if (TempData["RequestMessage"] != null) {
-    <div class="alert alert-info">@TempData["RequestMessage"]</div>
-}
-
-<dl class="row">
-    <dt class="col-sm-3">Type</dt>
-    <dd class="col-sm-9">@listing.Type</dd>
-
-    <dt class="col-sm-3">Description</dt>
-    <dd class="col-sm-9">@listing.Description</dd>
-
-    <dt class="col-sm-3">City</dt>
-    <dd class="col-sm-9">@listing.City</dd>
-
-    <dt class="col-sm-3">Address</dt>
-    <dd class="col-sm-9">@(listing.Address ?? "Not specified")</dd>
-
-    <dt class="col-sm-3">Monthly rent</dt>
-    <dd class="col-sm-9">@listing.MonthlyRent.ToString("0.00") €</dd>
-
-    <dt class="col-sm-3">Rooms</dt>
-    <dd class="col-sm-9">@listing.RoomCount</dd>
-
-    <dt class="col-sm-3">Available from</dt>
-    <dd class="col-sm-9">@(listing.AvailableFrom?.ToString("dd.MM.yyyy") ?? "Immediately")</dd>
-
-    <dt class="col-sm-3">Owner</dt>
-    <dd class="col-sm-9">
-        <a asp-controller="Profile" asp-action="Details" asp-route-id="@listing.OwnerId">
-            @(string.IsNullOrWhiteSpace(listing.Owner?.FullName) ? listing.Owner?.Email : listing.Owner.FullName)
-        </a>
-    </dd>
-</dl>
-
-<div>
-    @if (Model.IsOwner) {
-        <a asp-action="Edit" asp-route-id="@listing.Id" class="btn btn-primary">Edit</a>
-        <a asp-action="Delete" asp-route-id="@listing.Id" class="btn btn-danger">Delete</a>
-    }
-    else if (User.Identity?.IsAuthenticated == true) {
-        @if (Model.IsSaved) {
-            <form asp-controller="SavedListing" asp-action="Remove" method="post" class="d-inline">
-                <input type="hidden" name="listingId" value="@listing.Id"/>
-                <input type="hidden" name="returnTo" value="details"/>
-                <button type="submit" class="btn btn-outline-danger">Remove from saved</button>
-            </form>
-        }
-        else {
-            <form asp-controller="SavedListing" asp-action="Save" method="post" class="d-inline">
-                <input type="hidden" name="listingId" value="@listing.Id"/>
-                <button type="submit" class="btn btn-outline-primary">Save listing</button>
-            </form>
-        }
-    }
-    <a asp-action="Index" class="btn btn-outline-secondary">Back to listings</a>
-</div>
-
-@if (User.Identity?.IsAuthenticated == true && !Model.IsOwner) {
-    <hr/>
-    <h2>Listing request</h2>
-
-    @if (Model.ExistingRequest != null) {
-        <p>
-            You sent a request on @Model.ExistingRequest.CreatedAt.ToString("dd.MM.yyyy").
-            Current status: <strong>@Model.ExistingRequest.Status</strong>.
-        </p>
+            @if (listingImages.Count > 1) {
+                <div class="listing-details-thumbnails">
+                    @for (var index = 1; index < listingImages.Count; index++) {
+                        var image = listingImages[index];
+                        <div class="listing-details-thumbnail">
+                            <svg viewBox="0 0 120 90" aria-hidden="true">
+                                <path d="M18 70V35l30-20 30 20v35"/>
+                                <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
+                                <path d="M43 54h10M91 46h5M91 55h5"/>
+                            </svg>
+                            <img src="@image.ImageUrl"
+                                 alt="Photo @(index + 1) of @listing.Title"
+                                 loading="lazy"
+                                 onerror="this.hidden=true"/>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
     }
     else {
-        <form asp-controller="ListingRequest" asp-action="Create" method="post" class="col-md-6">
-            <input type="hidden" name="listingId" value="@listing.Id"/>
-            <div class="mb-3">
-                <label for="message" class="form-label">Message</label>
-                <textarea id="message" name="message" class="form-control" rows="4" maxlength="1000"
-                          required></textarea>
+        <div class="listing-details-media-placeholder">
+            <svg viewBox="0 0 120 90" aria-hidden="true">
+                <path d="M18 70V35l30-20 30 20v35"/>
+                <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
+                <path d="M43 54h10M91 46h5M91 55h5"/>
+            </svg>
+            <div>
+                <strong>No photos added yet</strong>
+                <span>The listing details are still available below.</span>
             </div>
-            <button type="submit" class="btn btn-primary">Send request</button>
-        </form>
+        </div>
     }
-}
+
+    <header class="listing-details-header">
+        <div class="listing-details-badges">
+            <span class="listing-details-type-badge">@typeLabel</span>
+            <span class="listing-details-status-badge @(listing.IsActive ? "is-active" : "is-inactive")">
+                @(listing.IsActive ? "Active listing" : "Inactive")
+            </span>
+        </div>
+        <h1>@listing.Title</h1>
+        <p>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
+                <circle cx="12" cy="10" r="2.5"/>
+            </svg>
+            @listing.City
+            <span aria-hidden="true">·</span>
+            Posted @listing.CreatedAt.ToString("dd MMM yyyy")
+        </p>
+    </header>
+
+    <div class="listing-details-layout">
+        <main class="listing-details-main">
+            <section class="listing-details-card listing-details-facts-card">
+                <div class="listing-details-facts">
+                    <div>
+                        <span class="listing-details-fact-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path d="M15 8.5c-.7-.5-1.5-.7-2.4-.7-2 0-3.6 1.9-3.6 4.2s1.6 4.2 3.6 4.2c.9 0 1.7-.2 2.4-.7M7.5 10.5h5M7.5 13.5h5"/>
+                            </svg>
+                        </span>
+                        <span>
+                            <small>Monthly rent</small>
+                            <strong>@listing.MonthlyRent.ToString("0") €</strong>
+                        </span>
+                    </div>
+                    <div>
+                        <span class="listing-details-fact-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M4 11h16v8H4zM7 11V7h4a3 3 0 0 1 3 3v1M4 16h16"/>
+                            </svg>
+                        </span>
+                        <span>
+                            <small>Rooms</small>
+                            <strong>@listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</strong>
+                        </span>
+                    </div>
+                    <div>
+                        <span class="listing-details-fact-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <rect x="3" y="5" width="18" height="16" rx="2"/>
+                                <path d="M16 3v4M8 3v4M3 10h18"/>
+                            </svg>
+                        </span>
+                        <span>
+                            <small>Available from</small>
+                            <strong>@availableLabel</strong>
+                        </span>
+                    </div>
+                    <div>
+                        <span class="listing-details-fact-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
+                                <circle cx="12" cy="10" r="2.5"/>
+                            </svg>
+                        </span>
+                        <span>
+                            <small>Location</small>
+                            <strong>@listing.City</strong>
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="listing-details-card listing-details-description-card">
+                <span class="listing-details-section-label">About this listing</span>
+                <h2>What you should know</h2>
+                <p>
+                    @(string.IsNullOrWhiteSpace(listing.Description)
+                        ? "The owner has not added a description yet."
+                        : listing.Description)
+                </p>
+            </section>
+
+            <section class="listing-details-card listing-details-location-card">
+                <div>
+                    <span class="listing-details-section-label">Location</span>
+                    <h2>@listing.City</h2>
+                    <p>
+                        @(string.IsNullOrWhiteSpace(listing.Address)
+                            ? "The exact address or neighbourhood was not specified."
+                            : listing.Address)
+                    </p>
+                </div>
+                <span class="listing-details-location-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
+                        <circle cx="12" cy="10" r="2.5"/>
+                    </svg>
+                </span>
+            </section>
+        </main>
+
+        <aside class="listing-details-sidebar">
+            <section class="listing-details-owner-card">
+                <div class="listing-details-owner-heading">
+                    <span class="listing-details-owner-avatar">
+                        <span aria-hidden="true">@ownerInitial</span>
+                        @if (!string.IsNullOrWhiteSpace(owner?.ProfileImageUrl)) {
+                            <img src="@owner.ProfileImageUrl"
+                                 alt="@ownerName"
+                                 onerror="this.hidden=true"/>
+                        }
+                    </span>
+                    <div>
+                        <small>Listed by</small>
+                        <h2>@ownerName</h2>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(ownerProfile?.City) ||
+                     !string.IsNullOrWhiteSpace(ownerProfile?.University) ||
+                     !string.IsNullOrWhiteSpace(ownerProfile?.StudyProgram)) {
+                    <div class="listing-details-owner-meta">
+                        @if (!string.IsNullOrWhiteSpace(ownerProfile?.City)) {
+                            <span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
+                                    <circle cx="12" cy="10" r="2.5"/>
+                                </svg>
+                                @ownerProfile.City
+                            </span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(ownerProfile?.University)) {
+                            <span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="m3 10 9-5 9 5-9 5-9-5Z"/>
+                                    <path d="M7 12v4c3 2 7 2 10 0v-4"/>
+                                </svg>
+                                @ownerProfile.University
+                            </span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(ownerProfile?.StudyProgram)) {
+                            <span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                                    <path d="M8 9h8M8 13h5"/>
+                                </svg>
+                                @ownerProfile.StudyProgram
+                            </span>
+                        }
+                    </div>
+                }
+                else {
+                    <p class="listing-details-owner-empty">Profile details have not been added yet.</p>
+                }
+
+                <div class="listing-details-owner-stats">
+                    <div>
+                        <strong>
+                            @(Model.OwnerReviewCount == 0
+                                ? "New"
+                                : $"{Model.OwnerAverageRating:0.0} / 5")
+                        </strong>
+                        <span>@(Model.OwnerReviewCount == 1 ? "1 review" : $"{Model.OwnerReviewCount} reviews")</span>
+                    </div>
+                    <div>
+                        <strong>@Model.OwnerActiveListingCount</strong>
+                        <span>Active listings</span>
+                    </div>
+                </div>
+
+                <a asp-controller="Profile"
+                   asp-action="Details"
+                   asp-route-id="@listing.OwnerId"
+                   class="listing-details-profile-link">
+                    View full profile
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m9 18 6-6-6-6"/>
+                    </svg>
+                </a>
+            </section>
+
+            <section class="listing-details-action-card">
+                @if (Model.IsOwner) {
+                    <span class="listing-details-section-label">Your listing</span>
+                    <h2>Manage this listing</h2>
+                    <p>Update its details, photos, or availability whenever needed.</p>
+                    <div class="listing-details-owner-actions">
+                        <a asp-action="Edit"
+                           asp-route-id="@listing.Id"
+                           class="btn listing-details-primary-action">
+                            Edit listing
+                        </a>
+                        <a asp-action="Delete"
+                           asp-route-id="@listing.Id"
+                           class="btn listing-details-delete-action">
+                            Delete listing
+                        </a>
+                    </div>
+                }
+                else if (User.Identity?.IsAuthenticated == true) {
+                    @if (!listing.IsActive) {
+                        <span class="listing-details-section-label">Requests closed</span>
+                        <h2>This listing is inactive</h2>
+                        <p>The owner is not accepting new requests for this listing.</p>
+                    }
+                    else if (Model.ExistingRequest != null) {
+                        <span class="listing-details-section-label">Your request</span>
+                        <div class="listing-details-request-status @requestStatusClass">
+                            @Model.ExistingRequest.Status
+                        </div>
+                        <h2>Request already sent</h2>
+                        <p>Sent on @Model.ExistingRequest.CreatedAt.ToString("dd MMM yyyy"). You can follow its status from your requests page.</p>
+                        <a asp-controller="ListingRequest"
+                           asp-action="Index"
+                           asp-route-view="sent"
+                           class="btn listing-details-primary-action">
+                            View my requests
+                        </a>
+                    }
+                    else {
+                        <span class="listing-details-section-label">Interested?</span>
+                        <h2>Contact the owner</h2>
+                        <p>Introduce yourself and explain why this listing could be a good fit.</p>
+                        <form asp-controller="ListingRequest"
+                              asp-action="Create"
+                              method="post"
+                              class="listing-details-request-form">
+                            <input type="hidden" name="listingId" value="@listing.Id"/>
+                            <label for="message">Your message</label>
+                            <textarea id="message"
+                                      name="message"
+                                      rows="4"
+                                      maxlength="1000"
+                                      placeholder="Hi, I am interested in this listing because..."
+                                      required></textarea>
+                            <button type="submit" class="btn listing-details-primary-action">
+                                Send request
+                            </button>
+                        </form>
+                    }
+
+                    @if (listing.IsActive || Model.IsSaved) {
+                        <div class="listing-details-save-area">
+                            @if (Model.IsSaved) {
+                                <form asp-controller="SavedListing" asp-action="Remove" method="post">
+                                    <input type="hidden" name="listingId" value="@listing.Id"/>
+                                    <input type="hidden" name="returnTo" value="details"/>
+                                    <button type="submit" class="btn listing-details-save-action">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M6 4h12v17l-6-4-6 4V4Z"/>
+                                        </svg>
+                                        Remove from saved
+                                    </button>
+                                </form>
+                            }
+                            else {
+                                <form asp-controller="SavedListing" asp-action="Save" method="post">
+                                    <input type="hidden" name="listingId" value="@listing.Id"/>
+                                    <button type="submit" class="btn listing-details-save-action">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M6 4h12v17l-6-4-6 4V4Z"/>
+                                        </svg>
+                                        Save listing
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    }
+                }
+                else if (listing.IsActive) {
+                    <span class="listing-details-section-label">Interested?</span>
+                    <h2>Sign in to contact the owner</h2>
+                    <p>Create an account or sign in to send a request and save this listing.</p>
+                    <a asp-area="Identity"
+                       asp-page="/Account/Login"
+                       asp-route-returnUrl="@Url.Action("Details", "Listing", new { id = listing.Id })"
+                       class="btn listing-details-primary-action">
+                        Sign in to continue
+                    </a>
+                }
+                else {
+                    <span class="listing-details-section-label">Requests closed</span>
+                    <h2>This listing is inactive</h2>
+                    <p>The owner is not accepting new requests for this listing.</p>
+                }
+            </section>
+        </aside>
+    </div>
+</div>
