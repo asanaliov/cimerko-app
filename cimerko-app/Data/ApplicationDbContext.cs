@@ -13,6 +13,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ListingRequest> ListingRequests { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<ListingImage> ListingImages { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
@@ -78,5 +79,36 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<Review>()
             .HasIndex(review => new { review.ReviewerId, review.ReviewedUserId })
             .IsUnique();
+
+        builder.Entity<Notification>()
+            .HasOne(notification => notification.Recipient)
+            .WithMany(user => user.Notifications)
+            .HasForeignKey(notification => notification.RecipientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Notification>()
+            .HasOne(notification => notification.Actor)
+            .WithMany()
+            .HasForeignKey(notification => notification.ActorId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<Notification>()
+            .HasOne(notification => notification.Listing)
+            .WithMany()
+            .HasForeignKey(notification => notification.ListingId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<Notification>()
+            .HasOne(notification => notification.ListingRequest)
+            .WithMany()
+            .HasForeignKey(notification => notification.ListingRequestId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<Notification>()
+            .HasIndex(notification => new {
+                notification.RecipientId,
+                notification.IsRead,
+                notification.CreatedAt
+            });
     }
 }
