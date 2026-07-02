@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using cimerko_app.Data;
 using cimerko_app.Models;
+using cimerko_app.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,26 +17,66 @@ public class ListingController : Controller {
     }
 
     [AllowAnonymous]
-    public async Task<IActionResult> Index(string? title, string? city) {
+    public async Task<IActionResult> Index(ListingIndexViewModel model) {
         var query = _context.Listings
             .Include(listing => listing.Owner)
+            .ThenInclude(owner => owner!.RoommateProfile)
             .Where(listing => listing.IsActive)
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(title)) {
+        if (!string.IsNullOrWhiteSpace(model.Title)) {
+            var title = model.Title.Trim();
             query = query.Where(listing => listing.Title.Contains(title));
         }
 
-        if (!string.IsNullOrWhiteSpace(city)) {
+        if (!string.IsNullOrWhiteSpace(model.City)) {
+            var city = model.City.Trim();
             query = query.Where(listing => listing.City.Contains(city));
         }
 
-        ViewBag.TitleFilter = title;
-        ViewBag.CityFilter = city;
+        if (model.MinimumBudget.HasValue) {
+            query = query.Where(listing => listing.MonthlyRent >= model.MinimumBudget.Value);
+        }
 
-        return View(await query
+        if (model.MaximumBudget.HasValue) {
+            query = query.Where(listing => listing.MonthlyRent <= model.MaximumBudget.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.SmokingPreference)) {
+            query = query.Where(listing =>
+                listing.Owner!.RoommateProfile != null &&
+                listing.Owner.RoommateProfile.SmokingPreference == model.SmokingPreference);
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.PetsPreference)) {
+            query = query.Where(listing =>
+                listing.Owner!.RoommateProfile != null &&
+                listing.Owner.RoommateProfile.PetsPreference == model.PetsPreference);
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.CleanlinessLevel)) {
+            query = query.Where(listing =>
+                listing.Owner!.RoommateProfile != null &&
+                listing.Owner.RoommateProfile.CleanlinessLevel == model.CleanlinessLevel);
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.SleepSchedule)) {
+            query = query.Where(listing =>
+                listing.Owner!.RoommateProfile != null &&
+                listing.Owner.RoommateProfile.SleepSchedule == model.SleepSchedule);
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.GuestPreference)) {
+            query = query.Where(listing =>
+                listing.Owner!.RoommateProfile != null &&
+                listing.Owner.RoommateProfile.GuestPreference == model.GuestPreference);
+        }
+
+        model.Listings = await query
             .OrderByDescending(listing => listing.CreatedAt)
-            .ToListAsync());
+            .ToListAsync();
+
+        return View(model);
     }
 
     [AllowAnonymous]

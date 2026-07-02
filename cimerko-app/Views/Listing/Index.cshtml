@@ -1,4 +1,4 @@
-@model IEnumerable<Listing>
+@model cimerko_app.Models.ViewModels.ListingIndexViewModel
 
 @{
     ViewData["Title"] = "Listings";
@@ -11,24 +11,96 @@
     }
 </div>
 
-<form asp-action="Index" method="get" class="row g-2 mb-4">
-    <div class="col-md-5">
-        <input name="title" value="@ViewBag.TitleFilter" class="form-control" placeholder="Search by title"/>
+<form asp-action="Index" method="get" class="listing-filter-form mb-4">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Title" class="form-label"></label>
+            <input asp-for="Title" class="form-control" placeholder="Search by title"/>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="City" class="form-label"></label>
+            <input asp-for="City" class="form-control" placeholder="Search by city"/>
+        </div>
     </div>
-    <div class="col-md-5">
-        <input name="city" value="@ViewBag.CityFilter" class="form-control" placeholder="Search by city"/>
+
+    <div class="row g-3 mt-0">
+        <div class="col-md-6">
+            <label asp-for="MinimumBudget" class="form-label"></label>
+            <input asp-for="MinimumBudget" class="form-control" min="0" step="0.01" placeholder="Any"/>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="MaximumBudget" class="form-label"></label>
+            <input asp-for="MaximumBudget" class="form-control" min="0" step="0.01" placeholder="Any"/>
+        </div>
     </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-outline-primary w-100">Search</button>
+
+    <div class="row g-3 mt-0">
+        <div class="col-md-4">
+            <label asp-for="SmokingPreference" class="form-label"></label>
+            <select asp-for="SmokingPreference" class="form-select">
+                <option value="">Any</option>
+                <option value="No smoking">No smoking</option>
+                <option value="Outside only">Outside only</option>
+                <option value="Smoking is okay">Smoking is okay</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="PetsPreference" class="form-label"></label>
+            <select asp-for="PetsPreference" class="form-select">
+                <option value="">Any</option>
+                <option value="No pets">No pets</option>
+                <option value="Pets are welcome">Pets are welcome</option>
+                <option value="Ask first">Ask first</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="CleanlinessLevel" class="form-label"></label>
+            <select asp-for="CleanlinessLevel" class="form-select">
+                <option value="">Any</option>
+                <option value="Relaxed">Relaxed</option>
+                <option value="Balanced">Balanced</option>
+                <option value="Very tidy">Very tidy</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-0">
+        <div class="col-md-6">
+            <label asp-for="SleepSchedule" class="form-label"></label>
+            <select asp-for="SleepSchedule" class="form-select">
+                <option value="">Any</option>
+                <option value="Early bird">Early bird</option>
+                <option value="Flexible">Flexible</option>
+                <option value="Night owl">Night owl</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="GuestPreference" class="form-label"></label>
+            <select asp-for="GuestPreference" class="form-select">
+                <option value="">Any</option>
+                <option value="Rarely">Rarely</option>
+                <option value="Occasionally">Occasionally</option>
+                <option value="Often">Often</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="listing-filter-actions">
+        <button type="submit" class="btn btn-primary">Apply filters</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Clear filters</a>
     </div>
 </form>
 
-@if (!Model.Any()) {
-    <div class="alert alert-info">No active listings were found.</div>
+@if (Model.Listings.Count == 0) {
+    <div class="alert alert-info">
+        @(Model.HasActiveFilters
+            ? "No matches found. Try changing your filters."
+            : "No active listings were found.")
+    </div>
 }
 else {
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        @foreach (var listing in Model) {
+        @foreach (var listing in Model.Listings) {
             <div class="col">
                 <div class="card h-100">
                     <div class="card-body">
