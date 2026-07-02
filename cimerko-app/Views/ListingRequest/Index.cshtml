@@ -2,75 +2,137 @@
 
 @{
     ViewData["Title"] = "Listing requests";
-    var currentView = ViewBag.CurrentView as string;
+    var currentView = ViewBag.CurrentView as string ?? "received";
+    var isSentView = currentView == "sent";
+    var requests = Model.ToList();
 }
 
-<h1>Listing requests</h1>
-
-<div class="btn-group mb-4">
-    <a asp-action="Index" asp-route-view="received"
-       class="btn @(currentView == "received" ? "btn-primary" : "btn-outline-primary")">
-        Received
-    </a>
-    <a asp-action="Index" asp-route-view="sent"
-       class="btn @(currentView == "sent" ? "btn-primary" : "btn-outline-primary")">
-        Sent
-    </a>
-</div>
-
-@if (!Model.Any()) {
-    <div class="alert alert-info">There are no @currentView requests.</div>
-}
-else {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Listing</th>
-            @if (currentView == "sent") {
-                <th>Owner</th>
-            }
-            else {
-                <th>Sender</th>
-            }
-            <th>Message</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var request in Model) {
-            <tr>
-                <td>
-                    <a asp-controller="Listing" asp-action="Details" asp-route-id="@request.ListingId">
-                        @request.Listing?.Title
-                    </a>
-                </td>
-                @if (currentView == "sent") {
-                    <td>@(request.Listing?.Owner?.FullName ?? request.Listing?.Owner?.Email)</td>
-                }
-                else {
-                    <td>@(request.Sender?.FullName ?? request.Sender?.Email)</td>
-                }
-                <td>@request.Message</td>
-                <td>@request.Status</td>
-                <td>@request.CreatedAt.ToString("dd.MM.yyyy")</td>
-                <td>
-                    @if (currentView == "received" && request.Status == RequestStatus.Pending) {
-                        <form asp-action="UpdateStatus" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@request.Id"/>
-                            <input type="hidden" name="status" value="@RequestStatus.Accepted"/>
-                            <button type="submit" class="btn btn-sm btn-success">Accept</button>
-                        </form>
-                        <form asp-action="UpdateStatus" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@request.Id"/>
-                            <input type="hidden" name="status" value="@RequestStatus.Rejected"/>
-                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
-                        </form>
-                    }
-                </td>
-            </tr>
+<div class="requests-page">
+    <header class="requests-header">
+        <div>
+            <span class="requests-eyebrow">Housing conversations</span>
+            <h1>Listing requests</h1>
+            <p>Manage requests you have received and track the ones you have sent.</p>
+        </div>
+        @if (requests.Count > 0) {
+            <span class="requests-count">
+                @requests.Count @(requests.Count == 1 ? "request" : "requests")
+            </span>
         }
-        </tbody>
-    </table>
-}
+    </header>
+
+    <nav class="requests-tabs" aria-label="Request type">
+        <a asp-action="Index"
+           asp-route-view="received"
+           class="requests-tab @(currentView == "received" ? "is-active" : "")"
+           aria-current="@(currentView == "received" ? "page" : null)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5h16v14H4zM4 8l8 6 8-6"/>
+            </svg>
+            Received
+        </a>
+        <a asp-action="Index"
+           asp-route-view="sent"
+           class="requests-tab @(isSentView ? "is-active" : "")"
+           aria-current="@(isSentView ? "page" : null)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m3 11 18-8-8 18-2-7zM11 14 21 3"/>
+            </svg>
+            Sent
+        </a>
+    </nav>
+
+    @if (requests.Count == 0) {
+        <div class="alert alert-info">There are no @currentView requests.</div>
+    }
+    else {
+        <div class="requests-list">
+            @foreach (var request in requests) {
+                var person = isSentView ? request.Listing?.Owner : request.Sender;
+                var personName = string.IsNullOrWhiteSpace(person?.FullName)
+                    ? person?.Email ?? "Cimerko member"
+                    : person.FullName;
+                var personInitial = personName.Trim()[..1].ToUpperInvariant();
+                var personLabel = isSentView ? "Listing owner" : "Sent by";
+                var statusClass = request.Status switch {
+                    RequestStatus.Accepted => "request-status-accepted",
+                    RequestStatus.Rejected => "request-status-rejected",
+                    _ => "request-status-pending"
+                };
+
+                <article class="request-card">
+                    <header class="request-card-header">
+                        <div>
+                            <span class="request-card-label">Request for</span>
+                            <h2>
+                                <a asp-controller="Listing"
+                                   asp-action="Details"
+                                   asp-route-id="@request.ListingId">
+                                    @(request.Listing?.Title ?? "Listing")
+                                </a>
+                            </h2>
+                        </div>
+                        <span class="request-status @statusClass">@request.Status</span>
+                    </header>
+
+                    <div class="request-card-meta">
+                        @if (person != null) {
+                            <a asp-controller="Profile"
+                               asp-action="Details"
+                               asp-route-id="@person.Id"
+                               class="request-person">
+                                <span class="request-person-avatar">
+                                    @if (!string.IsNullOrWhiteSpace(person.ProfileImageUrl)) {
+                                        <img src="@person.ProfileImageUrl" alt=""/>
+                                    }
+                                    else {
+                                        <span aria-hidden="true">@personInitial</span>
+                                    }
+                                </span>
+                                <span>
+                                    <small>@personLabel</small>
+                                    <strong>@personName</strong>
+                                </span>
+                            </a>
+                        }
+                        <time datetime="@request.CreatedAt.ToString("O")">
+                            @request.CreatedAt.ToString("dd MMM yyyy")
+                        </time>
+                    </div>
+
+                    <div class="request-message">
+                        <span>Message</span>
+                        <p>@request.Message</p>
+                    </div>
+
+                    <footer class="request-card-footer">
+                        <a asp-controller="Listing"
+                           asp-action="Details"
+                           asp-route-id="@request.ListingId"
+                           class="request-listing-link">
+                            View listing
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="m9 18 6-6-6-6"/>
+                            </svg>
+                        </a>
+
+                        @if (!isSentView && request.Status == RequestStatus.Pending) {
+                            <div class="request-actions">
+                                <form asp-action="UpdateStatus" method="post">
+                                    <input type="hidden" name="id" value="@request.Id"/>
+                                    <input type="hidden" name="status" value="@RequestStatus.Rejected"/>
+                                    <button type="submit" class="request-action request-reject-action">Reject</button>
+                                </form>
+                                <form asp-action="UpdateStatus" method="post">
+                                    <input type="hidden" name="id" value="@request.Id"/>
+                                    <input type="hidden" name="status" value="@RequestStatus.Accepted"/>
+                                    <button type="submit" class="request-action request-accept-action">Accept</button>
+                                </form>
+                            </div>
+                        }
+                    </footer>
+                </article>
+            }
+        </div>
+    }
+</div>
