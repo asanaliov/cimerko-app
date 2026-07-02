@@ -10,6 +10,7 @@
             ? "there"
             : fullName.Split(' ')[0];
 
+        @await Component.InvokeAsync("NotificationNav")
         <li class="nav-item">
             <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @firstName!</a>
         </li>

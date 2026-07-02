@@ -1600,21 +1600,48 @@ body {
 }
 
 .notification-nav-link {
+  position: relative;
   display: flex;
+  width: 38px;
+  height: 38px;
   align-items: center;
-  gap: 0.35rem;
+  justify-content: center;
+  margin: 0 0.2rem;
+  padding: 0;
+  border-radius: 50%;
+  color: #596477;
+}
+
+.notification-nav-link:hover,
+.notification-nav-link:focus {
+  color: #176d65;
+  background: #edf8f5;
+}
+
+.notification-nav-link > svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .notification-nav-count {
-  display: inline-grid;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 0.35rem;
+  position: absolute;
+  top: 1px;
+  right: 0;
+  display: grid;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 0.25rem;
   place-items: center;
+  border: 2px solid #fff;
   border-radius: 999px;
   color: #fff;
   background: #1f8177;
-  font-size: 0.65rem;
+  font-size: 0.56rem;
   font-weight: 800;
   line-height: 1;
 }

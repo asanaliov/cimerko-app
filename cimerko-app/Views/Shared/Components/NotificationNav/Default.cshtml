@@ -1,13 +1,19 @@
 @model int
 
 <li class="nav-item">
-    <a class="nav-link text-dark notification-nav-link"
+    <a class="nav-link notification-nav-link"
        asp-area=""
        asp-controller="Notifications"
-       asp-action="Index">
-        Notifications
+       asp-action="Index"
+       aria-label="Notifications@(Model > 0 ? $", {Model} unread" : "")"
+       title="Notifications">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+            <path d="M10 21h4"/>
+        </svg>
+        <span class="visually-hidden">Notifications</span>
         @if (Model > 0) {
-            <span class="notification-nav-count" aria-label="@Model unread notifications">@Model</span>
+            <span class="notification-nav-count" aria-hidden="true">@Model</span>
         }
     </a>
 </li>
