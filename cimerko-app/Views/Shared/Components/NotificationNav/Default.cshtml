@@ -1,0 +1,13 @@
+@model int
+
+<li class="nav-item">
+    <a class="nav-link text-dark notification-nav-link"
+       asp-area=""
+       asp-controller="Notifications"
+       asp-action="Index">
+        Notifications
+        @if (Model > 0) {
+            <span class="notification-nav-count" aria-label="@Model unread notifications">@Model</span>
+        }
+    </a>
+</li>

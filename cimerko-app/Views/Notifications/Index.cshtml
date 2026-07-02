@@ -1,0 +1,83 @@
+@model IReadOnlyList<Notification>
+
+@{
+    ViewData["Title"] = "Notifications";
+    var unreadCount = Model.Count(notification => !notification.IsRead);
+}
+
+<div class="notifications-page">
+    <header class="notifications-header">
+        <div>
+            <span class="notifications-eyebrow">Updates</span>
+            <h1>Notifications</h1>
+            <p>Listing requests and decisions will appear here.</p>
+        </div>
+
+        @if (unreadCount > 0) {
+            <form asp-action="MarkAllAsRead" method="post">
+                <button type="submit" class="btn notifications-mark-all">
+                    Mark all as read
+                </button>
+            </form>
+        }
+    </header>
+
+    @if (Model.Count == 0) {
+        <div class="notifications-empty">
+            <span class="notifications-empty-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                    <path d="M10 21h4"/>
+                </svg>
+            </span>
+            <h2>No notifications</h2>
+            <p>You do not have any notifications yet.</p>
+        </div>
+    }
+    else {
+        <div class="notifications-list">
+            @foreach (var notification in Model) {
+                <article class="notification-item @(!notification.IsRead ? "is-unread" : "")">
+                    <span class="notification-item-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                            <path d="M10 21h4"/>
+                        </svg>
+                    </span>
+
+                    <div class="notification-item-content">
+                        <div class="notification-item-heading">
+                            <h2>@notification.Title</h2>
+                            @if (!notification.IsRead) {
+                                <span>New</span>
+                            }
+                        </div>
+                        <p>@notification.Message</p>
+                        <time datetime="@notification.CreatedAt.ToString("O")">
+                            @notification.CreatedAt.ToString("dd MMM yyyy, HH:mm")
+                        </time>
+                    </div>
+
+                    <div class="notification-item-actions">
+                        @if (notification.ListingId.HasValue) {
+                            <a asp-controller="Listing"
+                               asp-action="Details"
+                               asp-route-id="@notification.ListingId"
+                               class="notification-listing-link">
+                                View listing
+                            </a>
+                        }
+                        @if (!notification.IsRead) {
+                            <form asp-action="MarkAsRead" method="post">
+                                <input type="hidden" name="id" value="@notification.Id"/>
+                                <button type="submit" class="notification-read-button">
+                                    Mark as read
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</div>
