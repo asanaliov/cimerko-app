@@ -341,7 +341,7 @@ public class ProfileController : Controller {
 
         if (!string.IsNullOrWhiteSpace(profile?.University) ||
             !string.IsNullOrWhiteSpace(profile?.StudyProgram)) {
-            badges.Add(new ProfileBadgeViewModel("Student Profile", "profile-badge-student"));
+            badges.Add(new ProfileBadgeViewModel("Student", "profile-badge-student"));
         }
 
         if (activeListingCount > 0) {
