@@ -94,7 +94,7 @@
                         <span style="width: @(profileCompletion.ProfileCompletionPercentage)%"></span>
                     </div>
                     @if (profileCompletion.IsProfileComplete) {
-                        <p>Your profile is complete.</p>
+                        <p class="profile-completion-success">Your profile is complete.</p>
                     }
                     else {
                         <p>
@@ -102,9 +102,9 @@
                                 ? "Complete your profile to get better roommate matches."
                                 : "This profile is partially completed.")
                         </p>
-                        <details class="profile-missing-details">
+                        <details class="profile-missing-details @(!isOwnProfile ? "profile-missing-details-secondary" : "")">
                             <summary>View missing fields</summary>
-                            <strong>Missing information</strong>
+                            <strong class="profile-missing-heading">Missing information</strong>
                             <ul>
                                 @foreach (var field in profileCompletion.MissingProfileFields) {
                                     <li>@field</li>
