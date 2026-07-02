@@ -43,4 +43,6 @@ public class Listing {
     public ICollection<SavedListing> SavedByUsers { get; set; } = new List<SavedListing>();
 
     public ICollection<ListingRequest> Requests { get; set; } = new List<ListingRequest>();
+
+    public ICollection<ListingImage> Images { get; set; } = new List<ListingImage>();
 }

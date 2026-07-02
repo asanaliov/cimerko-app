@@ -12,6 +12,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<SavedListing> SavedListings { get; set; }
     public DbSet<ListingRequest> ListingRequests { get; set; }
     public DbSet<Review> Reviews { get; set; }
+    public DbSet<ListingImage> ListingImages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
@@ -26,6 +27,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasOne(listing => listing.Owner)
             .WithMany(user => user.Listings)
             .HasForeignKey(listing => listing.OwnerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ListingImage>()
+            .HasOne(image => image.Listing)
+            .WithMany(listing => listing.Images)
+            .HasForeignKey(image => image.ListingId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<SavedListing>()
