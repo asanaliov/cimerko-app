@@ -3077,11 +3077,19 @@ body {
   padding: 0 2rem 1.5rem;
 }
 
+.profile-hero-avatar-column {
+  display: flex;
+  align-self: start;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: -72px;
+}
+
 .profile-hero-avatar {
   display: grid;
   width: 154px;
   height: 154px;
-  margin-top: -72px;
   overflow: hidden;
   place-items: center;
   border: 6px solid #fff;
@@ -3181,6 +3189,10 @@ body {
   border-color: #cfdff3;
   color: #39658f;
   background: #eef6ff;
+}
+
+.profile-avatar-new-badge {
+  justify-content: center;
 }
 
 .profile-badge-match {
@@ -3970,10 +3982,13 @@ body {
     padding: 0 1.25rem 1.25rem;
   }
 
+  .profile-hero-avatar-column {
+    margin-top: -60px;
+  }
+
   .profile-hero-avatar {
     width: 122px;
     height: 122px;
-    margin-top: -60px;
   }
 
   .profile-hero-avatar span {

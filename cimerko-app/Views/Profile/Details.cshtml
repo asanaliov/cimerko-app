@@ -21,6 +21,10 @@
         ViewBag.CompatibilityPossibleConflicts as IReadOnlyList<string> ?? Array.Empty<string>();
     var profileBadges =
         ViewBag.ProfileBadges as IReadOnlyList<ProfileBadgeViewModel> ?? Array.Empty<ProfileBadgeViewModel>();
+    var newUserBadge = profileBadges.FirstOrDefault(badge => badge.CssClass == "profile-badge-new");
+    var identityBadges = profileBadges
+        .Where(badge => badge.CssClass != "profile-badge-new")
+        .ToList();
     var profileCompletion = ViewBag.ProfileCompletion as ProfileCompletionViewModel;
     var showSidebar = showCompatibility || reviews.Count > 0 || canWriteReview;
     var activeListings = Model.Listings
@@ -48,12 +52,19 @@
     <section class="profile-hero">
         <div class="profile-hero-accent"></div>
         <div class="profile-hero-content">
-            <div class="profile-hero-avatar" aria-label="@displayName profile picture">
-                @if (!string.IsNullOrWhiteSpace(Model.ProfileImageUrl)) {
-                    <img src="@Model.ProfileImageUrl" alt="@displayName"/>
-                }
-                else {
-                    <span aria-hidden="true">@initial</span>
+            <div class="profile-hero-avatar-column">
+                <div class="profile-hero-avatar" aria-label="@displayName profile picture">
+                    @if (!string.IsNullOrWhiteSpace(Model.ProfileImageUrl)) {
+                        <img src="@Model.ProfileImageUrl" alt="@displayName"/>
+                    }
+                    else {
+                        <span aria-hidden="true">@initial</span>
+                    }
+                </div>
+                @if (newUserBadge != null) {
+                    <span class="profile-badge @newUserBadge.CssClass profile-avatar-new-badge">
+                        @newUserBadge.Text
+                    </span>
                 }
             </div>
 
@@ -68,9 +79,9 @@
                     }
                     <span>Member since @Model.CreatedAt.ToString("MMM yyyy")</span>
                 </div>
-                @if (profileBadges.Count > 0) {
+                @if (identityBadges.Count > 0) {
                     <div class="profile-badges" aria-label="Profile badges">
-                        @foreach (var badge in profileBadges) {
+                        @foreach (var badge in identityBadges) {
                             <span class="profile-badge @badge.CssClass">@badge.Text</span>
                         }
                     </div>
