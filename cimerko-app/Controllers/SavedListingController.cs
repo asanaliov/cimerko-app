@@ -62,6 +62,10 @@ public class SavedListingController : Controller {
             await _context.SaveChangesAsync();
         }
 
+        if (IsAjaxRequest()) {
+            return Json(new { isSaved = true });
+        }
+
         if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)) {
             return LocalRedirect(returnUrl);
         }
@@ -85,6 +89,10 @@ public class SavedListingController : Controller {
             await _context.SaveChangesAsync();
         }
 
+        if (IsAjaxRequest()) {
+            return Json(new { isSaved = false });
+        }
+
         if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)) {
             return LocalRedirect(returnUrl);
         }
@@ -94,6 +102,10 @@ public class SavedListingController : Controller {
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private bool IsAjaxRequest() {
+        return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
     }
 
     private string? CurrentUserId() {

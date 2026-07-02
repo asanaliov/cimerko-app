@@ -4,6 +4,8 @@
     ViewData["Title"] = "Listings";
     var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
     var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    var saveUrl = Url.Action("Save", "SavedListing");
+    var removeUrl = Url.Action("Remove", "SavedListing");
 }
 
 <div class="listing-page">
@@ -210,7 +212,10 @@
                             <form asp-controller="SavedListing"
                                   asp-action="@(isSaved ? "Remove" : "Save")"
                                   method="post"
-                                  class="listing-card-save-form">
+                                  class="listing-card-save-form"
+                                  data-save-url="@saveUrl"
+                                  data-remove-url="@removeUrl"
+                                  data-listing-title="@listing.Title">
                                 <input type="hidden" name="listingId" value="@listing.Id"/>
                                 <input type="hidden" name="returnUrl" value="@returnUrl"/>
                                 <button type="submit"
@@ -221,6 +226,7 @@
                                         <path d="M6 4.5h12v16l-6-3.8-6 3.8z"/>
                                     </svg>
                                 </button>
+                                <span class="visually-hidden" aria-live="polite"></span>
                             </form>
                         }
                         <svg class="listing-card-placeholder" viewBox="0 0 120 90" aria-hidden="true">
@@ -312,3 +318,56 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        (() => {
+            document.querySelectorAll(".listing-card-save-form").forEach(form => {
+                form.addEventListener("submit", async event => {
+                    event.preventDefault();
+
+                    const button = form.querySelector(".listing-card-save-button");
+                    const status = form.querySelector("[aria-live]");
+                    const listingTitle = form.dataset.listingTitle;
+                    button.disabled = true;
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: "POST",
+                            body: new FormData(form),
+                            headers: {
+                                "Accept": "application/json",
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Save request failed with status ${response.status}.`);
+                        }
+
+                        const result = await response.json();
+                        const isSaved = result.isSaved === true;
+                        const actionLabel = isSaved
+                            ? `Remove ${listingTitle} from saved listings`
+                            : `Save ${listingTitle}`;
+
+                        form.action = isSaved ? form.dataset.removeUrl : form.dataset.saveUrl;
+                        button.classList.toggle("is-saved", isSaved);
+                        button.title = isSaved ? "Remove from saved listings" : "Save listing";
+                        button.setAttribute("aria-label", actionLabel);
+                        status.textContent = isSaved
+                            ? `${listingTitle} saved.`
+                            : `${listingTitle} removed from saved listings.`;
+                    }
+                    catch (error) {
+                        console.error(error);
+                        status.textContent = "Could not update the saved listing. Please try again.";
+                    }
+                    finally {
+                        button.disabled = false;
+                    }
+                });
+            });
+        })();
+    </script>
+}
