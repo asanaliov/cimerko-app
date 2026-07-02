@@ -140,6 +140,32 @@ body {
   grid-area: 1 / 1;
 }
 
+.site-settings-link {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  padding: 0 !important;
+  place-items: center;
+  border-radius: 50%;
+  color: #596477;
+}
+
+.site-settings-link:hover,
+.site-settings-link:focus {
+  color: #176d65;
+  background: #edf8f5;
+}
+
+.site-settings-link svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
 .site-logout-form {
   margin: 0;
 }
