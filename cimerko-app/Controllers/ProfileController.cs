@@ -284,7 +284,7 @@ public class ProfileController : Controller {
                 IsComplete = !string.IsNullOrWhiteSpace(profile?.University)
             },
             new {
-                Name = "Study program",
+                Name = "Faculty",
                 EditAnchor = "StudyProgram",
                 IsComplete = !string.IsNullOrWhiteSpace(profile?.StudyProgram)
             },

@@ -128,7 +128,7 @@
             </div>
             <div>
                 <strong>@(string.IsNullOrWhiteSpace(profile?.StudyProgram) ? "—" : profile.StudyProgram)</strong>
-                <span>Study program</span>
+                <span>Faculty</span>
             </div>
             <div>
                 <strong>@(reviews.Count == 0 ? "New" : $"{averageRating:0.0} / 5")</strong>
@@ -187,7 +187,7 @@
                             <strong>@(profile.University ?? "Not specified")</strong>
                         </div>
                         <div class="profile-fact profile-fact-wide">
-                            <span>Study program</span>
+                            <span>Faculty</span>
                             <strong>@(profile.StudyProgram ?? "Not specified")</strong>
                         </div>
                     </div>

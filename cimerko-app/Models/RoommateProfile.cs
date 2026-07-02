@@ -27,6 +27,7 @@ public class RoommateProfile {
     public string? University { get; set; }
 
     [MaxLength(100)]
+    [Display(Name = "Faculty")]
     public string? StudyProgram { get; set; }
 
     [MaxLength(30)]
