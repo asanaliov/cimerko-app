@@ -72,7 +72,9 @@ public class ProfileController : Controller {
         }
 
         ViewBag.ProfileBadges = BuildProfileBadges(user, compatibilityScore);
-        ViewBag.ProfileCompletion = CalculateProfileCompletion(user);
+        if (visitorId == id) {
+            ViewBag.ProfileCompletion = CalculateProfileCompletion(user);
+        }
 
         return View(user);
     }

@@ -21,9 +21,7 @@
         ViewBag.CompatibilityPossibleConflicts as IReadOnlyList<string> ?? Array.Empty<string>();
     var profileBadges =
         ViewBag.ProfileBadges as IReadOnlyList<ProfileBadgeViewModel> ?? Array.Empty<ProfileBadgeViewModel>();
-    var profileCompletion =
-        ViewBag.ProfileCompletion as ProfileCompletionViewModel ??
-        new ProfileCompletionViewModel(0, Array.Empty<MissingProfileFieldViewModel>());
+    var profileCompletion = ViewBag.ProfileCompletion as ProfileCompletionViewModel;
     var showSidebar = showCompatibility || reviews.Count > 0 || canWriteReview;
     var activeListings = Model.Listings
         .Where(listing => listing.IsActive)
@@ -80,51 +78,42 @@
                 @if (!string.IsNullOrWhiteSpace(bioPreview)) {
                     <p class="profile-hero-bio">@bioPreview</p>
                 }
-                <div class="profile-completion">
-                    <div class="profile-completion-heading">
-                        <strong>Profile completion</strong>
-                        <span>@profileCompletion.ProfileCompletionPercentage%</span>
-                    </div>
-                    <div class="profile-completion-track"
-                         role="progressbar"
-                         aria-label="Profile completion"
-                         aria-valuemin="0"
-                         aria-valuemax="100"
-                         aria-valuenow="@profileCompletion.ProfileCompletionPercentage">
-                        <span style="width: @(profileCompletion.ProfileCompletionPercentage)%"></span>
-                    </div>
-                    @if (profileCompletion.IsProfileComplete) {
-                        <p class="profile-completion-success">Your profile is complete.</p>
-                    }
-                    else {
-                        <p>
-                            @(isOwnProfile
-                                ? "Complete your profile to get better roommate matches."
-                                : "This profile is partially completed.")
-                        </p>
-                        <details class="profile-missing-details @(!isOwnProfile ? "profile-missing-details-secondary" : "")">
-                            <summary>@(isOwnProfile ? "Complete missing fields" : "View missing fields")</summary>
-                            <div class="profile-missing-panel">
-                                <strong class="profile-missing-heading">Missing information</strong>
-                                <ul>
-                                    @foreach (var field in profileCompletion.MissingProfileFields) {
-                                        <li>
-                                            @if (isOwnProfile) {
+                @if (isOwnProfile && profileCompletion != null) {
+                    <div class="profile-completion">
+                        <div class="profile-completion-heading">
+                            <strong>Profile completion</strong>
+                            <span>@profileCompletion.ProfileCompletionPercentage%</span>
+                        </div>
+                        <div class="profile-completion-track"
+                             role="progressbar"
+                             aria-label="Profile completion"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             aria-valuenow="@profileCompletion.ProfileCompletionPercentage">
+                            <span style="width: @(profileCompletion.ProfileCompletionPercentage)%"></span>
+                        </div>
+                        @if (profileCompletion.IsProfileComplete) {
+                            <p class="profile-completion-success">Your profile is complete.</p>
+                        }
+                        else {
+                            <p>Complete your profile to get better roommate matches.</p>
+                            <details class="profile-missing-details">
+                                <summary>Complete missing fields</summary>
+                                <div class="profile-missing-panel">
+                                    <strong class="profile-missing-heading">Missing information</strong>
+                                    <ul>
+                                        @foreach (var field in profileCompletion.MissingProfileFields) {
+                                            <li>
                                                 <a asp-action="Edit" asp-fragment="@field.EditAnchor">@field.Name</a>
-                                            }
-                                            else {
-                                                @field.Name
-                                            }
-                                        </li>
-                                    }
-                                </ul>
-                                @if (isOwnProfile) {
+                                            </li>
+                                        }
+                                    </ul>
                                     <a asp-action="Edit" class="profile-missing-edit-all">Complete your profile</a>
-                                }
-                            </div>
-                        </details>
-                    }
-                </div>
+                                </div>
+                            </details>
+                        }
+                    </div>
+                }
             </div>
 
             @if (isOwnProfile) {
