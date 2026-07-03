@@ -8,7 +8,7 @@
     <header class="listing-form-header">
         <div>
             <span class="listing-form-eyebrow">New listing</span>
-            <h1>Share your place.</h1>
+            <h1>List your place.</h1>
             <p>Add the essentials now. You can update every detail later.</p>
         </div>
 
@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="listing-form-field listing-form-field-wide">
-                        <label asp-for="Type">What do you need?</label>
+                        <label asp-for="Type">What are you posting?</label>
                         <select asp-for="Type"
                                 asp-items="Html.GetEnumSelectList<ListingType>()"
                                 aria-describedby="listingTypeHelp"
@@ -58,7 +58,7 @@
                                class="listing-form-field-hint listing-type-help"
                                data-listing-type-help
                                aria-live="polite">
-                            Choose whether you need a place or need roommates for a place.
+                            Choose whether you are listing a place for rent or looking for a roommate.
                         </small>
                         <span asp-validation-for="Type" class="listing-form-error"></span>
                     </div>
@@ -143,7 +143,7 @@
                                max="10"
                                placeholder="1"
                                data-roommates-needed/>
-                        <small class="listing-form-field-hint">How many roommates are you looking for?</small>
+                        <small class="listing-form-field-hint">How many roommates do you need?</small>
                         <span asp-validation-for="RoommatesNeeded" class="listing-form-error"></span>
                     </div>
 
@@ -225,7 +225,7 @@
                     <span>1</span>
                     <div>
                         <strong>Use a clear title</strong>
-                        <small>Mention the room or place, not just “available”.</small>
+                            <small>Mention the room or place, not just “available”.</small>
                     </div>
                 </li>
                 <li>

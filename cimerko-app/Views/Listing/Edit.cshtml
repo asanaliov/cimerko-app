@@ -25,7 +25,7 @@
             </div>
 
             <div class="mb-3">
-                <label asp-for="Type" class="form-label"></label>
+                <label asp-for="Type" class="form-label">What are you posting?</label>
                 <select asp-for="Type"
                         asp-items="Html.GetEnumSelectList<ListingType>()"
                         class="form-select"
@@ -38,7 +38,7 @@
                      class="form-text"
                      data-listing-type-help
                      aria-live="polite">
-                    Choose whether you need a place or need roommates for a place.
+                    Choose whether you are listing a place for rent or looking for a roommate.
                 </div>
                 <span asp-validation-for="Type" class="text-danger"></span>
             </div>
@@ -77,7 +77,7 @@
                        max="10"
                        class="form-control"
                        data-roommates-needed/>
-                <div class="form-text">How many roommates are you looking for?</div>
+                <div class="form-text">How many roommates do you need?</div>
                 <span asp-validation-for="RoommatesNeeded" class="text-danger"></span>
             </div>
 

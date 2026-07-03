@@ -12,23 +12,23 @@ document.querySelectorAll("[data-listing-type-form]").forEach(form => {
         return;
     }
 
-    const lookingForPlaceValue = "1";
+    const placeForRentValue = "1";
     const lookingForRoommateValue = "2";
 
     const updateListingTypeFields = () => {
-        const isLookingForPlace = typeSelect.value === lookingForPlaceValue;
+        const isPlaceForRent = typeSelect.value === placeForRentValue;
         const isLookingForRoommate = typeSelect.value === lookingForRoommateValue;
 
-        typeHelp.textContent = isLookingForPlace
-            ? "You need a room or apartment to live in."
+        typeHelp.textContent = isPlaceForRent
+            ? "You have a room, apartment, or house to rent."
             : isLookingForRoommate
                 ? "You have or know a place and need one or more roommates."
-                : "Choose whether you need a place or need roommates for a place.";
+                : "Choose whether you are listing a place for rent or looking for a roommate.";
 
         roommatesField.hidden = !isLookingForRoommate;
         roommatesInput.disabled = !isLookingForRoommate;
         roommatesInput.required = isLookingForRoommate;
-        factsFields?.classList.toggle("is-looking-for-place", isLookingForPlace);
+        factsFields?.classList.toggle("is-place-for-rent", isPlaceForRent);
     };
 
     typeSelect.addEventListener("change", updateListingTypeFields);

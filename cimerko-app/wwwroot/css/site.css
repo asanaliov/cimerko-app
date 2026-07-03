@@ -3143,7 +3143,7 @@ body {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.listing-form-fields-four.is-looking-for-place {
+.listing-form-fields-four.is-place-for-rent {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 

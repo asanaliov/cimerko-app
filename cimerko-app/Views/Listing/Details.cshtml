@@ -114,7 +114,7 @@
 
     <header class="listing-details-header">
         <div class="listing-details-badges">
-            <span class="listing-details-type-badge @(listing.Type == ListingType.LookingForPlace ? "is-place" : "is-roommate")">
+            <span class="listing-details-type-badge @(listing.Type == ListingType.PlaceForRent ? "is-place" : "is-roommate")">
                 @typeLabel
             </span>
             <span class="listing-details-status-badge @(listing.IsActive ? "is-active" : "is-inactive")">

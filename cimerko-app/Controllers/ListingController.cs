@@ -365,7 +365,7 @@ public class ListingController : Controller {
             return;
         }
 
-        if (listing.Type == ListingType.LookingForPlace) {
+        if (listing.Type == ListingType.PlaceForRent) {
             listing.RoommatesNeeded = null;
             ModelState.Remove(nameof(Listing.RoommatesNeeded));
         }

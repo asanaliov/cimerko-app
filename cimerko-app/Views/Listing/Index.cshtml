@@ -11,9 +11,9 @@
 <div class="listing-page">
     <header class="listing-page-header">
         <div>
-            <span class="listing-eyebrow">Find your next place</span>
-            <h1>Rooms and roommates,<br/>without the noise.</h1>
-            <p>Explore available places and find people whose living style matches yours.</p>
+            <span class="listing-eyebrow">Find your next home</span>
+            <h1>Places and roommates,<br/>without the noise.</h1>
+            <p>Explore places for rent and find people whose living style matches yours.</p>
         </div>
 
         @if (User.Identity?.IsAuthenticated == true) {
@@ -181,7 +181,7 @@
             <p>
                 @(Model.HasActiveFilters
                     ? "Try broadening your search or removing a few filters."
-                    : "New places will appear here as soon as they are posted.")
+                    : "New places for rent and roommate requests will appear here as soon as they are posted.")
             </p>
             @if (Model.HasActiveFilters) {
                 <a asp-action="Index" class="btn listing-empty-action">Clear filters</a>
@@ -205,7 +205,7 @@
 
                 <article class="listing-card">
                     <div class="listing-card-accent">
-                        <span class="listing-type-badge @(listing.Type == ListingType.LookingForPlace ? "is-place" : "is-roommate")">
+                        <span class="listing-type-badge @(listing.Type == ListingType.PlaceForRent ? "is-place" : "is-roommate")">
                             @typeLabel
                         </span>
                         <span class="listing-posted-date @(canSave ? "listing-posted-date-saveable" : "")">
