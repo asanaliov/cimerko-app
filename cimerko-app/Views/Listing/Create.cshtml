@@ -20,7 +20,10 @@
         </a>
     </header>
 
-    <form asp-action="Create" class="listing-form-layout" enctype="multipart/form-data">
+    <form asp-action="Create"
+          class="listing-form-layout"
+          enctype="multipart/form-data"
+          data-listing-type-form>
         <div class="listing-form-card">
             <div asp-validation-summary="ModelOnly" class="listing-form-validation" role="alert"></div>
 
@@ -43,12 +46,21 @@
                     </div>
 
                     <div class="listing-form-field listing-form-field-wide">
-                        <label asp-for="Type">What are you listing?</label>
-                        <select asp-for="Type">
-                            <option value="@((int)ListingType.RoomOffer)">A room or place</option>
-                            <option value="@((int)ListingType.RoommateWanted)">Looking for a roommate</option>
-                            <option value="@((int)ListingType.LookingForPlace)">Looking for a place</option>
+                        <label asp-for="Type">What do you need?</label>
+                        <select asp-for="Type"
+                                asp-items="Html.GetEnumSelectList<ListingType>()"
+                                aria-describedby="listingTypeHelp"
+                                data-listing-type
+                                required>
+                            <option value="">Choose a listing type</option>
                         </select>
+                        <small id="listingTypeHelp"
+                               class="listing-form-field-hint listing-type-help"
+                               data-listing-type-help
+                               aria-live="polite">
+                            Choose whether you need a place or need roommates for a place.
+                        </small>
+                        <span asp-validation-for="Type" class="listing-form-error"></span>
                     </div>
 
                     <div class="listing-form-field listing-form-field-wide">
@@ -100,7 +112,7 @@
                     </div>
                 </div>
 
-                <div class="listing-form-fields listing-form-fields-four">
+                <div class="listing-form-fields listing-form-fields-four" data-listing-facts-fields>
                     <div class="listing-form-field">
                         <label asp-for="MonthlyRent">Monthly rent</label>
                         <div class="listing-form-input-suffix">
@@ -121,9 +133,16 @@
                         <span asp-validation-for="RoomCount" class="listing-form-error"></span>
                     </div>
 
-                    <div class="listing-form-field">
+                    <div class="listing-form-field"
+                         data-roommates-needed-field
+                         hidden="@(Model.Type != ListingType.LookingForRoommate)">
                         <label asp-for="RoommatesNeeded"></label>
-                        <input asp-for="RoommatesNeeded" type="number" min="1" max="10" placeholder="1"/>
+                        <input asp-for="RoommatesNeeded"
+                               type="number"
+                               min="1"
+                               max="10"
+                               placeholder="1"
+                               data-roommates-needed/>
                         <small class="listing-form-field-hint">How many roommates are you looking for?</small>
                         <span asp-validation-for="RoommatesNeeded" class="listing-form-error"></span>
                     </div>

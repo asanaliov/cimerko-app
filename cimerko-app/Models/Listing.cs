@@ -14,6 +14,8 @@ public class Listing {
     [MaxLength(2000)]
     public string Description { get; set; } = string.Empty;
 
+    [Display(Name = "Listing type")]
+    [EnumDataType(typeof(ListingType), ErrorMessage = "Choose a valid listing type.")]
     public ListingType Type { get; set; }
 
     [Required]
@@ -29,10 +31,9 @@ public class Listing {
     [Range(1, 20)]
     public int RoomCount { get; set; }
 
-    [Required]
     [Range(1, 10)]
     [Display(Name = "Roommates needed")]
-    public int RoommatesNeeded { get; set; } = 1;
+    public int? RoommatesNeeded { get; set; }
 
     public DateTime? AvailableFrom { get; set; }
 

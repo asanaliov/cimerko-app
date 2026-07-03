@@ -42,12 +42,7 @@
                     continue;
                 }
 
-                var typeLabel = listing.Type switch {
-                    ListingType.RoomOffer => "Room available",
-                    ListingType.RoommateWanted => "Roommate wanted",
-                    ListingType.LookingForPlace => "Looking for a place",
-                    _ => listing.Type.ToString()
-                };
+                var typeLabel = listing.Type.GetDisplayName();
                 var location = string.IsNullOrWhiteSpace(listing.Address)
                     ? listing.City
                     : $"{listing.City} · {listing.Address}";
@@ -100,7 +95,8 @@
                                 </svg>
                                 @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")
                             </span>
-                            @if (listing.RoommatesNeeded > 0) {
+                            @if (listing.Type == ListingType.LookingForRoommate &&
+                                 listing.RoommatesNeeded.HasValue) {
                                 <span>
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
                                         <circle cx="9" cy="8" r="3"/>

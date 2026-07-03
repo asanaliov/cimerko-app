@@ -8,7 +8,7 @@
 
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Edit" enctype="multipart/form-data">
+        <form asp-action="Edit" enctype="multipart/form-data" data-listing-type-form>
             <input type="hidden" asp-for="Id"/>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -26,7 +26,21 @@
 
             <div class="mb-3">
                 <label asp-for="Type" class="form-label"></label>
-                <select asp-for="Type" asp-items="Html.GetEnumSelectList<ListingType>()" class="form-select"></select>
+                <select asp-for="Type"
+                        asp-items="Html.GetEnumSelectList<ListingType>()"
+                        class="form-select"
+                        aria-describedby="listingTypeHelp"
+                        data-listing-type
+                        required>
+                    <option value="">Choose a listing type</option>
+                </select>
+                <div id="listingTypeHelp"
+                     class="form-text"
+                     data-listing-type-help
+                     aria-live="polite">
+                    Choose whether you need a place or need roommates for a place.
+                </div>
+                <span asp-validation-for="Type" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
@@ -53,9 +67,16 @@
                 <span asp-validation-for="RoomCount" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-3"
+                 data-roommates-needed-field
+                 hidden="@(Model.Type != ListingType.LookingForRoommate)">
                 <label asp-for="RoommatesNeeded" class="form-label"></label>
-                <input asp-for="RoommatesNeeded" type="number" min="1" max="10" class="form-control"/>
+                <input asp-for="RoommatesNeeded"
+                       type="number"
+                       min="1"
+                       max="10"
+                       class="form-control"
+                       data-roommates-needed/>
                 <div class="form-text">How many roommates are you looking for?</div>
                 <span asp-validation-for="RoommatesNeeded" class="text-danger"></span>
             </div>

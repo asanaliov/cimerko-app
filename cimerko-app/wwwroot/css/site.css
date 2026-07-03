@@ -3119,6 +3119,10 @@ body {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.listing-form-fields-four.is-looking-for-place {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .listing-form-field-wide {
   grid-column: 1 / -1;
 }
@@ -3224,6 +3228,10 @@ body {
   color: #8a93a2;
   font-size: 0.68rem;
   line-height: 1.4;
+}
+
+.listing-type-help {
+  min-height: 1rem;
 }
 
 .listing-image-upload {

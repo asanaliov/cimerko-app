@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using cimerko_app.Data;
 using cimerko_app.Models;
+using cimerko_app.Models.Enums;
 using cimerko_app.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -147,8 +148,7 @@ public class ListingController : Controller {
 
     public IActionResult Create() {
         return View(new Listing {
-            RoomCount = 1,
-            RoommatesNeeded = 1
+            RoomCount = 1
         });
     }
 
@@ -167,6 +167,7 @@ public class ListingController : Controller {
         listing.CreatedAt = DateTime.UtcNow;
         listing.IsActive = true;
         ModelState.Remove(nameof(Listing.OwnerId));
+        ApplyListingTypeRules(listing);
 
         var hadUploadedImages = listingImages?.Any(image => image.Length > 0) == true;
         var validImages = await ValidateListingImagesAsync(listingImages, 0);
@@ -243,6 +244,7 @@ public class ListingController : Controller {
         }
 
         ModelState.Remove(nameof(Listing.OwnerId));
+        ApplyListingTypeRules(formListing);
         var requestedRemovalIds = removeImageIds?.ToHashSet() ?? [];
         var imagesToRemove = listing.Images
             .Where(image => requestedRemovalIds.Contains(image.Id))
@@ -349,6 +351,20 @@ public class ListingController : Controller {
 
     private string? CurrentUserId() {
         return User.FindFirstValue(ClaimTypes.NameIdentifier);
+    }
+
+    private void ApplyListingTypeRules(Listing listing) {
+        if (listing.Type == ListingType.LookingForRoommate && !listing.RoommatesNeeded.HasValue) {
+            ModelState.AddModelError(
+                nameof(Listing.RoommatesNeeded),
+                "Enter how many roommates you need.");
+            return;
+        }
+
+        if (listing.Type == ListingType.LookingForPlace) {
+            listing.RoommatesNeeded = null;
+            ModelState.Remove(nameof(Listing.RoommatesNeeded));
+        }
     }
 
     private async Task<List<(IFormFile File, string Extension)>> ValidateListingImagesAsync(

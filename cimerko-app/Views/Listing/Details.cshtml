@@ -13,12 +13,7 @@
         .OrderByDescending(image => image.IsPrimary)
         .ThenBy(image => image.CreatedAt)
         .ToList();
-    var typeLabel = listing.Type switch {
-        ListingType.RoomOffer => "Room available",
-        ListingType.RoommateWanted => "Roommate wanted",
-        ListingType.LookingForPlace => "Looking for a place",
-        _ => "Housing listing"
-    };
+    var typeLabel = listing.Type.GetDisplayName();
     var availableLabel = listing.AvailableFrom.HasValue
         ? listing.AvailableFrom.Value.ToString("dd MMM yyyy")
         : "Available now";
@@ -163,19 +158,22 @@
                             <strong>@listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</strong>
                         </span>
                     </div>
-                    <div>
-                        <span class="listing-details-fact-icon">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <circle cx="9" cy="8" r="3"/>
-                                <circle cx="17" cy="10" r="2"/>
-                                <path d="M3 19c.4-4 2.4-6 6-6s5.6 2 6 6M15 15c3 0 4.7 1.3 5 4"/>
-                            </svg>
-                        </span>
-                        <span>
-                            <small>Roommates needed</small>
-                            <strong>@listing.RoommatesNeeded @(listing.RoommatesNeeded == 1 ? "person" : "people")</strong>
-                        </span>
-                    </div>
+                    @if (listing.Type == ListingType.LookingForRoommate &&
+                         listing.RoommatesNeeded.HasValue) {
+                        <div>
+                            <span class="listing-details-fact-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle cx="9" cy="8" r="3"/>
+                                    <circle cx="17" cy="10" r="2"/>
+                                    <path d="M3 19c.4-4 2.4-6 6-6s5.6 2 6 6M15 15c3 0 4.7 1.3 5 4"/>
+                                </svg>
+                            </span>
+                            <span>
+                                <small>Roommates needed</small>
+                                <strong>@listing.RoommatesNeeded @(listing.RoommatesNeeded == 1 ? "person" : "people")</strong>
+                            </span>
+                        </div>
+                    }
                     <div>
                         <span class="listing-details-fact-icon">
                             <svg viewBox="0 0 24 24" aria-hidden="true">

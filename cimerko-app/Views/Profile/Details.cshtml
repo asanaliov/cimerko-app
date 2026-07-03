@@ -294,12 +294,7 @@
                 else {
                     <div class="profile-listing-grid">
                         @foreach (var listing in activeListings) {
-                            var listingType = listing.Type switch {
-                                ListingType.RoomOffer => "Room offer",
-                                ListingType.RoommateWanted => "Roommate wanted",
-                                ListingType.LookingForPlace => "Looking for a place",
-                                _ => listing.Type.ToString()
-                            };
+                            var listingType = listing.Type.GetDisplayName();
 
                             <article class="profile-listing-card">
                                 <div>
