@@ -42,6 +42,10 @@ public class ListingController : Controller {
             query = query.Where(listing => listing.City.Contains(city));
         }
 
+        if (model.Type.HasValue) {
+            query = query.Where(listing => listing.Type == model.Type.Value);
+        }
+
         if (model.MinimumBudget.HasValue) {
             query = query.Where(listing => listing.MonthlyRent >= model.MinimumBudget.Value);
         }
