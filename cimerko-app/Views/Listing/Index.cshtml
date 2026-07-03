@@ -205,7 +205,9 @@
 
                 <article class="listing-card">
                     <div class="listing-card-accent">
-                        <span class="listing-type-badge">@typeLabel</span>
+                        <span class="listing-type-badge @(listing.Type == ListingType.LookingForPlace ? "is-place" : "is-roommate")">
+                            @typeLabel
+                        </span>
                         <span class="listing-posted-date @(canSave ? "listing-posted-date-saveable" : "")">
                             @listing.CreatedAt.ToString("dd MMM")
                         </span>

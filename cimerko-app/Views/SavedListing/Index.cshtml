@@ -53,7 +53,9 @@
 
                 <article class="listing-card saved-listing-card">
                     <div class="listing-card-accent">
-                        <span class="listing-type-badge">@typeLabel</span>
+                        <span class="listing-type-badge @(listing.Type == ListingType.LookingForPlace ? "is-place" : "is-roommate")">
+                            @typeLabel
+                        </span>
                         <span class="listing-posted-date">Saved @savedListing.SavedAt.ToString("dd MMM")</span>
                         <svg class="listing-card-placeholder" viewBox="0 0 120 90" aria-hidden="true">
                             <path d="M18 70V35l30-20 30 20v35"/>

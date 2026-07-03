@@ -827,6 +827,18 @@ body {
   backdrop-filter: blur(5px);
 }
 
+.listing-type-badge.is-place {
+  border-color: rgba(49, 95, 145, 0.2);
+  color: #315f91;
+  background: rgba(239, 246, 255, 0.9);
+}
+
+.listing-type-badge.is-roommate {
+  border-color: rgba(31, 129, 119, 0.18);
+  color: #176d65;
+  background: rgba(237, 248, 245, 0.9);
+}
+
 .listing-posted-date {
   float: right;
   border-color: rgba(89, 100, 119, 0.1);
@@ -1422,6 +1434,18 @@ body {
   background: #edf8f5;
   font-size: 0.68rem;
   font-weight: 800;
+}
+
+.listing-details-type-badge.is-place {
+  border-color: #cbdcf0;
+  color: #315f91;
+  background: #eff6ff;
+}
+
+.listing-details-type-badge.is-roommate {
+  border-color: #cfe4df;
+  color: #176d65;
+  background: #edf8f5;
 }
 
 .listing-details-status-badge.is-active {
@@ -4734,6 +4758,14 @@ body {
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.profile-listing-type.is-place {
+  color: #315f91;
+}
+
+.profile-listing-type.is-roommate {
+  color: #1f8177;
 }
 
 .profile-preference-item strong {

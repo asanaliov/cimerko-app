@@ -298,7 +298,9 @@
 
                             <article class="profile-listing-card">
                                 <div>
-                                    <span class="profile-listing-type">@listingType</span>
+                                    <span class="profile-listing-type @(listing.Type == ListingType.LookingForPlace ? "is-place" : "is-roommate")">
+                                        @listingType
+                                    </span>
                                     <h3>@listing.Title</h3>
                                     <p>@listing.City · @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</p>
                                 </div>
