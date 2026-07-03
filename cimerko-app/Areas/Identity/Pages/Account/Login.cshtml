@@ -1,0 +1,106 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="login-shell">
+    <section class="login-card" aria-labelledby="login-title">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="login-brand">
+            <span class="login-brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <path d="M4 11.5 12 5l8 6.5V20H4z"/>
+                    <path d="M9 20v-6h6v6"/>
+                </svg>
+            </span>
+            <span>Cimerko</span>
+        </a>
+
+        <div class="login-heading">
+            <h1 id="login-title">Welcome back</h1>
+            <p>Log in to continue finding your next home.</p>
+        </div>
+
+        <form id="account" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div asp-validation-summary="ModelOnly" class="login-validation-summary" role="alert"></div>
+
+            <div class="login-field">
+                <label asp-for="Input.Email" class="form-label"></label>
+                <input asp-for="Input.Email"
+                       class="form-control"
+                       autocomplete="username"
+                       inputmode="email"
+                       placeholder="you@example.com"
+                       autofocus/>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="login-field">
+                <div class="login-password-label">
+                    <label asp-for="Input.Password" class="form-label"></label>
+                    <a asp-page="./ForgotPassword">Forgot password?</a>
+                </div>
+                <div class="login-password-input">
+                    <input asp-for="Input.Password"
+                           class="form-control"
+                           autocomplete="current-password"
+                           placeholder="Enter your password"/>
+                    <button type="button"
+                            class="login-password-toggle"
+                            aria-label="Show password"
+                            aria-pressed="false"
+                            title="Show password">
+                        <svg class="login-password-show-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/>
+                            <circle cx="12" cy="12" r="2.5"/>
+                        </svg>
+                        <svg class="login-password-hide-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m4 4 16 16"/>
+                            <path d="M10.6 6.1A10.4 10.4 0 0 1 12 6c6 0 9.5 6 9.5 6a16.8 16.8 0 0 1-2.1 2.8"/>
+                            <path d="M6.2 6.3C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6c1.5 0 2.9-.4 4-1"/>
+                        </svg>
+                    </button>
+                </div>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-check login-remember">
+                <input asp-for="Input.RememberMe" class="form-check-input"/>
+                <label asp-for="Input.RememberMe" class="form-check-label"></label>
+            </div>
+
+            <button id="login-submit" type="submit" class="btn login-submit">
+                Log in
+            </button>
+        </form>
+
+        <p class="login-register">
+            New to Cimerko?
+            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create an account</a>
+        </p>
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+    <script>
+        (() => {
+            const passwordInput = document.getElementById("Input_Password");
+            const passwordToggle = document.querySelector(".login-password-toggle");
+
+            if (!passwordInput || !passwordToggle) {
+                return;
+            }
+
+            passwordToggle.addEventListener("click", () => {
+                const isVisible = passwordInput.type === "text";
+                passwordInput.type = isVisible ? "password" : "text";
+                passwordToggle.classList.toggle("is-visible", !isVisible);
+                passwordToggle.setAttribute("aria-pressed", String(!isVisible));
+                passwordToggle.setAttribute("aria-label", isVisible ? "Show password" : "Hide password");
+                passwordToggle.title = isVisible ? "Show password" : "Hide password";
+                passwordInput.focus();
+            });
+        })();
+    </script>
+}
