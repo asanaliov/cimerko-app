@@ -55,6 +55,17 @@
                         <span asp-validation-for="Input.City" class="text-danger"></span>
                     </div>
                     <div class="col-12">
+                        <label asp-for="Input.AccountType" class="form-label"></label>
+                        <select asp-for="Input.AccountType" class="form-select">
+                            <option value="@AppRoles.Student">Find a place or roommate</option>
+                            <option value="@AppRoles.Landlord">Post and manage housing</option>
+                        </select>
+                        <span asp-validation-for="Input.AccountType" class="text-danger"></span>
+                        <div class="form-text">
+                            This controls the shortcuts you see. Every member still has a roommate profile.
+                        </div>
+                    </div>
+                    <div class="col-12">
                         <label asp-for="Input.Email" class="form-label"></label>
                         <input asp-for="Input.Email" class="form-control" autocomplete="username"
                                placeholder="you@example.com"/>

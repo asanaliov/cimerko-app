@@ -10,6 +10,15 @@
             ? "there"
             : fullName.Split(' ')[0];
         var initial = firstName[..1].ToUpperInvariant();
+        var isLandlord = currentUser != null &&
+                         await UserManager.IsInRoleAsync(currentUser, AppRoles.Landlord);
+        var isAdmin = currentUser != null &&
+                      await UserManager.IsInRoleAsync(currentUser, AppRoles.Admin);
+        var accountLabel = isAdmin
+            ? "Administrator"
+            : isLandlord
+                ? "Housing provider"
+                : "Student member";
 
         @await Component.InvokeAsync("NotificationNav")
         <li class="nav-item dropdown">
@@ -31,6 +40,7 @@
                 <span>@firstName</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end site-user-menu">
+                <li><span class="dropdown-header">@accountLabel</span></li>
                 <li>
                     <a class="dropdown-item"
                        asp-area=""
@@ -49,6 +59,14 @@
                        asp-controller="ListingRequest"
                        asp-action="Index">My requests</a>
                 </li>
+                @if (isLandlord || isAdmin) {
+                    <li>
+                        <a class="dropdown-item"
+                           asp-area=""
+                           asp-controller="Listing"
+                           asp-action="Create">Post a listing</a>
+                    </li>
+                }
                 <li>
                     <a class="dropdown-item"
                        asp-area="Identity"

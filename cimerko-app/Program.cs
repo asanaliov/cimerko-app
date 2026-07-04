@@ -26,6 +26,8 @@ builder.Services.AddScoped<LocalImageStorage>();
 
 var app = builder.Build();
 
+await IdentitySeed.SeedAsync(app.Services);
+
 if (app.Environment.IsDevelopment()) {
     app.UseMigrationsEndPoint();
 }

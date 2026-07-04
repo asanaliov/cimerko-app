@@ -44,6 +44,11 @@ public class RegisterModel : PageModel {
             return Page();
         }
 
+        if (!AppRoles.IsSelectable(Input.AccountType)) {
+            ModelState.AddModelError("Input.AccountType", "Choose a valid account type.");
+            return Page();
+        }
+
         var user = new ApplicationUser {
             FullName = $"{Input.FirstName.Trim()} {Input.LastName.Trim()}",
             CreatedAt = DateTime.UtcNow
@@ -70,6 +75,17 @@ public class RegisterModel : PageModel {
             City = Input.City.Trim()
         });
         await _context.SaveChangesAsync();
+
+        var roleResult = await _userManager.AddToRoleAsync(user, Input.AccountType);
+        if (!roleResult.Succeeded) {
+            await transaction.RollbackAsync();
+            foreach (var error in roleResult.Errors) {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return Page();
+        }
+
         await transaction.CommitAsync();
 
         await _signInManager.SignInAsync(user, isPersistent: false);
@@ -101,6 +117,10 @@ public class RegisterModel : PageModel {
         [Required]
         [StringLength(100)]
         public string City { get; set; } = string.Empty;
+
+        [Required]
+        [Display(Name = "I want to")]
+        public string AccountType { get; set; } = AppRoles.Student;
 
         [Required]
         [EmailAddress]
