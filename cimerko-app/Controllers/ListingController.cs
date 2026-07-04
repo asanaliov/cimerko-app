@@ -29,6 +29,14 @@ public class ListingController : Controller {
 
     [AllowAnonymous]
     public async Task<IActionResult> Index(ListingIndexViewModel model) {
+        if (model.MinimumBudget.HasValue &&
+            model.MaximumBudget.HasValue &&
+            model.MinimumBudget.Value > model.MaximumBudget.Value) {
+            ModelState.AddModelError(
+                nameof(model.MaximumBudget),
+                "Maximum budget must be greater than or equal to minimum budget.");
+        }
+
         var query = _context.Listings
             .Include(listing => listing.Owner)
             .ThenInclude(owner => owner!.RoommateProfile)

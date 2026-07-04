@@ -12,6 +12,30 @@ namespace Tests;
 
 public class ListingControllerTests {
     [Fact]
+    public async Task Index_rejects_a_maximum_budget_below_the_minimum_budget() {
+        await using var database = await TestDatabase.CreateAsync();
+        var controller = new ListingController(
+            database.Context,
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            ControllerContext = new ControllerContext {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+
+        var result = await controller.Index(new ListingIndexViewModel {
+            MinimumBudget = 600,
+            MaximumBudget = 500
+        });
+
+        Assert.IsType<ViewResult>(result);
+        Assert.False(controller.ModelState.IsValid);
+        var error = Assert.Single(controller.ModelState[nameof(ListingIndexViewModel.MaximumBudget)]!.Errors);
+        Assert.Equal(
+            "Maximum budget must be greater than or equal to minimum budget.",
+            error.ErrorMessage);
+    }
+
+    [Fact]
     public async Task Index_applies_available_now_and_has_images_filters_together() {
         await using var database = await TestDatabase.CreateAsync();
         var context = database.Context;
