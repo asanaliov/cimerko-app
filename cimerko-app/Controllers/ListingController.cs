@@ -3,6 +3,7 @@ using cimerko_app.Data;
 using cimerko_app.Models;
 using cimerko_app.Models.Enums;
 using cimerko_app.Models.ViewModels;
+using cimerko_app.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +14,17 @@ namespace cimerko_app.Controllers;
 public class ListingController : Controller {
     private const int MaxListingImages = 5;
     private const long MaxListingImageSize = 5 * 1024 * 1024;
-    private const string ListingImageUrlPrefix = "/images/listings/";
-    private const string LegacyListingImageUrlPrefix = "/uploads/listing-images/";
+    private const string ListingImageUrlPrefix = "/uploads/listings/";
+    private const string ListingImageDirectory = "uploads/listings";
 
     private readonly ApplicationDbContext _context;
-    private readonly IWebHostEnvironment _environment;
+    private readonly LocalImageStorage _imageStorage;
 
-    public ListingController(ApplicationDbContext context, IWebHostEnvironment environment) {
+    public ListingController(
+        ApplicationDbContext context,
+        LocalImageStorage imageStorage) {
         _context = context;
-        _environment = environment;
+        _imageStorage = imageStorage;
     }
 
     [AllowAnonymous]
@@ -207,7 +210,7 @@ public class ListingController : Controller {
             }
             catch {
                 foreach (var path in savedImagePaths) {
-                    DeleteFileIfPresent(path);
+                    _imageStorage.DeleteFile(path);
                 }
 
                 throw;
@@ -312,7 +315,7 @@ public class ListingController : Controller {
         }
         catch {
             foreach (var path in savedImagePaths) {
-                DeleteFileIfPresent(path);
+                _imageStorage.DeleteFile(path);
             }
 
             throw;
@@ -407,7 +410,7 @@ public class ListingController : Controller {
                 continue;
             }
 
-            var extension = await DetectImageExtensionAsync(image);
+            var extension = await _imageStorage.DetectExtensionAsync(image);
             if (extension == null) {
                 ModelState.AddModelError(
                     imageField,
@@ -421,83 +424,22 @@ public class ListingController : Controller {
         return validImages;
     }
 
-    private static async Task<string?> DetectImageExtensionAsync(IFormFile image) {
-        var header = new byte[12];
-        await using var stream = image.OpenReadStream();
-        var bytesRead = await stream.ReadAsync(header);
-
-        if (bytesRead >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF) {
-            return ".jpg";
-        }
-
-        if (bytesRead >= 8 &&
-            header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47 &&
-            header[4] == 0x0D && header[5] == 0x0A && header[6] == 0x1A && header[7] == 0x0A) {
-            return ".png";
-        }
-
-        if (bytesRead >= 12 &&
-            header[0] == 0x52 && header[1] == 0x49 && header[2] == 0x46 && header[3] == 0x46 &&
-            header[8] == 0x57 && header[9] == 0x45 && header[10] == 0x42 && header[11] == 0x50) {
-            return ".webp";
-        }
-
-        return null;
-    }
-
-    private async Task<(string ImageUrl, string FilePath)> SaveListingImageAsync(
+    private Task<StoredImage> SaveListingImageAsync(
         IFormFile image,
         string extension) {
-        var uploadsDirectory = Path.Combine(WebRootPath(), "images", "listings");
-        Directory.CreateDirectory(uploadsDirectory);
-
-        var fileName = $"{Guid.NewGuid():N}{extension}";
-        var filePath = Path.Combine(uploadsDirectory, fileName);
-
-        try {
-            await using var output = System.IO.File.Create(filePath);
-            await image.CopyToAsync(output, HttpContext.RequestAborted);
-        }
-        catch {
-            DeleteFileIfPresent(filePath);
-            throw;
-        }
-
-        return ($"{ListingImageUrlPrefix}{fileName}", filePath);
-    }
-
-    private static void DeleteFileIfPresent(string? path) {
-        if (path != null && System.IO.File.Exists(path)) {
-            System.IO.File.Delete(path);
-        }
+        return _imageStorage.SaveAsync(
+            image,
+            extension,
+            ListingImageDirectory,
+            ListingImageUrlPrefix,
+            HttpContext.RequestAborted);
     }
 
     private void DeleteLocalListingImage(string? imageUrl) {
-        if (string.IsNullOrWhiteSpace(imageUrl)) {
-            return;
-        }
-
-        var urlPrefix = imageUrl.StartsWith(ListingImageUrlPrefix, StringComparison.Ordinal)
-            ? ListingImageUrlPrefix
-            : imageUrl.StartsWith(LegacyListingImageUrlPrefix, StringComparison.Ordinal)
-                ? LegacyListingImageUrlPrefix
-                : null;
-        if (urlPrefix == null) {
-            return;
-        }
-
-        var fileName = Path.GetFileName(imageUrl);
-        if (imageUrl != $"{urlPrefix}{fileName}") {
-            return;
-        }
-
-        var relativeDirectory = urlPrefix == ListingImageUrlPrefix
-            ? Path.Combine("images", "listings")
-            : Path.Combine("uploads", "listing-images");
-        DeleteFileIfPresent(Path.Combine(WebRootPath(), relativeDirectory, fileName));
-    }
-
-    private string WebRootPath() {
-        return _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+        _imageStorage.DeleteLocalImage(
+            imageUrl,
+            (ListingImageUrlPrefix, ListingImageDirectory),
+            ("/images/listings/", "images/listings"),
+            ("/uploads/listing-images/", "uploads/listing-images"));
     }
 }

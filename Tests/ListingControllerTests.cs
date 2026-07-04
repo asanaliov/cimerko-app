@@ -2,6 +2,7 @@ using cimerko_app.Controllers;
 using cimerko_app.Models;
 using cimerko_app.Models.Enums;
 using cimerko_app.Models.ViewModels;
+using cimerko_app.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,18 +27,18 @@ public class ListingControllerTests {
                 owner.Id,
                 "Available with photo",
                 DateTime.UtcNow.Date,
-                new ListingImage { ImageUrl = "/images/listings/available.jpg" }),
+                new ListingImage { ImageUrl = "/uploads/listings/available.jpg" }),
             CreateListing(
                 owner.Id,
                 "Future with photo",
                 DateTime.UtcNow.Date.AddDays(7),
-                new ListingImage { ImageUrl = "/images/listings/future.jpg" }),
+                new ListingImage { ImageUrl = "/uploads/listings/future.jpg" }),
             CreateListing(owner.Id, "Available without photo", null));
         await context.SaveChangesAsync();
 
         var controller = new ListingController(
             context,
-            Mock.Of<IWebHostEnvironment>()) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext()
             }

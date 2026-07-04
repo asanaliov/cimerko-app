@@ -22,6 +22,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<LocalImageStorage>();
 
 var app = builder.Build();
 

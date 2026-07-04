@@ -13,15 +13,17 @@ namespace cimerko_app.Controllers;
 [Authorize]
 public class ProfileController : Controller {
     private const long MaxProfileImageSize = 5 * 1024 * 1024;
-    private const string ProfileImageUrlPrefix = "/images/profiles/";
-    private const string LegacyProfileImageUrlPrefix = "/uploads/profile-images/";
+    private const string ProfileImageUrlPrefix = "/uploads/profiles/";
+    private const string ProfileImageDirectory = "uploads/profiles";
 
     private readonly ApplicationDbContext _context;
-    private readonly IWebHostEnvironment _environment;
+    private readonly LocalImageStorage _imageStorage;
 
-    public ProfileController(ApplicationDbContext context, IWebHostEnvironment environment) {
+    public ProfileController(
+        ApplicationDbContext context,
+        LocalImageStorage imageStorage) {
         _context = context;
-        _environment = environment;
+        _imageStorage = imageStorage;
     }
 
     [AllowAnonymous]
@@ -147,7 +149,7 @@ public class ProfileController : Controller {
                 ModelState.AddModelError(nameof(profileImage), "Choose an image smaller than 5 MB.");
             }
             else {
-                imageExtension = await DetectImageExtensionAsync(profileImage);
+                imageExtension = await _imageStorage.DetectExtensionAsync(profileImage);
                 if (imageExtension == null) {
                     ModelState.AddModelError(
                         nameof(profileImage),
@@ -188,15 +190,14 @@ public class ProfileController : Controller {
         string? newImagePath = null;
 
         if (profileImage is { Length: > 0 } && imageExtension != null) {
-            var uploadsDirectory = Path.Combine(WebRootPath(), "images", "profiles");
-            Directory.CreateDirectory(uploadsDirectory);
-
-            var fileName = $"{Guid.NewGuid():N}{imageExtension}";
-            newImagePath = Path.Combine(uploadsDirectory, fileName);
-
-            await using var output = System.IO.File.Create(newImagePath);
-            await profileImage.CopyToAsync(output, HttpContext.RequestAborted);
-            user.ProfileImageUrl = $"{ProfileImageUrlPrefix}{fileName}";
+            var savedImage = await _imageStorage.SaveAsync(
+                profileImage,
+                imageExtension,
+                ProfileImageDirectory,
+                ProfileImageUrlPrefix,
+                HttpContext.RequestAborted);
+            newImagePath = savedImage.FilePath;
+            user.ProfileImageUrl = savedImage.ImageUrl;
         }
         else if (removeProfileImage) {
             user.ProfileImageUrl = null;
@@ -206,7 +207,7 @@ public class ProfileController : Controller {
             await _context.SaveChangesAsync();
         }
         catch {
-            DeleteFileIfPresent(newImagePath);
+            _imageStorage.DeleteFile(newImagePath);
             throw;
         }
 
@@ -217,63 +218,12 @@ public class ProfileController : Controller {
         return RedirectToAction(nameof(Details), new { id = userId });
     }
 
-    private static async Task<string?> DetectImageExtensionAsync(IFormFile image) {
-        var header = new byte[12];
-        await using var stream = image.OpenReadStream();
-        var bytesRead = await stream.ReadAsync(header);
-
-        if (bytesRead >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF) {
-            return ".jpg";
-        }
-
-        if (bytesRead >= 8 &&
-            header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47 &&
-            header[4] == 0x0D && header[5] == 0x0A && header[6] == 0x1A && header[7] == 0x0A) {
-            return ".png";
-        }
-
-        if (bytesRead >= 12 &&
-            header[0] == 0x52 && header[1] == 0x49 && header[2] == 0x46 && header[3] == 0x46 &&
-            header[8] == 0x57 && header[9] == 0x45 && header[10] == 0x42 && header[11] == 0x50) {
-            return ".webp";
-        }
-
-        return null;
-    }
-
     private void DeleteLocalProfileImage(string? imageUrl) {
-        if (string.IsNullOrWhiteSpace(imageUrl)) {
-            return;
-        }
-
-        var urlPrefix = imageUrl.StartsWith(ProfileImageUrlPrefix, StringComparison.Ordinal)
-            ? ProfileImageUrlPrefix
-            : imageUrl.StartsWith(LegacyProfileImageUrlPrefix, StringComparison.Ordinal)
-                ? LegacyProfileImageUrlPrefix
-                : null;
-        if (urlPrefix == null) {
-            return;
-        }
-
-        var fileName = Path.GetFileName(imageUrl);
-        if (imageUrl != $"{urlPrefix}{fileName}") {
-            return;
-        }
-
-        var relativeDirectory = urlPrefix == ProfileImageUrlPrefix
-            ? Path.Combine("images", "profiles")
-            : Path.Combine("uploads", "profile-images");
-        DeleteFileIfPresent(Path.Combine(WebRootPath(), relativeDirectory, fileName));
-    }
-
-    private static void DeleteFileIfPresent(string? path) {
-        if (path != null && System.IO.File.Exists(path)) {
-            System.IO.File.Delete(path);
-        }
-    }
-
-    private string WebRootPath() {
-        return _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+        _imageStorage.DeleteLocalImage(
+            imageUrl,
+            (ProfileImageUrlPrefix, ProfileImageDirectory),
+            ("/images/profiles/", "images/profiles"),
+            ("/uploads/profile-images/", "uploads/profile-images"));
     }
 
     private static ProfileCompletionViewModel CalculateProfileCompletion(ApplicationUser user) {
