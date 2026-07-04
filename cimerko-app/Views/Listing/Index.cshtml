@@ -27,6 +27,10 @@
     </header>
 
     <form asp-action="Index" method="get" class="listing-search">
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger listing-filter-validation"
+             role="alert">
+        </div>
         <div class="listing-search-primary">
             <div class="listing-search-field">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -95,6 +99,7 @@
                         <input asp-for="MaximumBudget" type="number" min="0" step="0.01" placeholder="No maximum"/>
                         <span>€</span>
                     </div>
+                    <span asp-validation-for="MaximumBudget" class="listing-form-error"></span>
                 </div>
                 <div>
                     <label asp-for="SmokingPreference" class="form-label"></label>
@@ -200,7 +205,7 @@
         </div>
     }
     else {
-        <div class="listing-grid row">
+        <div class="listing-grid-new">
             @foreach (var listing in Model.Listings) {
                 var typeLabel = listing.Type.GetDisplayName();
                 var ownerName = string.IsNullOrWhiteSpace(listing.Owner?.FullName)
@@ -214,15 +219,9 @@
                 var canSave = currentUserId != null && currentUserId != listing.OwnerId;
                 var isSaved = Model.SavedListingIds.Contains(listing.Id);
 
-                <div class="col-12 col-md-6 col-lg-4">
-                <article class="listing-card">
-                    <div class="listing-card-accent">
-                        <span class="listing-type-badge @(listing.Type == ListingType.PlaceForRent ? "is-place" : "is-roommate")">
-                            @typeLabel
-                        </span>
-                        <span class="listing-posted-date @(canSave ? "listing-posted-date-saveable" : "")">
-                            @listing.CreatedAt.ToString("dd MMM")
-                        </span>
+                <a asp-action="Details" asp-route-id="@listing.Id" class="listing-card-new">
+                    <div class="listing-card-img-wrap">
+                        <div class="listing-card-price-badge">@listing.MonthlyRent.ToString("0") €</div>
                         @if (canSave) {
                             <form asp-controller="SavedListing"
                                   asp-action="@(isSaved ? "Remove" : "Save")"
@@ -230,109 +229,49 @@
                                   class="listing-card-save-form"
                                   data-save-url="@saveUrl"
                                   data-remove-url="@removeUrl"
-                                  data-listing-title="@listing.Title">
+                                  data-listing-title="@listing.Title"
+                                  onclick="event.preventDefault(); event.stopPropagation();">
                                 <input type="hidden" name="listingId" value="@listing.Id"/>
                                 <input type="hidden" name="returnUrl" value="@returnUrl"/>
-                                <button type="submit"
-                                        class="listing-card-save-button @(isSaved ? "is-saved" : "")"
-                                        title="@(isSaved ? "Remove from saved listings" : "Save listing")"
-                                        aria-label="@(isSaved ? $"Remove {listing.Title} from saved listings" : $"Save {listing.Title}")">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M6 4.5h12v16l-6-3.8-6 3.8z"/>
-                                    </svg>
+                                <button type="submit" class="listing-card-save-btn @(isSaved ? "is-saved" : "")">
+                                    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                                 </button>
-                                <span class="visually-hidden" aria-live="polite"></span>
                             </form>
                         }
-                        <svg class="listing-card-placeholder" viewBox="0 0 120 90" aria-hidden="true">
-                            <path d="M18 70V35l30-20 30 20v35"/>
-                            <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
-                            <path d="M43 54h10M91 46h5M91 55h5"/>
-                        </svg>
                         @if (primaryImage != null) {
-                            <img src="@primaryImage.ImageUrl"
-                                 alt="@listing.Title"
-                                 loading="lazy"
-                                 onerror="this.hidden=true"/>
+                            <img src="@primaryImage.ImageUrl" alt="@listing.Title" class="listing-card-img" loading="lazy" />
+                        } else {
+                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-light">No photo</div>
                         }
                     </div>
-
-                    <div class="listing-card-body">
-                        <div class="listing-card-price">
-                            <strong>@listing.MonthlyRent.ToString("0") €</strong>
-                            <span>/ month</span>
-                        </div>
-
-                        <h3>
-                            <a asp-action="Details" asp-route-id="@listing.Id">@listing.Title</a>
-                        </h3>
-
-                        <p class="listing-card-location">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
-                                <circle cx="12" cy="10" r="2.5"/>
-                            </svg>
+                    <div class="listing-card-content">
+                        <div class="listing-card-title">@listing.Title</div>
+                        <div class="listing-card-loc">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                             @listing.City
-                        </p>
-
-                        <div class="listing-card-facts">
-                            <span>
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M4 11h16v8H4zM7 11V7h4a3 3 0 0 1 3 3v1M4 16h16"/>
-                                </svg>
-                                @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")
-                            </span>
-                            @if (listing.Type == ListingType.LookingForRoommate &&
-                                 listing.RoommatesNeeded.HasValue) {
-                                <span>
-                                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <circle cx="9" cy="8" r="3"/>
-                                        <circle cx="17" cy="10" r="2"/>
-                                        <path d="M3 19c.4-4 2.4-6 6-6s5.6 2 6 6M15 15c3 0 4.7 1.3 5 4"/>
-                                    </svg>
-                                    @listing.RoommatesNeeded needed
-                                </span>
+                        </div>
+                        <div class="listing-card-features">
+                            <span class="listing-card-feature">@listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</span>
+                            @if (listing.Type == ListingType.LookingForRoommate && listing.RoommatesNeeded.HasValue) {
+                                <span class="listing-card-feature">@listing.RoommatesNeeded needed</span>
                             }
-                            <span>
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <rect x="3" y="5" width="18" height="16" rx="2"/>
-                                    <path d="M16 3v4M8 3v4M3 10h18"/>
-                                </svg>
-                                @(listing.AvailableFrom?.ToString("dd MMM") ?? "Available now")
-                            </span>
+                            <span class="listing-card-feature">@(listing.AvailableFrom?.ToString("dd MMM") ?? "Available now")</span>
+                        </div>
+                        
+                        <div class="listing-card-footer-new">
+                            <div class="listing-card-owner">
+                                <div class="listing-card-owner-avatar">
+                                    @if (!string.IsNullOrWhiteSpace(listing.Owner?.ProfileImageUrl)) {
+                                        <img src="@listing.Owner.ProfileImageUrl" alt=""/>
+                                    } else {
+                                        @ownerInitial
+                                    }
+                                </div>
+                                <span>Listed by <strong>@ownerName</strong></span>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="listing-card-footer">
-                        <a asp-controller="Profile"
-                           asp-action="Details"
-                           asp-route-id="@listing.OwnerId"
-                           class="listing-owner">
-                            <span class="listing-owner-avatar">
-                                @if (!string.IsNullOrWhiteSpace(listing.Owner?.ProfileImageUrl)) {
-                                    <img src="@listing.Owner.ProfileImageUrl" alt=""/>
-                                }
-                                else {
-                                    <span>@ownerInitial</span>
-                                }
-                            </span>
-                            <span>
-                                <small>Listed by</small>
-                                <strong>@ownerName</strong>
-                            </span>
-                        </a>
-
-                        <a asp-action="Details"
-                           asp-route-id="@listing.Id"
-                           class="listing-card-link"
-                           aria-label="View @listing.Title">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="m9 18 6-6-6-6"/>
-                            </svg>
-                        </a>
-                    </div>
-                </article>
-                </div>
+                </a>
             }
         </div>
     }
@@ -345,7 +284,7 @@
                 form.addEventListener("submit", async event => {
                     event.preventDefault();
 
-                    const button = form.querySelector(".listing-card-save-button");
+                    const button = form.querySelector(".listing-card-save-btn");
                     const status = form.querySelector("[aria-live]");
                     const listingTitle = form.dataset.listingTitle;
                     button.disabled = true;
