@@ -64,6 +64,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasForeignKey(request => request.SenderId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Entity<ListingRequest>()
+            .HasIndex(request => new { request.SenderId, request.ListingId })
+            .IsUnique();
+
         builder.Entity<Review>()
             .HasOne(review => review.Reviewer)
             .WithMany(user => user.ReviewsWritten)

@@ -52,7 +52,7 @@ public class ListingRequestController : Controller {
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(int listingId, string message) {
+    public async Task<IActionResult> Create(int listingId, string? message) {
         var userId = CurrentUserId();
         if (userId == null) {
             return Challenge();
@@ -67,6 +67,12 @@ public class ListingRequestController : Controller {
             return RedirectToAction("Details", "Listing", new { id = listingId });
         }
 
+        var trimmedMessage = message?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedMessage) || trimmedMessage.Length > 1000) {
+            TempData["RequestMessage"] = "The message is required and must be at most 1000 characters.";
+            return RedirectToAction("Details", "Listing", new { id = listingId });
+        }
+
         var requestExists = await _context.ListingRequests.AnyAsync(request =>
             request.ListingId == listingId && request.SenderId == userId);
 
@@ -78,15 +84,10 @@ public class ListingRequestController : Controller {
         var listingRequest = new ListingRequest {
             ListingId = listingId,
             SenderId = userId,
-            Message = message,
+            Message = trimmedMessage,
             Status = RequestStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };
-
-        if (!TryValidateModel(listingRequest)) {
-            TempData["RequestMessage"] = "The message is required and must be at most 1000 characters.";
-            return RedirectToAction("Details", "Listing", new { id = listingId });
-        }
 
         var senderName = await _context.Users
             .Where(user => user.Id == userId)
@@ -131,7 +132,7 @@ public class ListingRequestController : Controller {
             return NotFound();
         }
 
-        if (listingRequest.Status == status) {
+        if (listingRequest.Status != RequestStatus.Pending) {
             return RedirectToAction(nameof(Index));
         }
 
