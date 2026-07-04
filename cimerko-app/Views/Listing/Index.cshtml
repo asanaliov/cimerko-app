@@ -8,169 +8,147 @@
     var removeUrl = Url.Action("Remove", "SavedListing");
 }
 
-<div class="listing-page">
-    <header class="listing-page-header">
+<div class="page-shell">
+    <header class="listing-page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3 mb-5">
         <div>
             <span class="listing-eyebrow">Find your next home</span>
-            <h1>Places and roommates,<br/>without the noise.</h1>
-            <p>Explore places for rent and find people whose living style matches yours.</p>
+            <h1 class="listing-page-title">Places and roommates,<br/>without the noise.</h1>
+            <p class="listing-page-intro">Explore places for rent and find people whose living style matches yours.</p>
         </div>
 
         @if (User.Identity?.IsAuthenticated == true) {
-            <a asp-action="Create" class="btn listing-create-button">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 5v14M5 12h14"/>
-                </svg>
+            <a asp-action="Create" class="btn-cimerko-primary listing-create-button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
                 Create listing
             </a>
         }
     </header>
 
-    <form asp-action="Index" method="get" class="listing-search">
-        <div asp-validation-summary="ModelOnly"
-             class="alert alert-danger listing-filter-validation"
-             role="alert">
-        </div>
-        <div class="listing-search-primary">
-            <div class="listing-search-field">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7"/>
-                    <path d="m20 20-4-4"/>
-                </svg>
-                <div>
-                    <label asp-for="Title">What are you looking for?</label>
-                    <input asp-for="Title" placeholder="Room, apartment, roommate..."/>
-                </div>
+    <form asp-action="Index" method="get" class="mb-4">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+
+        <div class="listing-search-custom flex-column flex-md-row align-items-stretch align-items-md-center gap-3">
+            <div class="search-input-group py-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cimerko-muted)" stroke-width="2.5" class="flex-shrink-0" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input asp-for="Title" placeholder="What are you looking for? (Room, flat, roommate...)" />
             </div>
 
-            <div class="listing-search-field">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
-                    <circle cx="12" cy="10" r="2.5"/>
-                </svg>
-                <div>
-                    <label asp-for="City"></label>
-                    <input asp-for="City" placeholder="Any city"/>
-                </div>
+            <div class="search-divider d-none d-md-block"></div>
+
+            <div class="search-input-group py-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cimerko-muted)" stroke-width="2.5" class="flex-shrink-0" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <input asp-for="City" placeholder="Any city" />
             </div>
 
-            <button type="submit" class="listing-search-button">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7"/>
-                    <path d="m20 20-4-4"/>
-                </svg>
+            <button type="submit" class="btn-search-purple py-3 px-4 justify-content-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="me-1" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 Search
             </button>
         </div>
 
-        <details class="listing-advanced-filters" open="@Model.HasActiveFilters">
-            <summary>
+        <details class="mb-5" open="@Model.HasActiveFilters">
+            <summary class="filters-toggle-summary">
                 <span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M4 7h16M7 12h10M10 17h4"/>
-                    </svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
                     More filters
                 </span>
-                @if (Model.HasActiveFilters) {
-                    <span class="listing-filter-active">Filters applied</span>
-                }
-                <svg class="listing-filter-chevron" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="m8 10 4 4 4-4"/>
-                </svg>
+                <div class="d-flex align-items-center gap-2">
+                    @if (Model.HasActiveFilters) {
+                        <span class="badge-soft">filters applied</span>
+                    }
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
             </summary>
 
-            <div class="listing-advanced-grid">
-                <div>
-                    <label asp-for="Type" class="form-label"></label>
-                    <select asp-for="Type" asp-items="Html.GetEnumSelectList<ListingType>()">
-                        <option value="">Any type</option>
-                    </select>
-                </div>
-                <div>
-                    <label asp-for="MinimumBudget" class="form-label"></label>
-                    <div class="listing-money-input">
+            <div class="filters-grid-custom">
+                <div class="row g-3">
+                    <div class="col-6 col-md-3">
+                        <label asp-for="Type">Listing type</label>
+                        <select asp-for="Type" asp-items="Html.GetEnumSelectList<ListingType>()">
+                            <option value="">Any type</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="MinimumBudget">Minimum budget</label>
                         <input asp-for="MinimumBudget" type="number" min="0" step="0.01" placeholder="No minimum"/>
-                        <span>€</span>
                     </div>
-                </div>
-                <div>
-                    <label asp-for="MaximumBudget" class="form-label"></label>
-                    <div class="listing-money-input">
+                    <div class="col-6 col-md-3">
+                        <label asp-for="MaximumBudget">Maximum budget</label>
                         <input asp-for="MaximumBudget" type="number" min="0" step="0.01" placeholder="No maximum"/>
-                        <span>€</span>
+                        <span asp-validation-for="MaximumBudget" class="listing-form-error"></span>
                     </div>
-                    <span asp-validation-for="MaximumBudget" class="listing-form-error"></span>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="CleanlinessLevel">Cleanliness</label>
+                        <select asp-for="CleanlinessLevel">
+                            <option value="">Any level</option>
+                            <option value="Relaxed">Relaxed</option>
+                            <option value="Balanced">Balanced</option>
+                            <option value="Very tidy">Very tidy</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="SmokingPreference">Smoking</label>
+                        <select asp-for="SmokingPreference">
+                            <option value="">Any preference</option>
+                            <option value="No smoking">No smoking</option>
+                            <option value="Outside only">Outside only</option>
+                            <option value="Smoking is okay">Smoking is okay</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="PetsPreference">Pets</label>
+                        <select asp-for="PetsPreference">
+                            <option value="">Any preference</option>
+                            <option value="No pets">No pets</option>
+                            <option value="Pets are welcome">Pets are welcome</option>
+                            <option value="Ask first">Ask first</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="SleepSchedule">Sleep schedule</label>
+                        <select asp-for="SleepSchedule">
+                            <option value="">Any schedule</option>
+                            <option value="Early bird">Early bird</option>
+                            <option value="Flexible">Flexible</option>
+                            <option value="Night owl">Night owl</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="GuestPreference">Guests</label>
+                        <select asp-for="GuestPreference">
+                            <option value="">Any preference</option>
+                            <option value="Rarely">Rarely</option>
+                            <option value="Occasionally">Occasionally</option>
+                            <option value="Often">Often</option>
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label asp-for="SmokingPreference" class="form-label"></label>
-                    <select asp-for="SmokingPreference">
-                        <option value="">Any preference</option>
-                        <option value="No smoking">No smoking</option>
-                        <option value="Outside only">Outside only</option>
-                        <option value="Smoking is okay">Smoking is okay</option>
-                    </select>
-                </div>
-                <div>
-                    <label asp-for="PetsPreference" class="form-label"></label>
-                    <select asp-for="PetsPreference">
-                        <option value="">Any preference</option>
-                        <option value="No pets">No pets</option>
-                        <option value="Pets are welcome">Pets are welcome</option>
-                        <option value="Ask first">Ask first</option>
-                    </select>
-                </div>
-                <div>
-                    <label asp-for="CleanlinessLevel" class="form-label"></label>
-                    <select asp-for="CleanlinessLevel">
-                        <option value="">Any level</option>
-                        <option value="Relaxed">Relaxed</option>
-                        <option value="Balanced">Balanced</option>
-                        <option value="Very tidy">Very tidy</option>
-                    </select>
-                </div>
-                <div>
-                    <label asp-for="SleepSchedule" class="form-label"></label>
-                    <select asp-for="SleepSchedule">
-                        <option value="">Any schedule</option>
-                        <option value="Early bird">Early bird</option>
-                        <option value="Flexible">Flexible</option>
-                        <option value="Night owl">Night owl</option>
-                    </select>
-                </div>
-                <div>
-                    <label asp-for="GuestPreference" class="form-label"></label>
-                    <select asp-for="GuestPreference">
-                        <option value="">Any preference</option>
-                        <option value="Rarely">Rarely</option>
-                        <option value="Occasionally">Occasionally</option>
-                        <option value="Often">Often</option>
-                    </select>
-                </div>
-                <div class="listing-checkbox-filters">
-                    <span class="form-label">Quick filters</span>
-                    <label class="form-check">
-                        <input asp-for="AvailableNow" class="form-check-input"/>
-                        <span class="form-check-label">@Html.DisplayNameFor(model => model.AvailableNow)</span>
-                    </label>
-                    <label class="form-check">
-                        <input asp-for="HasImages" class="form-check-input"/>
-                        <span class="form-check-label">@Html.DisplayNameFor(model => model.HasImages)</span>
-                    </label>
-                </div>
-            </div>
 
-            <div class="listing-filter-actions">
-                @if (Model.HasActiveFilters) {
-                    <a asp-action="Index" class="listing-clear-filters">Clear all</a>
-                }
-                <button type="submit" class="btn listing-apply-filters">Apply filters</button>
+                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between pt-4 border-top mt-4 gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <label class="form-check d-flex align-items-center gap-2 m-0 p-0">
+                            <input asp-for="AvailableNow" class="form-check-input m-0"/>
+                            <span class="filter-check-label">Available now</span>
+                        </label>
+                        <label class="form-check d-flex align-items-center gap-2 m-0 p-0">
+                            <input asp-for="HasImages" class="form-check-input m-0"/>
+                            <span class="filter-check-label">Has images</span>
+                        </label>
+                    </div>
+                    <div>
+                        @if (Model.HasActiveFilters) {
+                            <a asp-action="Index" class="filter-clear-link">Clear all</a>
+                        }
+                        <button type="submit" class="btn-cimerko-primary filter-apply-button">Apply filters</button>
+                    </div>
+                </div>
             </div>
         </details>
     </form>
 
-    <div class="listing-results-heading">
+    <div class="listing-results-heading mb-4">
         <div>
-            <h2>Available now</h2>
+            <h2>Available listings</h2>
             <p>
                 @if (Model.Listings.Count == 1) {
                     <span>1 listing found</span>
@@ -179,33 +157,28 @@
                     <span>@Model.Listings.Count listings found</span>
                 }
                 @if (Model.HasActiveFilters) {
-                    <span> for your search</span>
+                    <span> for your search criteria</span>
                 }
             </p>
         </div>
     </div>
 
     @if (Model.Listings.Count == 0) {
-        <div class="listing-empty-state">
-            <div class="listing-empty-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7"/>
-                    <path d="m20 20-4-4M8.5 11h5"/>
-                </svg>
-            </div>
-            <h2>@(Model.HasActiveFilters ? "No matches this time" : "No listings yet")</h2>
-            <p>
+        <div class="empty-state py-5">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <h3>@(Model.HasActiveFilters ? "No matches this time" : "No listings yet")</h3>
+            <p class="text-muted mt-2 mb-4">
                 @(Model.HasActiveFilters
                     ? "Try broadening your search or removing a few filters."
                     : "New places for rent and roommate requests will appear here as soon as they are posted.")
             </p>
             @if (Model.HasActiveFilters) {
-                <a asp-action="Index" class="btn listing-empty-action">Clear filters</a>
+                <a asp-action="Index" class="btn-cimerko-primary filter-apply-button">Clear filters</a>
             }
         </div>
     }
     else {
-        <div class="listing-grid-new">
+        <div class="row g-4">
             @foreach (var listing in Model.Listings) {
                 var typeLabel = listing.Type.GetDisplayName();
                 var ownerName = string.IsNullOrWhiteSpace(listing.Owner?.FullName)
@@ -219,59 +192,76 @@
                 var canSave = currentUserId != null && currentUserId != listing.OwnerId;
                 var isSaved = Model.SavedListingIds.Contains(listing.Id);
 
-                <a asp-action="Details" asp-route-id="@listing.Id" class="listing-card-new">
-                    <div class="listing-card-img-wrap">
-                        <div class="listing-card-price-badge">@listing.MonthlyRent.ToString("0") €</div>
-                        @if (canSave) {
-                            <form asp-controller="SavedListing"
-                                  asp-action="@(isSaved ? "Remove" : "Save")"
-                                  method="post"
-                                  class="listing-card-save-form"
-                                  data-save-url="@saveUrl"
-                                  data-remove-url="@removeUrl"
-                                  data-listing-title="@listing.Title"
-                                  onclick="event.preventDefault(); event.stopPropagation();">
-                                <input type="hidden" name="listingId" value="@listing.Id"/>
-                                <input type="hidden" name="returnUrl" value="@returnUrl"/>
-                                <button type="submit" class="listing-card-save-btn @(isSaved ? "is-saved" : "")">
-                                    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                                </button>
-                            </form>
-                        }
-                        @if (primaryImage != null) {
-                            <img src="@primaryImage.ImageUrl" alt="@listing.Title" class="listing-card-img" loading="lazy" />
-                        } else {
-                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-light">No photo</div>
-                        }
-                    </div>
-                    <div class="listing-card-content">
-                        <div class="listing-card-title">@listing.Title</div>
-                        <div class="listing-card-loc">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            @listing.City
-                        </div>
-                        <div class="listing-card-features">
-                            <span class="listing-card-feature">@listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</span>
-                            @if (listing.Type == ListingType.LookingForRoommate && listing.RoommatesNeeded.HasValue) {
-                                <span class="listing-card-feature">@listing.RoommatesNeeded needed</span>
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="listing-card">
+                        <div class="listing-card-img-wrap">
+                            <div class="listing-card-price-badge">
+                                @listing.MonthlyRent.ToString("0") € / month
+                            </div>
+                            @if (canSave) {
+                                <form asp-controller="SavedListing"
+                                      asp-action="@(isSaved ? "Remove" : "Save")"
+                                      method="post"
+                                      class="listing-card-save-form"
+                                      data-save-url="@saveUrl"
+                                      data-remove-url="@removeUrl"
+                                      data-listing-title="@listing.Title">
+                                    <input type="hidden" name="listingId" value="@listing.Id"/>
+                                    <input type="hidden" name="returnUrl" value="@returnUrl"/>
+                                    <button type="submit"
+                                            class="listing-card-save-btn @(isSaved ? "is-saved" : "")"
+                                            aria-label="@(isSaved ? $"Remove {listing.Title} from saved listings" : $"Save {listing.Title}")"
+                                            title="@(isSaved ? "Remove from saved listings" : "Save listing")">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8 1.1-1.1a5.5 5.5 0 0 0-.1-7.7z"></path></svg>
+                                    </button>
+                                </form>
                             }
-                            <span class="listing-card-feature">@(listing.AvailableFrom?.ToString("dd MMM") ?? "Available now")</span>
-                        </div>
-                        
-                        <div class="listing-card-footer-new">
-                            <div class="listing-card-owner">
-                                <div class="listing-card-owner-avatar">
-                                    @if (!string.IsNullOrWhiteSpace(listing.Owner?.ProfileImageUrl)) {
-                                        <img src="@listing.Owner.ProfileImageUrl" alt=""/>
-                                    } else {
-                                        @ownerInitial
-                                    }
+                            @if (primaryImage != null) {
+                                <img src="@primaryImage.ImageUrl" alt="@listing.Title" class="listing-card-img" loading="lazy" />
+                            } else {
+                                <div class="listing-card-placeholder">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                                    <span>No photo</span>
                                 </div>
-                                <span>Listed by <strong>@ownerName</strong></span>
+                            }
+                        </div>
+                        <div class="listing-card-content">
+                            <div>
+                                <h3><a asp-action="Details" asp-route-id="@listing.Id">@listing.Title</a></h3>
+                                <div class="listing-card-location-new">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                    <span>@listing.City</span>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(listing.Description)) {
+                                    <p class="listing-card-description">
+                                        @listing.Description
+                                    </p>
+                                }
+                                <div class="listing-card-badges">
+                                    <span class="badge-soft">@typeLabel</span>
+                                    <span class="badge-soft">@listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</span>
+                                    @if (listing.Type == ListingType.LookingForRoommate && listing.RoommatesNeeded.HasValue) {
+                                        <span class="badge-soft">@listing.RoommatesNeeded needed</span>
+                                    }
+                                    <span class="badge-soft">@(listing.AvailableFrom?.ToString("dd MMM") ?? "Available now")</span>
+                                </div>
+                            </div>
+                            <div class="listing-card-footer-new">
+                                <div class="listing-card-owner">
+                                    <div class="avatar-circle avatar-circle-sm">
+                                        @if (!string.IsNullOrWhiteSpace(listing.Owner?.ProfileImageUrl)) {
+                                            <img src="@listing.Owner.ProfileImageUrl" alt=""/>
+                                        } else {
+                                            <span>@ownerInitial</span>
+                                        }
+                                    </div>
+                                    <span>By <strong>@ownerName</strong></span>
+                                </div>
+                                <a asp-action="Details" asp-route-id="@listing.Id" class="btn-cimerko-light listing-card-details-link">View details</a>
                             </div>
                         </div>
                     </div>
-                </a>
+                </div>
             }
         </div>
     }
@@ -285,7 +275,6 @@
                     event.preventDefault();
 
                     const button = form.querySelector(".listing-card-save-btn");
-                    const status = form.querySelector("[aria-live]");
                     const listingTitle = form.dataset.listingTitle;
                     button.disabled = true;
 
@@ -313,13 +302,9 @@
                         button.classList.toggle("is-saved", isSaved);
                         button.title = isSaved ? "Remove from saved listings" : "Save listing";
                         button.setAttribute("aria-label", actionLabel);
-                        status.textContent = isSaved
-                            ? `${listingTitle} saved.`
-                            : `${listingTitle} removed from saved listings.`;
                     }
                     catch (error) {
                         console.error(error);
-                        status.textContent = "Could not update the saved listing. Please try again.";
                     }
                     finally {
                         button.disabled = false;

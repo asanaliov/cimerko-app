@@ -1,4 +1,4 @@
-﻿@{
+@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     string NavLinkClass(string controller) =>
         string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="~/cimerko_app.styles.css" asp-append-version="true"/>
 </head>
 <body>
+@if (ViewData["HideGlobalHeader"] as bool? != true) {
 <header class="site-header">
     <nav class="navbar navbar-expand-lg site-navbar" aria-label="Main navigation">
         <div class="container">
@@ -54,11 +55,19 @@
         </div>
     </nav>
 </header>
-<div class="container">
+}
+
+@if (ViewData["NoContainer"] as bool? == true) {
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
-</div>
+} else {
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+}
 
 <footer class="site-footer">
     <div class="container">
