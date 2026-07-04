@@ -13,7 +13,8 @@ namespace cimerko_app.Controllers;
 public class ListingController : Controller {
     private const int MaxListingImages = 5;
     private const long MaxListingImageSize = 5 * 1024 * 1024;
-    private const string ListingImageUrlPrefix = "/uploads/listing-images/";
+    private const string ListingImageUrlPrefix = "/images/listings/";
+    private const string LegacyListingImageUrlPrefix = "/uploads/listing-images/";
 
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _environment;
@@ -84,11 +85,22 @@ public class ListingController : Controller {
                 listing.Owner.RoommateProfile.GuestPreference == model.GuestPreference);
         }
 
+        if (model.AvailableNow) {
+            var today = DateTime.UtcNow.Date;
+            query = query.Where(listing =>
+                !listing.AvailableFrom.HasValue || listing.AvailableFrom.Value <= today);
+        }
+
+        if (model.HasImages) {
+            query = query.Where(listing => listing.Images.Any());
+        }
+
         model.Listings = await query
             .OrderByDescending(listing => listing.CreatedAt)
             .ToListAsync();
 
         var userId = CurrentUserId();
+        ViewBag.CurrentUserId = userId;
         if (userId != null) {
             model.SavedListingIds = await _context.SavedListings
                 .Where(savedListing => savedListing.UserId == userId)
@@ -162,7 +174,7 @@ public class ListingController : Controller {
         [Bind("Title,Description,Type,City,Address,MonthlyRent,RoomCount,RoommatesNeeded,AvailableFrom")]
         Listing listing,
         List<IFormFile>? listingImages) {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = CurrentUserId();
         if (userId == null) {
             return Challenge();
         }
@@ -436,7 +448,7 @@ public class ListingController : Controller {
     private async Task<(string ImageUrl, string FilePath)> SaveListingImageAsync(
         IFormFile image,
         string extension) {
-        var uploadsDirectory = Path.Combine(WebRootPath(), "uploads", "listing-images");
+        var uploadsDirectory = Path.Combine(WebRootPath(), "images", "listings");
         Directory.CreateDirectory(uploadsDirectory);
 
         var fileName = $"{Guid.NewGuid():N}{extension}";
@@ -461,17 +473,28 @@ public class ListingController : Controller {
     }
 
     private void DeleteLocalListingImage(string? imageUrl) {
-        if (string.IsNullOrWhiteSpace(imageUrl) ||
-            !imageUrl.StartsWith(ListingImageUrlPrefix, StringComparison.Ordinal)) {
+        if (string.IsNullOrWhiteSpace(imageUrl)) {
+            return;
+        }
+
+        var urlPrefix = imageUrl.StartsWith(ListingImageUrlPrefix, StringComparison.Ordinal)
+            ? ListingImageUrlPrefix
+            : imageUrl.StartsWith(LegacyListingImageUrlPrefix, StringComparison.Ordinal)
+                ? LegacyListingImageUrlPrefix
+                : null;
+        if (urlPrefix == null) {
             return;
         }
 
         var fileName = Path.GetFileName(imageUrl);
-        if (imageUrl != $"{ListingImageUrlPrefix}{fileName}") {
+        if (imageUrl != $"{urlPrefix}{fileName}") {
             return;
         }
 
-        DeleteFileIfPresent(Path.Combine(WebRootPath(), "uploads", "listing-images", fileName));
+        var relativeDirectory = urlPrefix == ListingImageUrlPrefix
+            ? Path.Combine("images", "listings")
+            : Path.Combine("uploads", "listing-images");
+        DeleteFileIfPresent(Path.Combine(WebRootPath(), relativeDirectory, fileName));
     }
 
     private string WebRootPath() {

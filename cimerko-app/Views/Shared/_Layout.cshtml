@@ -48,18 +48,6 @@
                            aria-current="@(currentController == "Listing" ? "page" : null)"
                            asp-area="" asp-controller="Listing" asp-action="Index">Listings</a>
                     </li>
-                    @if (User.Identity?.IsAuthenticated == true) {
-                        <li class="nav-item">
-                            <a class="@NavLinkClass("SavedListing")"
-                               aria-current="@(currentController == "SavedListing" ? "page" : null)"
-                               asp-area="" asp-controller="SavedListing" asp-action="Index">Saved listings</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="@NavLinkClass("ListingRequest")"
-                               aria-current="@(currentController == "ListingRequest" ? "page" : null)"
-                               asp-area="" asp-controller="ListingRequest" asp-action="Index">Requests</a>
-                        </li>
-                    }
                 </ul>
                 <partial name="_LoginPartial"/>
             </div>

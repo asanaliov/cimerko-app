@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Listings";
-    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var currentUserId = ViewBag.CurrentUserId as string;
     var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
     var saveUrl = Url.Action("Save", "SavedListing");
     var removeUrl = Url.Action("Remove", "SavedListing");
@@ -141,6 +141,17 @@
                         <option value="Often">Often</option>
                     </select>
                 </div>
+                <div class="listing-checkbox-filters">
+                    <span class="form-label">Quick filters</span>
+                    <label class="form-check">
+                        <input asp-for="AvailableNow" class="form-check-input"/>
+                        <span class="form-check-label">@Html.DisplayNameFor(model => model.AvailableNow)</span>
+                    </label>
+                    <label class="form-check">
+                        <input asp-for="HasImages" class="form-check-input"/>
+                        <span class="form-check-label">@Html.DisplayNameFor(model => model.HasImages)</span>
+                    </label>
+                </div>
             </div>
 
             <div class="listing-filter-actions">
@@ -189,7 +200,7 @@
         </div>
     }
     else {
-        <div class="listing-grid">
+        <div class="listing-grid row">
             @foreach (var listing in Model.Listings) {
                 var typeLabel = listing.Type.GetDisplayName();
                 var ownerName = string.IsNullOrWhiteSpace(listing.Owner?.FullName)
@@ -203,6 +214,7 @@
                 var canSave = currentUserId != null && currentUserId != listing.OwnerId;
                 var isSaved = Model.SavedListingIds.Contains(listing.Id);
 
+                <div class="col-12 col-md-6 col-lg-4">
                 <article class="listing-card">
                     <div class="listing-card-accent">
                         <span class="listing-type-badge @(listing.Type == ListingType.PlaceForRent ? "is-place" : "is-roommate")">
@@ -320,6 +332,7 @@
                         </a>
                     </div>
                 </article>
+                </div>
             }
         </div>
     }

@@ -13,7 +13,8 @@ namespace cimerko_app.Controllers;
 [Authorize]
 public class ProfileController : Controller {
     private const long MaxProfileImageSize = 5 * 1024 * 1024;
-    private const string ProfileImageUrlPrefix = "/uploads/profile-images/";
+    private const string ProfileImageUrlPrefix = "/images/profiles/";
+    private const string LegacyProfileImageUrlPrefix = "/uploads/profile-images/";
 
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _environment;
@@ -41,6 +42,8 @@ public class ProfileController : Controller {
         }
 
         var visitorId = CurrentUserId();
+        ViewBag.CurrentUserId = visitorId;
+        ViewBag.IsOwnProfile = visitorId == id;
         var canWriteReview = false;
         if (visitorId != null && visitorId != id) {
             var alreadyReviewed = await _context.Reviews.AnyAsync(review =>
@@ -185,7 +188,7 @@ public class ProfileController : Controller {
         string? newImagePath = null;
 
         if (profileImage is { Length: > 0 } && imageExtension != null) {
-            var uploadsDirectory = Path.Combine(WebRootPath(), "uploads", "profile-images");
+            var uploadsDirectory = Path.Combine(WebRootPath(), "images", "profiles");
             Directory.CreateDirectory(uploadsDirectory);
 
             var fileName = $"{Guid.NewGuid():N}{imageExtension}";
@@ -239,17 +242,28 @@ public class ProfileController : Controller {
     }
 
     private void DeleteLocalProfileImage(string? imageUrl) {
-        if (string.IsNullOrWhiteSpace(imageUrl) ||
-            !imageUrl.StartsWith(ProfileImageUrlPrefix, StringComparison.Ordinal)) {
+        if (string.IsNullOrWhiteSpace(imageUrl)) {
+            return;
+        }
+
+        var urlPrefix = imageUrl.StartsWith(ProfileImageUrlPrefix, StringComparison.Ordinal)
+            ? ProfileImageUrlPrefix
+            : imageUrl.StartsWith(LegacyProfileImageUrlPrefix, StringComparison.Ordinal)
+                ? LegacyProfileImageUrlPrefix
+                : null;
+        if (urlPrefix == null) {
             return;
         }
 
         var fileName = Path.GetFileName(imageUrl);
-        if (imageUrl != $"{ProfileImageUrlPrefix}{fileName}") {
+        if (imageUrl != $"{urlPrefix}{fileName}") {
             return;
         }
 
-        DeleteFileIfPresent(Path.Combine(WebRootPath(), "uploads", "profile-images", fileName));
+        var relativeDirectory = urlPrefix == ProfileImageUrlPrefix
+            ? Path.Combine("images", "profiles")
+            : Path.Combine("uploads", "profile-images");
+        DeleteFileIfPresent(Path.Combine(WebRootPath(), relativeDirectory, fileName));
     }
 
     private static void DeleteFileIfPresent(string? path) {

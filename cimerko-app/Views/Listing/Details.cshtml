@@ -57,17 +57,53 @@
     }
 
     @if (listingImages.Count > 0) {
-        <section class="listing-details-media @(listingImages.Count == 1 ? "listing-details-media-single" : "")"
-                 aria-label="Listing photos">
-            <div class="listing-details-main-image">
-                <svg viewBox="0 0 120 90" aria-hidden="true">
-                    <path d="M18 70V35l30-20 30 20v35"/>
-                    <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
-                    <path d="M43 54h10M91 46h5M91 55h5"/>
-                </svg>
-                <img src="@listingImages[0].ImageUrl"
-                     alt="Main photo of @listing.Title"
-                     onerror="this.hidden=true"/>
+        <section aria-label="Listing photos">
+            <div id="listingImageCarousel"
+                 class="carousel slide listing-details-carousel"
+                 data-bs-ride="false">
+                @if (listingImages.Count > 1) {
+                    <div class="carousel-indicators">
+                        @for (var index = 0; index < listingImages.Count; index++) {
+                            <button type="button"
+                                    data-bs-target="#listingImageCarousel"
+                                    data-bs-slide-to="@index"
+                                    class="@(index == 0 ? "active" : "")"
+                                    aria-current="@(index == 0 ? "true" : null)"
+                                    aria-label="Show photo @(index + 1)">
+                            </button>
+                        }
+                    </div>
+                }
+
+                <div class="carousel-inner">
+                    @for (var index = 0; index < listingImages.Count; index++) {
+                        var image = listingImages[index];
+                        <div class="carousel-item @(index == 0 ? "active" : "")">
+                            <img src="@image.ImageUrl"
+                                 class="d-block w-100"
+                                 alt="Photo @(index + 1) of @listing.Title"
+                                 loading="@(index == 0 ? "eager" : "lazy")"/>
+                        </div>
+                    }
+                </div>
+
+                @if (listingImages.Count > 1) {
+                    <button class="carousel-control-prev"
+                            type="button"
+                            data-bs-target="#listingImageCarousel"
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous photo</span>
+                    </button>
+                    <button class="carousel-control-next"
+                            type="button"
+                            data-bs-target="#listingImageCarousel"
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next photo</span>
+                    </button>
+                }
+
                 <span class="listing-details-photo-count">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <rect x="3" y="5" width="18" height="16" rx="2"/>
@@ -77,25 +113,6 @@
                     @listingImages.Count @(listingImages.Count == 1 ? "photo" : "photos")
                 </span>
             </div>
-
-            @if (listingImages.Count > 1) {
-                <div class="listing-details-thumbnails">
-                    @for (var index = 1; index < listingImages.Count; index++) {
-                        var image = listingImages[index];
-                        <div class="listing-details-thumbnail">
-                            <svg viewBox="0 0 120 90" aria-hidden="true">
-                                <path d="M18 70V35l30-20 30 20v35"/>
-                                <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
-                                <path d="M43 54h10M91 46h5M91 55h5"/>
-                            </svg>
-                            <img src="@image.ImageUrl"
-                                 alt="Photo @(index + 1) of @listing.Title"
-                                 loading="lazy"
-                                 onerror="this.hidden=true"/>
-                        </div>
-                    }
-                </div>
-            }
         </section>
     }
     else {

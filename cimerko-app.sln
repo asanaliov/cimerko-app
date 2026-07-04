@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cimerko-app", "cimerko-app\cimerko-app.csproj", "{14DF496C-883F-472C-AE02-5070CDF57D5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{A7814B89-6254-4D6F-864D-0905442241D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{14DF496C-883F-472C-AE02-5070CDF57D5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14DF496C-883F-472C-AE02-5070CDF57D5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14DF496C-883F-472C-AE02-5070CDF57D5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7814B89-6254-4D6F-864D-0905442241D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7814B89-6254-4D6F-864D-0905442241D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7814B89-6254-4D6F-864D-0905442241D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7814B89-6254-4D6F-864D-0905442241D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

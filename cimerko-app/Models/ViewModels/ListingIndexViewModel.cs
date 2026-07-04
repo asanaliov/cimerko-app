@@ -35,6 +35,12 @@ public class ListingIndexViewModel {
     [Display(Name = "Guest preference")]
     public string? GuestPreference { get; set; }
 
+    [Display(Name = "Available now")]
+    public bool AvailableNow { get; set; }
+
+    [Display(Name = "Listings with photos")]
+    public bool HasImages { get; set; }
+
     public IReadOnlyList<Listing> Listings { get; set; } = Array.Empty<Listing>();
 
     public HashSet<int> SavedListingIds { get; set; } = [];
@@ -49,5 +55,7 @@ public class ListingIndexViewModel {
         !string.IsNullOrWhiteSpace(PetsPreference) ||
         !string.IsNullOrWhiteSpace(CleanlinessLevel) ||
         !string.IsNullOrWhiteSpace(SleepSchedule) ||
-        !string.IsNullOrWhiteSpace(GuestPreference);
+        !string.IsNullOrWhiteSpace(GuestPreference) ||
+        AvailableNow ||
+        HasImages;
 }

@@ -1,11 +1,10 @@
-@using System.Security.Claims
 @using cimerko_app.Models.ViewModels
 @model ApplicationUser
 
 @{
     ViewData["Title"] = "Profile";
-    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-    var isOwnProfile = currentUserId == Model.Id;
+    var currentUserId = ViewBag.CurrentUserId as string;
+    var isOwnProfile = ViewBag.IsOwnProfile is bool ownProfile && ownProfile;
     var profile = Model.RoommateProfile;
     var displayName = string.IsNullOrWhiteSpace(Model.FullName) ? Model.Email ?? "Cimerko member" : Model.FullName;
     var initial = displayName.Trim()[..1].ToUpperInvariant();
@@ -14,6 +13,16 @@
     var canWriteReview = ViewBag.CanWriteReview == true;
     var showCompatibility = ViewBag.ShowCompatibility == true;
     var compatibilityScore = ViewBag.CompatibilityScore as int?;
+    var compatibilityLabel = compatibilityScore switch {
+        >= 75 => "High compatibility",
+        >= 50 => "Moderate compatibility",
+        _ => "Low compatibility"
+    };
+    var compatibilityClass = compatibilityScore switch {
+        >= 75 => "is-high",
+        >= 50 => "is-moderate",
+        _ => "is-low"
+    };
     var comparedPreferences = ViewBag.ComparedPreferences is int preferenceCount ? preferenceCount : 0;
     var compatibilityStrongMatches =
         ViewBag.CompatibilityStrongMatches as IReadOnlyList<string> ?? Array.Empty<string>();
@@ -146,11 +155,11 @@
 
         <div class="profile-hero-stats">
             <div>
-                <strong>@(string.IsNullOrWhiteSpace(profile?.University) ? "—" : profile.University)</strong>
+                <strong>@(string.IsNullOrWhiteSpace(profile?.University) ? "-" : profile.University)</strong>
                 <span>University</span>
             </div>
             <div>
-                <strong>@(string.IsNullOrWhiteSpace(profile?.StudyProgram) ? "—" : profile.StudyProgram)</strong>
+                <strong>@(string.IsNullOrWhiteSpace(profile?.StudyProgram) ? "-" : profile.StudyProgram)</strong>
                 <span>Faculty</span>
             </div>
             <div>
@@ -241,23 +250,54 @@
                 else {
                     <div class="profile-preference-grid">
                         <div class="profile-preference-item">
-                            <span>Smoking</span>
+                            <span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 13h14v4H4zM18 13h2v4h-2zM7 10h8M15 10c2 0 2-3 0-3"/>
+                                </svg>
+                                Smoking
+                            </span>
                             <strong>@(profile.SmokingPreference ?? "Not specified")</strong>
                         </div>
                         <div class="profile-preference-item">
-                            <span>Pets</span>
+                            <span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle cx="7" cy="8" r="2"/>
+                                    <circle cx="17" cy="8" r="2"/>
+                                    <circle cx="5" cy="13" r="2"/>
+                                    <circle cx="19" cy="13" r="2"/>
+                                    <path d="M8 18c0-3 1.8-5 4-5s4 2 4 5c0 1.6-1.8 2-4 2s-4-.4-4-2Z"/>
+                                </svg>
+                                Pets
+                            </span>
                             <strong>@(profile.PetsPreference ?? "Not specified")</strong>
                         </div>
                         <div class="profile-preference-item">
-                            <span>Cleanliness</span>
+                            <span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="m14 4 1.2 3.3L18.5 8l-3.3 1.2L14 12.5l-1.2-3.3L9.5 8l3.3-.7L14 4ZM6 12l.8 2.2L9 15l-2.2.8L6 18l-.8-2.2L3 15l2.2-.8L6 12ZM18 14l.7 1.8 1.8.7-1.8.7L18 19l-.7-1.8-1.8-.7 1.8-.7L18 14Z"/>
+                                </svg>
+                                Cleanliness
+                            </span>
                             <strong>@(profile.CleanlinessLevel ?? "Not specified")</strong>
                         </div>
                         <div class="profile-preference-item">
-                            <span>Sleep schedule</span>
+                            <span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M19 15.5A8 8 0 0 1 8.5 5 8 8 0 1 0 19 15.5Z"/>
+                                </svg>
+                                Sleep schedule
+                            </span>
                             <strong>@(profile.SleepSchedule ?? "Not specified")</strong>
                         </div>
                         <div class="profile-preference-item">
-                            <span>Guests</span>
+                            <span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle cx="9" cy="8" r="3"/>
+                                    <circle cx="17" cy="10" r="2"/>
+                                    <path d="M3 19c.4-4 2.4-6 6-6s5.6 2 6 6M15 15c3 0 4.7 1.3 5 4"/>
+                                </svg>
+                                Guests
+                            </span>
                             <strong>@(profile.GuestPreference ?? "Not specified")</strong>
                         </div>
                     </div>
@@ -419,6 +459,19 @@
                     <span class="profile-kicker">Your compatibility</span>
                     @if (compatibilityScore.HasValue) {
                         <div class="profile-compatibility-score">@compatibilityScore%</div>
+                        <span class="profile-compatibility-badge @compatibilityClass">
+                            @compatibilityLabel: @compatibilityScore%
+                        </span>
+                        <div class="progress profile-compatibility-progress"
+                             role="progressbar"
+                             aria-label="@compatibilityLabel"
+                             aria-valuenow="@compatibilityScore"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                            <div class="progress-bar @compatibilityClass"
+                                 style="width: @compatibilityScore%">
+                            </div>
+                        </div>
                         <p>
                             Based on @comparedPreferences shared
                             @(comparedPreferences == 1 ? "preference" : "preferences").
@@ -488,11 +541,11 @@
                         <div class="mb-3">
                             <label for="rating" class="form-label">Overall rating</label>
                             <select id="rating" name="rating" class="form-select">
-                                <option value="5">5 — Excellent</option>
-                                <option value="4">4 — Very good</option>
-                                <option value="3">3 — Good</option>
-                                <option value="2">2 — Fair</option>
-                                <option value="1">1 — Poor</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
                             </select>
                         </div>
 
@@ -505,11 +558,11 @@
                             <label for="smokingRating" class="form-label">Smoking habits</label>
                             <select id="smokingRating" name="smokingRating" class="form-select" required>
                                 <option value="">Choose a rating</option>
-                                <option value="5">5 — Excellent</option>
-                                <option value="4">4 — Very good</option>
-                                <option value="3">3 — Good</option>
-                                <option value="2">2 — Fair</option>
-                                <option value="1">1 — Poor</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
                             </select>
                         </div>
 
@@ -517,11 +570,11 @@
                             <label for="petsRating" class="form-label">Pet responsibility</label>
                             <select id="petsRating" name="petsRating" class="form-select" required>
                                 <option value="">Choose a rating</option>
-                                <option value="5">5 — Excellent</option>
-                                <option value="4">4 — Very good</option>
-                                <option value="3">3 — Good</option>
-                                <option value="2">2 — Fair</option>
-                                <option value="1">1 — Poor</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
                             </select>
                         </div>
 
@@ -529,11 +582,11 @@
                             <label for="cleanlinessRating" class="form-label">Cleanliness</label>
                             <select id="cleanlinessRating" name="cleanlinessRating" class="form-select" required>
                                 <option value="">Choose a rating</option>
-                                <option value="5">5 — Excellent</option>
-                                <option value="4">4 — Very good</option>
-                                <option value="3">3 — Good</option>
-                                <option value="2">2 — Fair</option>
-                                <option value="1">1 — Poor</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
                             </select>
                         </div>
 
@@ -541,11 +594,11 @@
                             <label for="sleepScheduleRating" class="form-label">Sleep schedule</label>
                             <select id="sleepScheduleRating" name="sleepScheduleRating" class="form-select" required>
                                 <option value="">Choose a rating</option>
-                                <option value="5">5 — Excellent</option>
-                                <option value="4">4 — Very good</option>
-                                <option value="3">3 — Good</option>
-                                <option value="2">2 — Fair</option>
-                                <option value="1">1 — Poor</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
                             </select>
                         </div>
 
@@ -553,11 +606,11 @@
                             <label for="guestPreferenceRating" class="form-label">Guest habits</label>
                             <select id="guestPreferenceRating" name="guestPreferenceRating" class="form-select" required>
                                 <option value="">Choose a rating</option>
-                                <option value="5">5 — Excellent</option>
-                                <option value="4">4 — Very good</option>
-                                <option value="3">3 — Good</option>
-                                <option value="2">2 — Fair</option>
-                                <option value="1">1 — Poor</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
                             </select>
                         </div>
 

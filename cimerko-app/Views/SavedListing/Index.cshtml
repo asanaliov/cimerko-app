@@ -36,7 +36,7 @@
         </div>
     }
     else {
-        <div class="listing-grid saved-listings-grid">
+        <div class="listing-grid saved-listings-grid row">
             @foreach (var savedListing in savedListings) {
                 if (savedListing.Listing is not { } listing) {
                     continue;
@@ -51,6 +51,7 @@
                     .ThenBy(image => image.CreatedAt)
                     .FirstOrDefault();
 
+                <div class="col-12 col-md-6 col-lg-4">
                 <article class="listing-card saved-listing-card">
                     <div class="listing-card-accent">
                         <span class="listing-type-badge @(listing.Type == ListingType.PlaceForRent ? "is-place" : "is-roommate")">
@@ -134,6 +135,7 @@
                         </form>
                     </div>
                 </article>
+                </div>
             }
         </div>
     }

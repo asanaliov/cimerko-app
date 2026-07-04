@@ -13,7 +13,7 @@ public class NotificationNavViewComponent : ViewComponent {
     }
 
     public async Task<IViewComponentResult> InvokeAsync() {
-        var userId = UserClaimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = CurrentUserId();
         if (userId == null) {
             return Content(string.Empty);
         }
@@ -22,5 +22,9 @@ public class NotificationNavViewComponent : ViewComponent {
             notification.RecipientId == userId && !notification.IsRead);
 
         return View(unreadCount);
+    }
+
+    private string? CurrentUserId() {
+        return UserClaimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 }
