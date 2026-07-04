@@ -14,13 +14,15 @@
     var showCompatibility = ViewBag.ShowCompatibility == true;
     var compatibilityScore = ViewBag.CompatibilityScore as int?;
     var compatibilityLabel = compatibilityScore switch {
-        >= 75 => "High compatibility",
-        >= 50 => "Moderate compatibility",
-        _ => "Low compatibility"
+        >= 85 => "Excellent match",
+        >= 70 => "Good match",
+        >= 45 => "Partial match",
+        _ => "Low match"
     };
     var compatibilityClass = compatibilityScore switch {
-        >= 75 => "is-high",
-        >= 50 => "is-moderate",
+        >= 85 => "is-excellent",
+        >= 70 => "is-good",
+        >= 45 => "is-partial",
         _ => "is-low"
     };
     var comparedPreferences = ViewBag.ComparedPreferences is int preferenceCount ? preferenceCount : 0;

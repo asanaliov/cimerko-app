@@ -4528,6 +4528,18 @@ body {
   background: #eaf8f0;
 }
 
+.profile-badge-complete {
+  border-color: #c9dcef;
+  color: #315f91;
+  background: #eaf3fc;
+}
+
+.profile-badge-lifestyle {
+  border-color: #ead6ae;
+  color: #76551f;
+  background: #fff5df;
+}
+
 .profile-hero-bio {
   max-width: 620px;
   margin: 0.8rem 0 0;
@@ -5145,12 +5157,13 @@ body {
   font-weight: 800;
 }
 
-.profile-compatibility-badge.is-high {
+.profile-compatibility-badge.is-excellent,
+.profile-compatibility-badge.is-good {
   color: #176d65;
   background: #def4ee;
 }
 
-.profile-compatibility-badge.is-moderate {
+.profile-compatibility-badge.is-partial {
   color: #8a5a13;
   background: #fff0d9;
 }
@@ -5167,11 +5180,15 @@ body {
   background: #e9edee;
 }
 
-.profile-compatibility-progress .progress-bar.is-high {
+.profile-compatibility-progress .progress-bar.is-excellent {
+  background: #176d65;
+}
+
+.profile-compatibility-progress .progress-bar.is-good {
   background: #1f8177;
 }
 
-.profile-compatibility-progress .progress-bar.is-moderate {
+.profile-compatibility-progress .progress-bar.is-partial {
   background: #d08a22;
 }
 

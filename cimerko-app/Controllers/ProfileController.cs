@@ -308,6 +308,31 @@ public class ProfileController : Controller {
             badges.Add(new ProfileBadgeViewModel("Student", "profile-badge-student"));
         }
 
+        if (CalculateProfileCompletion(user).IsProfileComplete) {
+            badges.Add(new ProfileBadgeViewModel("Complete Profile", "profile-badge-complete"));
+        }
+
+        if (string.Equals(
+                profile?.SmokingPreference,
+                "No smoking",
+                StringComparison.OrdinalIgnoreCase)) {
+            badges.Add(new ProfileBadgeViewModel("Non-smoker", "profile-badge-lifestyle"));
+        }
+
+        if (string.Equals(
+                profile?.PetsPreference,
+                "Pets are welcome",
+                StringComparison.OrdinalIgnoreCase)) {
+            badges.Add(new ProfileBadgeViewModel("Pet Friendly", "profile-badge-lifestyle"));
+        }
+
+        if (string.Equals(
+                profile?.GuestPreference,
+                "Rarely",
+                StringComparison.OrdinalIgnoreCase)) {
+            badges.Add(new ProfileBadgeViewModel("Quiet Lifestyle", "profile-badge-lifestyle"));
+        }
+
         if (activeListingCount > 0) {
             badges.Add(new ProfileBadgeViewModel("Listing Owner", "profile-badge-owner"));
             badges.Add(new ProfileBadgeViewModel(
@@ -325,7 +350,10 @@ public class ProfileController : Controller {
             badges.Add(new ProfileBadgeViewModel("New User", "profile-badge-new"));
         }
 
-        if (compatibilityScore >= 75) {
+        if (compatibilityScore >= 85) {
+            badges.Add(new ProfileBadgeViewModel("Excellent Match", "profile-badge-match"));
+        }
+        else if (compatibilityScore >= 70) {
             badges.Add(new ProfileBadgeViewModel("Good Match", "profile-badge-match"));
         }
 
