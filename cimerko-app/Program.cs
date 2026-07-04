@@ -1,5 +1,6 @@
 using cimerko_app.Data;
 using cimerko_app.Models;
+using cimerko_app.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<NotificationService>();
 
 var app = builder.Build();
 

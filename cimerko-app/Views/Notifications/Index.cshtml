@@ -59,12 +59,18 @@
                     </div>
 
                     <div class="notification-item-actions">
-                        @if (notification.ListingId.HasValue) {
+                        @if (!string.IsNullOrWhiteSpace(notification.LinkUrl)) {
+                            <a href="@notification.LinkUrl"
+                               class="notification-listing-link">
+                                View details
+                            </a>
+                        }
+                        else if (notification.ListingId.HasValue) {
                             <a asp-controller="Listing"
                                asp-action="Details"
                                asp-route-id="@notification.ListingId"
                                class="notification-listing-link">
-                                View listing
+                                View details
                             </a>
                         }
                         @if (!notification.IsRead) {

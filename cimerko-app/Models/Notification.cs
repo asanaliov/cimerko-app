@@ -23,6 +23,9 @@ public class Notification {
     [MaxLength(500)]
     public string Message { get; set; } = string.Empty;
 
+    [MaxLength(500)]
+    public string? LinkUrl { get; set; }
+
     public int? ListingId { get; set; }
 
     public Listing? Listing { get; set; }

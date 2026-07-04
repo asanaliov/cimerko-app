@@ -2,6 +2,7 @@ using System.Security.Claims;
 using cimerko_app.Data;
 using cimerko_app.Models;
 using cimerko_app.Models.Enums;
+using cimerko_app.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +12,13 @@ namespace cimerko_app.Controllers;
 [Authorize]
 public class ReviewController : Controller {
     private readonly ApplicationDbContext _context;
+    private readonly NotificationService _notificationService;
 
-    public ReviewController(ApplicationDbContext context) {
+    public ReviewController(
+        ApplicationDbContext context,
+        NotificationService notificationService) {
         _context = context;
+        _notificationService = notificationService;
     }
 
     [HttpPost]
@@ -93,6 +98,12 @@ public class ReviewController : Controller {
         }
 
         _context.Reviews.Add(review);
+        _notificationService.Add(
+            reviewedUserId,
+            reviewerId,
+            "New review",
+            "You received a new review from someone you connected with through Cimerko.",
+            $"/Profile/Details/{reviewedUserId}");
         await _context.SaveChangesAsync();
 
         TempData["ReviewMessage"] = "Your review was added.";

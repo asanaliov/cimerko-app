@@ -2,6 +2,7 @@ using System.Security.Claims;
 using cimerko_app.Data;
 using cimerko_app.Models;
 using cimerko_app.Models.Enums;
+using cimerko_app.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +12,13 @@ namespace cimerko_app.Controllers;
 [Authorize]
 public class ListingRequestController : Controller {
     private readonly ApplicationDbContext _context;
+    private readonly NotificationService _notificationService;
 
-    public ListingRequestController(ApplicationDbContext context) {
+    public ListingRequestController(
+        ApplicationDbContext context,
+        NotificationService notificationService) {
         _context = context;
+        _notificationService = notificationService;
     }
 
     public async Task<IActionResult> Index(string view = "received") {
@@ -92,15 +97,14 @@ public class ListingRequestController : Controller {
         }
 
         _context.ListingRequests.Add(listingRequest);
-        _context.Notifications.Add(new Notification {
-            RecipientId = listing.OwnerId,
-            ActorId = userId,
-            Title = "New listing request",
-            Message = $"{senderName} sent a request for your listing: {listing.Title}.",
-            ListingId = listing.Id,
-            ListingRequest = listingRequest,
-            CreatedAt = DateTime.UtcNow
-        });
+        _notificationService.Add(
+            listing.OwnerId,
+            userId,
+            "New listing request",
+            $"{senderName} sent a request for your listing: {listing.Title}.",
+            $"/Listing/Details/{listing.Id}",
+            listing.Id,
+            listingRequest: listingRequest);
         await _context.SaveChangesAsync();
 
         TempData["RequestMessage"] = "Your request was sent.";
@@ -133,17 +137,16 @@ public class ListingRequestController : Controller {
 
         listingRequest.Status = status;
         var decision = status == RequestStatus.Accepted ? "accepted" : "rejected";
-        _context.Notifications.Add(new Notification {
-            RecipientId = listingRequest.SenderId,
-            ActorId = userId,
-            Title = status == RequestStatus.Accepted
+        _notificationService.Add(
+            listingRequest.SenderId,
+            userId,
+            status == RequestStatus.Accepted
                 ? "Request accepted"
                 : "Request rejected",
-            Message = $"Your request for {listingRequest.Listing.Title} was {decision}.",
-            ListingId = listingRequest.ListingId,
-            ListingRequestId = listingRequest.Id,
-            CreatedAt = DateTime.UtcNow
-        });
+            $"Your request for {listingRequest.Listing.Title} was {decision}.",
+            $"/Listing/Details/{listingRequest.ListingId}",
+            listingRequest.ListingId,
+            listingRequest.Id);
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
