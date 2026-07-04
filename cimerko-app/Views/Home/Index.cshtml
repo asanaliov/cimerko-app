@@ -1,8 +1,196 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@using cimerko_app.Models.Enums
+@model cimerko_app.Models.ViewModels.HomeIndexViewModel
+
+@{
+    ViewData["Title"] = "Student housing and roommates";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="home-page">
+    <section class="home-hero">
+        <div class="home-hero-copy">
+            <span class="home-eyebrow">Student housing made simpler</span>
+            <h1>Find a room. Find a cimer. Feel at home.</h1>
+            <p>
+                Browse student-friendly places, compare everyday living preferences,
+                and contact potential roommates through one straightforward platform.
+            </p>
+
+            <form asp-controller="Listing" asp-action="Index" method="get" class="home-search">
+                <div>
+                    <label for="homeSearchTitle">What do you need?</label>
+                    <input id="homeSearchTitle"
+                           name="Title"
+                           type="search"
+                           placeholder="Room, flat, or roommate"/>
+                </div>
+                <div>
+                    <label for="homeSearchCity">Where?</label>
+                    <input id="homeSearchCity"
+                           name="City"
+                           type="search"
+                           placeholder="City"/>
+                </div>
+                <button type="submit" class="btn">Search listings</button>
+            </form>
+
+            <div class="home-hero-actions">
+                <a asp-controller="Listing" asp-action="Index" class="btn home-primary-action">
+                    Browse listings
+                </a>
+                @if (User.Identity?.IsAuthenticated == true) {
+                    <a asp-controller="Profile" asp-action="MyProfile" class="btn home-secondary-action">
+                        View my profile
+                    </a>
+                }
+                else {
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn home-secondary-action">
+                        Create profile
+                    </a>
+                }
+            </div>
+        </div>
+
+        <div class="home-hero-visual" aria-label="A simple illustration of shared student housing">
+            <div class="home-visual-house">
+                <svg viewBox="0 0 260 210" aria-hidden="true">
+                    <path d="M38 102 130 30l92 72v86H38z"/>
+                    <path d="M102 188v-62h56v62M65 124h24v28H65zM171 124h24v28h-24z"/>
+                    <path d="M25 188h210"/>
+                </svg>
+            </div>
+            <div class="home-visual-card home-visual-card-top">
+                <span class="home-visual-avatar">M</span>
+                <span><strong>Compatible routines</strong><small>Quiet evenings, tidy home</small></span>
+            </div>
+            <div class="home-visual-card home-visual-card-bottom">
+                <span class="home-visual-pin">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
+                        <circle cx="12" cy="10" r="2.5"/>
+                    </svg>
+                </span>
+                <span><strong>Student-friendly places</strong><small>Search by city and budget</small></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-features" aria-labelledby="homeFeaturesTitle">
+        <div class="home-section-heading">
+            <span class="home-eyebrow">Why Cimerko</span>
+            <h2 id="homeFeaturesTitle">A practical way to find the right home</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <article class="home-feature-card">
+                    <span>01</span>
+                    <h3>Browse student listings</h3>
+                    <p>Search by city, price, listing type, availability, and household preferences.</p>
+                </article>
+            </div>
+            <div class="col-md-4">
+                <article class="home-feature-card">
+                    <span>02</span>
+                    <h3>Compare living styles</h3>
+                    <p>Use real profile preferences to understand how well everyday routines may fit.</p>
+                </article>
+            </div>
+            <div class="col-md-4">
+                <article class="home-feature-card">
+                    <span>03</span>
+                    <h3>Send requests safely</h3>
+                    <p>Contact listing owners through the app and track each request in one place.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-latest" aria-labelledby="latestListingsTitle">
+        <div class="home-section-heading home-section-heading-row">
+            <div>
+                <span class="home-eyebrow">Recently added</span>
+                <h2 id="latestListingsTitle">Latest listings</h2>
+            </div>
+            <a asp-controller="Listing" asp-action="Index">View all listings</a>
+        </div>
+
+        @if (Model.LatestListings.Count == 0) {
+            <div class="home-latest-empty">
+                <h3>No active listings yet</h3>
+                <p>Be the first person to share a place or look for a roommate.</p>
+                <a asp-controller="Listing" asp-action="Create" class="btn home-primary-action">Post a listing</a>
+            </div>
+        }
+        else {
+            <div class="row g-4">
+                @foreach (var listing in Model.LatestListings) {
+                    var primaryImage = listing.Images
+                        .OrderByDescending(image => image.IsPrimary)
+                        .ThenBy(image => image.CreatedAt)
+                        .FirstOrDefault();
+                    var ownerName = string.IsNullOrWhiteSpace(listing.Owner?.FullName)
+                        ? "Cimerko member"
+                        : listing.Owner.FullName;
+
+                    <div class="col-md-6 col-lg-4">
+                        <article class="home-listing-card">
+                            <a asp-controller="Listing"
+                               asp-action="Details"
+                               asp-route-id="@listing.Id"
+                               class="home-listing-image"
+                               aria-label="View @listing.Title">
+                                @if (primaryImage != null) {
+                                    <img src="@primaryImage.ImageUrl"
+                                         alt="Photo of @listing.Title"
+                                         loading="lazy"/>
+                                }
+                                else {
+                                    <svg viewBox="0 0 120 90" aria-hidden="true">
+                                        <path d="M18 70V35l30-20 30 20v35"/>
+                                        <path d="M33 70V46h30v24M83 70V28l19 12v30M8 70h104"/>
+                                    </svg>
+                                }
+                                <span>@listing.Type.GetDisplayName()</span>
+                            </a>
+                            <div class="home-listing-body">
+                                <div class="home-listing-price">
+                                    <strong>@listing.MonthlyRent.ToString("0") €</strong>
+                                    <span>/ month</span>
+                                </div>
+                                <h3>
+                                    <a asp-controller="Listing"
+                                       asp-action="Details"
+                                       asp-route-id="@listing.Id">@listing.Title</a>
+                                </h3>
+                                <p>@listing.City · Listed by @ownerName</p>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="home-how" aria-labelledby="homeHowTitle">
+        <div class="home-section-heading">
+            <span class="home-eyebrow">How it works</span>
+            <h2 id="homeHowTitle">From profile to new home</h2>
+        </div>
+        <ol class="home-steps">
+            <li><span>1</span><strong>Create your profile</strong><p>Share the details and routines that matter at home.</p></li>
+            <li><span>2</span><strong>Browse listings</strong><p>Filter active places and roommate posts.</p></li>
+            <li><span>3</span><strong>Send a request</strong><p>Introduce yourself directly to the listing owner.</p></li>
+            <li><span>4</span><strong>Connect</strong><p>Track the response and choose the right fit.</p></li>
+        </ol>
+    </section>
+
+    <section class="home-final-cta">
+        <div>
+            <span class="home-eyebrow">Ready to start?</span>
+            <h2>Your next home could be one search away.</h2>
+        </div>
+        <div>
+            <a asp-controller="Listing" asp-action="Index" class="btn home-primary-action">Browse listings</a>
+            <a asp-controller="Listing" asp-action="Create" class="btn home-secondary-action">Post listing</a>
+        </div>
+    </section>
 </div>

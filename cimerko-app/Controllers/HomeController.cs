@@ -1,12 +1,32 @@
 using System.Diagnostics;
+using cimerko_app.Data;
 using Microsoft.AspNetCore.Mvc;
 using cimerko_app.Models;
+using cimerko_app.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace cimerko_app.Controllers;
 
 public class HomeController : Controller {
-    public IActionResult Index() {
-        return View();
+    private readonly ApplicationDbContext _context;
+
+    public HomeController(ApplicationDbContext context) {
+        _context = context;
+    }
+
+    public async Task<IActionResult> Index() {
+        var latestListings = await _context.Listings
+            .AsNoTracking()
+            .Where(listing => listing.IsActive)
+            .Include(listing => listing.Owner)
+            .Include(listing => listing.Images)
+            .OrderByDescending(listing => listing.CreatedAt)
+            .Take(3)
+            .ToListAsync();
+
+        return View(new HomeIndexViewModel {
+            LatestListings = latestListings
+        });
     }
 
     public IActionResult Privacy() {
