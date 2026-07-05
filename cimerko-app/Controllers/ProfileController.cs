@@ -101,7 +101,9 @@ public class ProfileController : Controller {
         var users = await _context.Users
             .Include(u => u.RoommateProfile)
             .Include(u => u.Listings)
-            .Where(u => u.RoommateProfile != null && u.Listings.Any(l => l.IsActive && l.Type == ListingType.LookingForRoommate))
+            .Where(u => u.RoommateProfile != null
+                        && u.Listings.Any(l => l.IsActive && l.Type == ListingType.LookingForRoommate)
+                        && (visitorId == null || u.Id != visitorId))
             .AsNoTracking()
             .ToListAsync();
 
