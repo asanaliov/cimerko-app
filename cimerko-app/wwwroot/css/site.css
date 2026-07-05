@@ -8624,3 +8624,233 @@ body::after {
     padding: 1.25rem;
   }
 }
+
+/* Immersive listing details */
+.listing-showcase {
+  max-width: 1240px;
+}
+
+.property-shell {
+  border: 1px solid rgba(227, 222, 212, 0.85);
+}
+
+.property-hero {
+  height: 500px;
+}
+
+.hero-nav-center {
+  padding: 0.45rem 0.55rem 0.45rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-pill);
+  background: rgba(20, 27, 24, 0.55);
+  box-shadow: 0 8px 24px rgba(20, 17, 15, 0.16);
+  backdrop-filter: blur(14px);
+}
+
+.hero-actions {
+  max-width: calc(100% - 2rem);
+  justify-content: center;
+}
+
+.hero-action-btn {
+  min-height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition:
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.hero-action-btn:hover,
+.hero-action-btn:focus {
+  box-shadow: 0 10px 24px rgba(20, 17, 15, 0.2);
+}
+
+.property-action-card {
+  top: 405px;
+  right: 44px;
+  width: 360px;
+}
+
+.action-card-strip {
+  background: linear-gradient(135deg, var(--cimerko-green-dark), var(--cimerko-green));
+}
+
+.action-card-body {
+  padding: 1.25rem;
+}
+
+.price-panel {
+  border-color: rgba(244, 204, 71, 0.45);
+}
+
+.property-content {
+  padding: 2.5rem 3.5rem 3.5rem;
+}
+
+.content-section-block {
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--cimerko-border);
+}
+
+.content-section-block:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.amenity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.amenity-item {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--cimerko-border);
+  border-radius: var(--radius-md);
+  background: var(--cimerko-bg-soft);
+}
+
+.amenity-item > svg {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  padding: 0.55rem;
+  border-radius: 12px;
+  fill: none;
+  stroke: var(--cimerko-green);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  background: var(--cimerko-green-light);
+}
+
+.amenity-item span {
+  min-width: 0;
+}
+
+.amenity-item small,
+.amenity-item strong {
+  display: block;
+}
+
+.amenity-item small {
+  margin-bottom: 0.15rem;
+  color: var(--cimerko-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.amenity-item strong {
+  color: var(--cimerko-text);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.listing-location-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--cimerko-border);
+  border-radius: var(--radius-lg);
+  background: var(--cimerko-bg-soft);
+}
+
+.listing-location-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 16px;
+  color: var(--cimerko-green);
+  background: var(--cimerko-green-light);
+}
+
+.listing-location-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.listing-location-card strong {
+  color: var(--cimerko-text);
+}
+
+.listing-location-card p {
+  margin: 0.25rem 0 0;
+  color: var(--cimerko-muted);
+  font-size: 0.8rem;
+}
+
+@media (min-width: 992px) {
+  .property-content {
+    padding-right: 450px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .property-hero {
+    height: 430px;
+  }
+
+  .property-action-card {
+    position: static;
+    width: auto;
+    margin: -42px var(--space-4) var(--space-5);
+  }
+
+  .property-content {
+    padding: var(--space-5);
+  }
+
+}
+
+@media (max-width: 575.98px) {
+  .listing-showcase {
+    margin-top: var(--space-4);
+  }
+
+  .property-hero {
+    height: 360px;
+  }
+
+  .hero-actions {
+    bottom: var(--space-4);
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+
+  .property-action-card {
+    margin-right: var(--space-3);
+    margin-left: var(--space-3);
+  }
+
+  .property-content {
+    padding: 1.25rem;
+  }
+
+  .amenity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-location-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: var(--space-4);
+  }
+
+  .listing-location-card .cimerko-light-pill {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
