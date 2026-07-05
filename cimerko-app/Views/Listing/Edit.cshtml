@@ -4,99 +4,166 @@
     ViewData["Title"] = "Edit listing";
 }
 
-<h1>Edit listing</h1>
+<div class="listing-form-page">
+    <header class="listing-form-header">
+        <div>
+            <span class="listing-form-eyebrow">Manage listing</span>
+            <h1>Edit your listing.</h1>
+            <p>Keep the details accurate so people know what to expect.</p>
+        </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit" enctype="multipart/form-data" data-listing-type-form>
-            <input type="hidden" asp-for="Id"/>
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="listing-form-back">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+            Back to listing
+        </a>
+    </header>
 
-            <div class="mb-3">
-                <label asp-for="Title" class="form-label"></label>
-                <input asp-for="Title" class="form-control"/>
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
+    <form asp-action="Edit"
+          class="listing-form-layout"
+          enctype="multipart/form-data"
+          data-listing-type-form>
+        <input type="hidden" asp-for="Id"/>
 
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
+        <div class="listing-form-card">
+            <div asp-validation-summary="ModelOnly" class="listing-form-validation" role="alert"></div>
 
-            <div class="mb-3">
-                <label asp-for="Type" class="form-label">What are you posting?</label>
-                <select asp-for="Type"
-                        asp-items="Html.GetEnumSelectList<ListingType>()"
-                        class="form-select"
-                        aria-describedby="listingTypeHelp"
-                        data-listing-type
-                        required>
-                    <option value="">Choose a listing type</option>
-                </select>
-                <div id="listingTypeHelp"
-                     class="form-text"
-                     data-listing-type-help
-                     aria-live="polite">
-                    Choose whether you are listing a place for rent or looking for a roommate.
-                </div>
-                <span asp-validation-for="Type" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="City" class="form-label"></label>
-                <input asp-for="City" class="form-control"/>
-                <span asp-validation-for="City" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Address" class="form-label"></label>
-                <input asp-for="Address" class="form-control"/>
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="MonthlyRent" class="form-label"></label>
-                <input asp-for="MonthlyRent" class="form-control"/>
-                <span asp-validation-for="MonthlyRent" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="RoomCount" class="form-label"></label>
-                <input asp-for="RoomCount" class="form-control"/>
-                <span asp-validation-for="RoomCount" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3"
-                 data-roommates-needed-field
-                 hidden="@(Model.Type != ListingType.LookingForRoommate)">
-                <label asp-for="RoommatesNeeded" class="form-label"></label>
-                <input asp-for="RoommatesNeeded"
-                       type="number"
-                       min="1"
-                       max="10"
-                       class="form-control"
-                       data-roommates-needed/>
-                <div class="form-text">How many roommates do you need?</div>
-                <span asp-validation-for="RoommatesNeeded" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="AvailableFrom" class="form-label"></label>
-                <input asp-for="AvailableFrom" type="date" class="form-control"/>
-                <span asp-validation-for="AvailableFrom" class="text-danger"></span>
-            </div>
-
-            <div class="form-check mb-3">
-                <input asp-for="IsActive" class="form-check-input"/>
-                <label asp-for="IsActive" class="form-check-label"></label>
-            </div>
-
-            <div class="listing-edit-images mb-4">
-                <div class="listing-edit-images-heading">
+            <section class="listing-form-section">
+                <div class="listing-form-section-heading">
+                    <span>01</span>
                     <div>
-                        <h2>Listing images</h2>
-                        <p>@Model.Images.Count of 5 images</p>
+                        <h2>Listing basics</h2>
+                        <p>Keep the title and description clear and useful.</p>
+                    </div>
+                </div>
+
+                <div class="listing-form-fields">
+                    <div class="listing-form-field listing-form-field-wide">
+                        <label asp-for="Title"></label>
+                        <input asp-for="Title" autocomplete="off"/>
+                        <span asp-validation-for="Title" class="listing-form-error"></span>
+                    </div>
+
+                    <div class="listing-form-field listing-form-field-wide">
+                        <label asp-for="Type">What are you posting?</label>
+                        <select asp-for="Type"
+                                asp-items="Html.GetEnumSelectList<ListingType>()"
+                                aria-describedby="listingTypeHelp"
+                                data-listing-type
+                                required>
+                            <option value="">Choose a listing type</option>
+                        </select>
+                        <small id="listingTypeHelp"
+                               class="listing-form-field-hint listing-type-help"
+                               data-listing-type-help
+                               aria-live="polite">
+                            Choose whether you are listing a place for rent or looking for a roommate.
+                        </small>
+                        <span asp-validation-for="Type" class="listing-form-error"></span>
+                    </div>
+
+                    <div class="listing-form-field listing-form-field-wide">
+                        <div class="listing-form-label-row">
+                            <label asp-for="Description"></label>
+                            <span>Be specific and welcoming</span>
+                        </div>
+                        <textarea asp-for="Description" rows="6"></textarea>
+                        <span asp-validation-for="Description" class="listing-form-error"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="listing-form-section">
+                <div class="listing-form-section-heading">
+                    <span>02</span>
+                    <div>
+                        <h2>Location</h2>
+                        <p>Make it easy to understand where the place is.</p>
+                    </div>
+                </div>
+
+                <div class="listing-form-fields">
+                    <div class="listing-form-field">
+                        <label asp-for="City"></label>
+                        <input asp-for="City" autocomplete="address-level2"/>
+                        <span asp-validation-for="City" class="listing-form-error"></span>
+                    </div>
+
+                    <div class="listing-form-field">
+                        <div class="listing-form-label-row">
+                            <label asp-for="Address"></label>
+                            <span>Optional</span>
+                        </div>
+                        <input asp-for="Address" autocomplete="street-address"/>
+                        <span asp-validation-for="Address" class="listing-form-error"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="listing-form-section">
+                <div class="listing-form-section-heading">
+                    <span>03</span>
+                    <div>
+                        <h2>Price and availability</h2>
+                        <p>Keep the practical details current.</p>
+                    </div>
+                </div>
+
+                <div class="listing-form-fields listing-form-fields-four" data-listing-facts-fields>
+                    <div class="listing-form-field">
+                        <label asp-for="MonthlyRent">Monthly rent</label>
+                        <div class="listing-form-input-suffix">
+                            <input asp-for="MonthlyRent" type="number" min="0" max="100000" step="0.01"/>
+                            <span>€</span>
+                        </div>
+                        <span asp-validation-for="MonthlyRent" class="listing-form-error"></span>
+                    </div>
+
+                    <div class="listing-form-field">
+                        <label asp-for="RoomCount">Rooms</label>
+                        <input asp-for="RoomCount" type="number" min="1" max="20"/>
+                        <span asp-validation-for="RoomCount" class="listing-form-error"></span>
+                    </div>
+
+                    <div class="listing-form-field"
+                         data-roommates-needed-field
+                         hidden="@(Model.Type != ListingType.LookingForRoommate)">
+                        <label asp-for="RoommatesNeeded"></label>
+                        <input asp-for="RoommatesNeeded"
+                               type="number"
+                               min="1"
+                               max="10"
+                               data-roommates-needed/>
+                        <small class="listing-form-field-hint">How many roommates do you need?</small>
+                        <span asp-validation-for="RoommatesNeeded" class="listing-form-error"></span>
+                    </div>
+
+                    <div class="listing-form-field">
+                        <div class="listing-form-label-row">
+                            <label asp-for="AvailableFrom">Available from</label>
+                            <span>Optional</span>
+                        </div>
+                        <input asp-for="AvailableFrom" type="date"/>
+                        <span asp-validation-for="AvailableFrom" class="listing-form-error"></span>
+                    </div>
+                </div>
+
+                <label class="listing-form-status">
+                    <input asp-for="IsActive"/>
+                    <span>
+                        <strong>Listing is active</strong>
+                        <small>Active listings appear in search and can receive requests.</small>
+                    </span>
+                </label>
+            </section>
+
+            <section class="listing-form-section">
+                <div class="listing-form-section-heading">
+                    <span>04</span>
+                    <div>
+                        <h2>Photos</h2>
+                        <p>Keep up to five clear and useful listing images.</p>
                     </div>
                 </div>
 
@@ -125,28 +192,81 @@
                 }
 
                 @if (Model.Images.Count < 5) {
-                    <div class="listing-edit-image-upload">
-                        <label for="listingImages">Add more images</label>
+                    <div class="listing-image-upload listing-edit-image-upload">
+                        <label for="listingImages">
+                            <span class="listing-image-upload-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <rect x="3" y="5" width="18" height="16" rx="2"/>
+                                    <circle cx="9" cy="10" r="2"/>
+                                    <path d="m21 16-5-5L5 21M14 13l-2-2-3 3"/>
+                                </svg>
+                            </span>
+                            <span>
+                                <strong>Add more images</strong>
+                                <small>@Model.Images.Count of 5 images currently uploaded.</small>
+                            </span>
+                        </label>
                         <input id="listingImages"
                                name="listingImages"
                                type="file"
                                accept="image/jpeg,image/png,image/webp"
-                               multiple
-                               class="form-control"/>
-                        <small>Upload up to 5 JPG, PNG, or WebP images in total.</small>
+                               multiple/>
                     </div>
                 }
 
                 @Html.ValidationMessage(
                     "listingImages",
                     null,
-                    new { @class = "text-danger listing-edit-image-error" })
-            </div>
+                    new { @class = "listing-form-error listing-image-upload-error" })
+            </section>
 
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
-        </form>
-    </div>
+            <div class="listing-form-actions">
+                <a asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   class="btn listing-form-cancel">Cancel</a>
+                <button type="submit" class="btn listing-form-submit">
+                    Save changes
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m9 18 6-6-6-6"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <aside class="listing-form-aside">
+            <div class="listing-form-aside-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 4h16v16H4z"/>
+                    <path d="M8 4v6h8V4M8 20v-6h8v6"/>
+                </svg>
+            </div>
+            <h2>Before you save</h2>
+            <p>Changes are visible as soon as you save the listing.</p>
+            <ul>
+                <li>
+                    <span>1</span>
+                    <div>
+                        <strong>Check availability</strong>
+                        <small>Deactivate a place that is no longer available.</small>
+                    </div>
+                </li>
+                <li>
+                    <span>2</span>
+                    <div>
+                        <strong>Keep the price current</strong>
+                        <small>Accurate pricing prevents unnecessary messages.</small>
+                    </div>
+                </li>
+                <li>
+                    <span>3</span>
+                    <div>
+                        <strong>Review your photos</strong>
+                        <small>Remove outdated images before adding new ones.</small>
+                    </div>
+                </li>
+            </ul>
+        </aside>
+    </form>
 </div>
 
 @section Scripts {
