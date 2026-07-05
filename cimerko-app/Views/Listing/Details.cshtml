@@ -56,38 +56,6 @@
                 </div>
             }
 
-            <nav class="hero-nav" aria-label="Listing navigation">
-                <a class="hero-nav-logo" asp-controller="Home" asp-action="Index">
-                    <span class="logo-mark">C</span>
-                    <span class="logo-text">Cimerko</span>
-                </a>
-                <div class="hero-nav-center d-none d-md-flex">
-                    <a asp-controller="Home" asp-action="Index">About</a>
-                    <a asp-controller="Home" asp-action="Index">Contact</a>
-                    <a asp-controller="Listing" asp-action="Index">Browse</a>
-                    <span class="hero-nav-pill">@listing.City</span>
-                    <a class="hero-nav-search-btn"
-                       asp-controller="Listing"
-                       asp-action="Index"
-                       aria-label="Search listings">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    </a>
-                </div>
-                <div class="hero-nav-right">
-                    @if (SignInManager.IsSignedIn(User)) {
-                        var currentUser = await UserManager.GetUserAsync(User);
-                        var fullName = currentUser?.FullName.Trim();
-                        var firstName = string.IsNullOrWhiteSpace(fullName) ? "Profile" : fullName.Split(' ')[0];
-                        <a asp-controller="Profile" asp-action="MyProfile" class="hero-nav-btn-white">@firstName</a>
-                        <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
-                            <button type="submit" class="hero-nav-btn-outline">Log out</button>
-                        </form>
-                    } else {
-                        <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Listing", new { id = listing.Id })" class="hero-nav-btn-outline">Log In</a>
-                        <a asp-area="Identity" asp-page="/Account/Register" class="hero-nav-btn-white">Sign Up</a>
-                    }
-                </div>
-            </nav>
 
             <div class="thumbnail-stack d-none d-md-flex">
                 @for (int i = 0; i < 3; i++) {
