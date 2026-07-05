@@ -18,28 +18,42 @@ html {
 }
 
 :root {
-  --cimerko-bg: #efede8;
-  --cimerko-bg-soft: #f5f3ee;
+  --cimerko-bg: #f3f0e9;
+  --cimerko-bg-soft: #f8f6f1;
   --cimerko-surface: #ffffff;
-  --cimerko-surface-muted: #f2f1ec;
-  --cimerko-text: #211f1f;
-  --cimerko-muted: #6f6b65;
-  --cimerko-border: #e5e1d8;
-  --cimerko-green: #183f35;
-  --cimerko-green-light: #e9f2ee;
-  --cimerko-purple: #5b50dc;
-  --cimerko-purple-dark: #463bc4;
-  --cimerko-yellow: #fff1b8;
-  --cimerko-yellow-strong: #facc15;
-  --cimerko-pill: #eeece7;
+  --cimerko-surface-muted: #eeece6;
+  --cimerko-text: #25221f;
+  --cimerko-muted: #706b64;
+  --cimerko-border: #e3ded4;
+  --cimerko-green: #173f35;
+  --cimerko-green-dark: #0f3028;
+  --cimerko-green-light: #e5f1ec;
+  --cimerko-purple: #6254df;
+  --cimerko-purple-dark: #4d40c7;
+  --cimerko-purple-soft: #eeecff;
+  --cimerko-yellow: #fff2b8;
+  --cimerko-yellow-strong: #f4cc47;
+  --cimerko-pill: #ece9e2;
   --cimerko-danger: #dc2626;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
   --radius-xl: 34px;
   --radius-lg: 26px;
   --radius-md: 18px;
   --radius-sm: 12px;
-  --shadow-main: 0 24px 70px rgba(32, 30, 28, 0.18);
-  --shadow-card: 0 18px 45px rgba(32, 30, 28, 0.13);
-  --shadow-soft: 0 10px 30px rgba(32, 30, 28, 0.08);
+  --radius-pill: 999px;
+  --shadow-main: 0 24px 70px rgba(45, 39, 32, 0.15);
+  --shadow-card: 0 18px 45px rgba(45, 39, 32, 0.12);
+  --shadow-soft: 0 10px 30px rgba(45, 39, 32, 0.07);
+  --shadow-hover: 0 24px 52px rgba(45, 39, 32, 0.16);
+  --transition-fast: 160ms ease;
+  --transition-smooth: 240ms ease;
 
   --color-bg: var(--cimerko-bg);
   --color-surface: var(--cimerko-surface);
@@ -62,10 +76,15 @@ body {
   flex-direction: column;
   background: var(--cimerko-bg);
   color: var(--cimerko-text);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   position: relative;
   overflow-x: hidden;
   isolation: isolate;
+}
+
+::selection {
+  color: var(--cimerko-text);
+  background: var(--cimerko-yellow);
 }
 
 .site-content {
@@ -8276,4 +8295,114 @@ body::after {
     align-items: stretch;
     flex-direction: column;
   }
+}
+
+/* Reusable student housing theme components */
+.cimerko-primary-button,
+.cimerko-light-pill {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.7rem 1.25rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.cimerko-primary-button {
+  border: 1px solid var(--cimerko-purple);
+  color: #fff;
+  background: var(--cimerko-purple);
+}
+
+.cimerko-primary-button:hover,
+.cimerko-primary-button:focus {
+  border-color: var(--cimerko-purple-dark);
+  color: #fff;
+  background: var(--cimerko-purple-dark);
+  box-shadow: 0 10px 22px rgba(98, 84, 223, 0.24);
+  transform: translateY(-1px);
+}
+
+.cimerko-light-pill {
+  border: 1px solid var(--cimerko-border);
+  color: var(--cimerko-text);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.cimerko-light-pill:hover,
+.cimerko-light-pill:focus {
+  border-color: #cbc4b8;
+  color: var(--cimerko-purple-dark);
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.detail-card {
+  border: 1px solid rgba(227, 222, 212, 0.9);
+  border-radius: var(--radius-lg);
+  background: var(--cimerko-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.hero-image-section {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--cimerko-surface-muted);
+}
+
+.hero-image-section > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pill-tabs {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  overflow-x: auto;
+  border-radius: var(--radius-pill);
+  background: var(--cimerko-surface-muted);
+  scrollbar-width: none;
+}
+
+.pill-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.pill-tab {
+  padding: 0.65rem 1.1rem;
+  border-radius: var(--radius-pill);
+  color: var(--cimerko-muted);
+  font-size: 0.875rem;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pill-tab:hover,
+.pill-tab:focus,
+.pill-tab.is-active {
+  color: var(--cimerko-purple-dark);
+  background: var(--cimerko-surface);
+}
+
+.info-price-box {
+  padding: var(--space-4);
+  border: 1px solid rgba(244, 204, 71, 0.35);
+  border-radius: var(--radius-md);
+  color: var(--cimerko-text);
+  background: var(--cimerko-yellow);
 }
