@@ -1,0 +1,123 @@
+@model cimerko_app.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin panel";
+}
+
+<section class="admin-dashboard">
+    <header class="admin-dashboard-header">
+        <div>
+            <span class="admin-dashboard-eyebrow">Administration</span>
+            <h1>Admin panel</h1>
+            <p>Monitor members, listings, requests, and reviews across Cimerko.</p>
+        </div>
+        <a class="btn btn-primary" asp-controller="Listing" asp-action="Index">Browse listings</a>
+    </header>
+
+    <div class="admin-stats" aria-label="Platform summary">
+        <article class="admin-stat-card">
+            <span>Members</span>
+            <strong>@Model.UserCount</strong>
+        </article>
+        <article class="admin-stat-card">
+            <span>Active listings</span>
+            <strong>@Model.ActiveListingCount</strong>
+            <small>@Model.ListingCount total</small>
+        </article>
+        <article class="admin-stat-card">
+            <span>Pending requests</span>
+            <strong>@Model.PendingRequestCount</strong>
+        </article>
+        <article class="admin-stat-card">
+            <span>Reviews</span>
+            <strong>@Model.ReviewCount</strong>
+        </article>
+    </div>
+
+    <div class="admin-dashboard-grid">
+        <section class="admin-panel-card" aria-labelledby="recent-members-heading">
+            <div class="admin-panel-heading">
+                <div>
+                    <span>Accounts</span>
+                    <h2 id="recent-members-heading">Recent members</h2>
+                </div>
+            </div>
+
+            @if (Model.RecentUsers.Count == 0) {
+                <p class="admin-empty-state">No members have registered yet.</p>
+            }
+            else {
+                <div class="table-responsive">
+                    <table class="table admin-table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Member</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Joined</th>
+                            <th scope="col"><span class="visually-hidden">Actions</span></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var user in Model.RecentUsers) {
+                            <tr>
+                                <td>@user.FullName</td>
+                                <td>@user.Email</td>
+                                <td>@user.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <a asp-controller="Profile"
+                                       asp-action="Details"
+                                       asp-route-id="@user.Id">View</a>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <section class="admin-panel-card" aria-labelledby="recent-listings-heading">
+            <div class="admin-panel-heading">
+                <div>
+                    <span>Housing</span>
+                    <h2 id="recent-listings-heading">Recent listings</h2>
+                </div>
+            </div>
+
+            @if (Model.RecentListings.Count == 0) {
+                <p class="admin-empty-state">No listings have been posted yet.</p>
+            }
+            else {
+                <div class="table-responsive">
+                    <table class="table admin-table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Listing</th>
+                            <th scope="col">Owner</th>
+                            <th scope="col">Status</th>
+                            <th scope="col"><span class="visually-hidden">Actions</span></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var listing in Model.RecentListings) {
+                            <tr>
+                                <td>@listing.Title</td>
+                                <td>@listing.Owner?.FullName</td>
+                                <td>
+                                    <span class="admin-status @(listing.IsActive ? "is-active" : "is-inactive")">
+                                        @(listing.IsActive ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td>
+                                    <a asp-controller="Listing"
+                                       asp-action="Details"
+                                       asp-route-id="@listing.Id">View</a>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</section>

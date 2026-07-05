@@ -41,6 +41,14 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end site-user-menu">
                 <li><span class="dropdown-header">@accountLabel</span></li>
+                @if (isAdmin) {
+                    <li>
+                        <a class="dropdown-item"
+                           asp-area=""
+                           asp-controller="Admin"
+                           asp-action="Index">Admin panel</a>
+                    </li>
+                }
                 <li>
                     <a class="dropdown-item"
                        asp-area=""
@@ -57,7 +65,7 @@
                     <a class="dropdown-item"
                        asp-area=""
                        asp-controller="ListingRequest"
-                       asp-action="Index">My requests</a>
+                       asp-action="Index">Requests</a>
                 </li>
                 @if (isLandlord || isAdmin) {
                     <li>
