@@ -4,14 +4,26 @@
     ViewData["Title"] = "Roommates";
 }
 
-<div class="page-shell">
-    <header class="listing-page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3 mb-5">
+<div class="page-shell roommates-shell">
+    <header class="listing-page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3 mb-4">
         <div>
-            <span class="listing-eyebrow">Find a cimer</span>
+            <span class="listing-eyebrow">Find your perfect roommate</span>
             <h1 class="listing-page-title">People looking for a roommate</h1>
-            <p class="listing-page-intro">Sorted by compatibility with your profile.</p>
+            <p class="listing-page-intro">Connect with verified students who match your lifestyle and habits.</p>
         </div>
     </header>
+
+    <div class="roommate-filters mb-4">
+        <nav class="pill-tabs" aria-label="Roommate filters">
+            <a class="pill-tab">Study habits<span class="text-muted">Any</span></a>
+            <a class="pill-tab">Budget<span class="text-muted">Any</span></a>
+            <a class="pill-tab">Smoking<span class="text-muted">Any</span></a>
+            <a class="pill-tab">Gender preference<span class="text-muted">Any</span></a>
+            <a class="pill-tab">Move-in date<span class="text-muted">Any</span></a>
+            <a class="pill-tab">Interests<span class="text-muted">Any</span></a>
+            <button class="btn btn-search-purple">Search</button>
+        </nav>
+    </div>
 
     @if (Model.Results.Count == 0) {
         <div class="empty-state py-5">
@@ -20,49 +32,104 @@
         </div>
     }
     else {
-        <div class="row g-4">
-            @foreach (var item in Model.Results) {
-                var user = item.User;
-                var profile = user.RoommateProfile;
-                var initial = (user.FullName ?? user.Email ?? "").Trim() == "" ? "?" : (user.FullName ?? user.Email).Trim()[..1].ToUpperInvariant();
-                <div class="col-12 col-md-6 col-xl-4">
-                    <article class="listing-card">
-                        <div class="listing-card-content">
-                            <div>
-                                <h3><a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id">@((string.IsNullOrWhiteSpace(user.FullName) ? user.Email : user.FullName))</a></h3>
-                                <p class="listing-card-location">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5.5-8 11-8 11S4 15.5 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                                    @profile?.City
-                                </p>
-                                <p class="text-muted">@profile?.Bio?.Length > 120 ? profile.Bio[..120] + "…" : profile?.Bio</p>
-                            </div>
+        var top = Model.Results.FirstOrDefault();
+        var others = Model.Results.Skip(1).ToList();
 
-                            <div class="listing-card-footer">
-                                <div class="listing-card-owner">
-                                    <div class="avatar-circle avatar-circle-sm">
+        <div class="roommates-grid">
+            <div class="roommates-left">
+                <h2 class="mb-3">Recommended matches</h2>
+                <div class="row g-4">
+                    @foreach (var item in others) {
+                        var user = item.User;
+                        var profile = user.RoommateProfile;
+                        var initial = (user.FullName ?? user.Email ?? "").Trim() == "" ? "?" : (user.FullName ?? user.Email).Trim()[..1].ToUpperInvariant();
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <article class="listing-card roommate-card">
+                                <div class="roommate-card-avatar">
+                                    <div class="avatar-circle">
                                         @if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl)) {
                                             <img src="@user.ProfileImageUrl" alt="@user.FullName" />
                                         } else {
                                             <span>@initial</span>
                                         }
                                     </div>
-                                    <span>View profile</span>
+                                    @if (item.CompatibilityScore.HasValue) {
+                                        <div class="compatibility-chip">@item.CompatibilityScore.Value%</div>
+                                    }
                                 </div>
 
-                                <div>
-                                    @if (item.CompatibilityScore.HasValue) {
-                                        <span class="badge-soft">Compatibility: @item.CompatibilityScore.Value% </span>
-                                    }
-                                    else {
-                                        <span class="badge-soft">Compatibility: -</span>
-                                    }
-                                    <a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id" class="cimerko-primary-button listing-card-details-link">View</a>
+                                <div class="listing-card-content">
+                                    <h3><a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id">@((string.IsNullOrWhiteSpace(user.FullName) ? user.Email : user.FullName))</a></h3>
+                                    <p class="text-muted">@profile?.University ?? "" - @profile?.StudyProgram ?? ""</p>
+                                    <p class="listing-card-location">@profile?.City</p>
+                                    <p class="listing-card-description">@((profile?.Bio?.Length > 120) ? profile.Bio[..120] + "…" : profile?.Bio)</p>
+
+                                    <div class="listing-card-badges mt-2">
+                                        @if (!string.IsNullOrWhiteSpace(profile?.CleanlinessLevel)) { <span class="badge-soft">@profile.CleanlinessLevel</span> }
+                                        @if (!string.IsNullOrWhiteSpace(profile?.SleepSchedule)) { <span class="badge-soft">@profile.SleepSchedule</span> }
+                                        @if (!string.IsNullOrWhiteSpace(profile?.SmokingPreference)) { <span class="badge-soft">@profile.SmokingPreference</span> }
+                                    </div>
+
+                                    <div class="listing-card-footer">
+                                        <div class="listing-card-owner">
+                                            <div class="avatar-circle avatar-circle-sm">
+                                                @if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl)) {
+                                                    <img src="@user.ProfileImageUrl" alt="@user.FullName" />
+                                                } else {
+                                                    <span>@initial</span>
+                                                }
+                                            </div>
+                                            <span>View profile</span>
+                                        </div>
+
+                                        <div>
+                                            <a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id" class="cimerko-primary-button listing-card-details-link">View</a>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            </article>
                         </div>
-                    </article>
+                    }
                 </div>
-            }
+            </div>
+
+            <aside class="roommates-right">
+                @if (top != null) {
+                    var user = top.User;
+                    var profile = user.RoommateProfile;
+                    <div class="roommate-topcard detail-card">
+                        <div class="topcard-strip">Your top match</div>
+                        <div class="topcard-body">
+                            <div class="topcard-avatar">
+                                <div class="avatar-circle avatar-lg">
+                                    @if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl)) {
+                                        <img src="@user.ProfileImageUrl" alt="@user.FullName" />
+                                    } else {
+                                        <span>@((user.FullName ?? user.Email ?? "").Trim()[..1].ToUpperInvariant())</span>
+                                    }
+                                </div>
+                                <div class="compatibility-large">@((top.CompatibilityScore.HasValue) ? top.CompatibilityScore.Value.ToString() : "-")%</div>
+                            </div>
+
+                            <h3>@((string.IsNullOrWhiteSpace(user.FullName) ? user.Email : user.FullName))</h3>
+                            <p class="text-muted">@profile?.University ?? "" - @profile?.StudyProgram ?? ""</p>
+
+                            <div class="topcard-summary mt-3">
+                                <p class="text-muted">You both value a clean, quiet home and enjoy similar routines.</p>
+                            </div>
+
+                            <ul class="topcard-facts">
+                                <li>Study habits <strong class="text-success">Very similar</strong></li>
+                                <li>Lifestyle <strong class="text-success">Highly compatible</strong></li>
+                                <li>Interests <strong>5 in common</strong></li>
+                            </ul>
+
+                            <a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id" class="btn-cimerko-primary w-100 mt-3">View profile</a>
+                            <button class="btn btn-outline-secondary w-100 mt-2">Send connection request</button>
+                        </div>
+                    </div>
+                }
+            </aside>
         </div>
     }
 </div>
