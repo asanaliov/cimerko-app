@@ -26,7 +26,7 @@
           data-listing-type-form>
         <input type="hidden" asp-for="Id"/>
 
-        <div class="listing-form-card">
+        <div class="listing-form-card detail-card">
             <div asp-validation-summary="ModelOnly" class="listing-form-validation" role="alert"></div>
 
             <section class="listing-form-section">
@@ -223,8 +223,9 @@
             <div class="listing-form-actions">
                 <a asp-action="Details"
                    asp-route-id="@Model.Id"
-                   class="btn listing-form-cancel">Cancel</a>
-                <button type="submit" class="btn listing-form-submit">
+                   class="btn listing-form-cancel cimerko-light-pill">Cancel</a>
+                <button type="submit"
+                        class="btn listing-form-submit cimerko-primary-button">
                     Save changes
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="m9 18 6-6-6-6"/>
@@ -233,7 +234,7 @@
             </div>
         </div>
 
-        <aside class="listing-form-aside">
+        <aside class="listing-form-aside detail-card">
             <div class="listing-form-aside-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M4 4h16v16H4z"/>

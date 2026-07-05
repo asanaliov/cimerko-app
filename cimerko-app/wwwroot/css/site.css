@@ -8854,3 +8854,217 @@ body::after {
     width: 100%;
   }
 }
+
+/* Polished create and edit listing forms */
+.listing-form-page {
+  max-width: 1140px;
+}
+
+.listing-form-header {
+  margin-bottom: var(--space-6);
+}
+
+.listing-form-header h1 {
+  color: var(--cimerko-text);
+}
+
+.listing-form-header p,
+.listing-form-back {
+  color: var(--cimerko-muted);
+}
+
+.listing-form-back {
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--cimerko-border);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.listing-form-back:hover,
+.listing-form-back:focus {
+  color: var(--cimerko-purple-dark);
+  background: #fff;
+}
+
+.listing-form-layout {
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--space-5);
+}
+
+.listing-form-card,
+.listing-form-aside {
+  border-color: rgba(227, 222, 212, 0.95);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.listing-form-section {
+  padding: var(--space-6);
+}
+
+.listing-form-section + .listing-form-section {
+  border-top-color: var(--cimerko-border);
+}
+
+.listing-form-section-heading {
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.listing-form-section-heading > span {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  color: var(--cimerko-text);
+  background: var(--cimerko-yellow);
+}
+
+.listing-form-section-heading h2 {
+  color: var(--cimerko-text);
+  font-size: 1.1rem;
+}
+
+.listing-form-section-heading p,
+.listing-form-field-hint,
+.listing-form-label-row span {
+  color: var(--cimerko-muted);
+}
+
+.listing-form-fields {
+  gap: 1.15rem;
+}
+
+.listing-form-field > label,
+.listing-form-label-row label {
+  color: var(--cimerko-text);
+  font-size: 0.8rem;
+}
+
+.listing-form-field input,
+.listing-form-field select,
+.listing-form-field textarea {
+  min-height: 50px;
+  padding: 0.8rem 0.95rem;
+  border-color: var(--cimerko-border);
+  border-radius: 14px;
+  color: var(--cimerko-text);
+  background: var(--cimerko-bg-soft);
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.listing-form-field textarea {
+  min-height: 150px;
+}
+
+.listing-form-field input:focus,
+.listing-form-field select:focus,
+.listing-form-field textarea:focus {
+  border-color: var(--cimerko-purple);
+  background: #fff;
+  box-shadow: 0 0 0 0.22rem rgba(98, 84, 223, 0.13);
+}
+
+.listing-image-upload label {
+  min-height: 138px;
+  border-color: #c9c2b6;
+  border-radius: var(--radius-md);
+  background: var(--cimerko-bg-soft);
+}
+
+.listing-image-upload label:hover,
+.listing-image-upload:focus-within label {
+  border-color: var(--cimerko-purple);
+  background: var(--cimerko-purple-soft);
+  box-shadow: 0 0 0 0.2rem rgba(98, 84, 223, 0.1);
+}
+
+.listing-image-upload-icon {
+  color: var(--cimerko-purple-dark);
+  background: var(--cimerko-purple-soft);
+}
+
+.listing-form-actions {
+  padding: 1.25rem var(--space-6);
+  border-top-color: var(--cimerko-border);
+  background: var(--cimerko-bg-soft);
+}
+
+.listing-form-actions .btn {
+  min-height: 46px;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-pill);
+}
+
+.listing-form-submit {
+  border-color: var(--cimerko-purple);
+  background: var(--cimerko-purple);
+}
+
+.listing-form-submit:hover,
+.listing-form-submit:focus {
+  border-color: var(--cimerko-purple-dark);
+  background: var(--cimerko-purple-dark);
+}
+
+.listing-form-aside {
+  top: 6.5rem;
+  overflow: hidden;
+  padding: 2rem 1.5rem 1.5rem;
+}
+
+.listing-form-aside::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 8px;
+  background: var(--cimerko-green);
+  content: "";
+}
+
+.listing-form-aside-icon {
+  color: var(--cimerko-green);
+  background: var(--cimerko-green-light);
+}
+
+.listing-form-aside h2,
+.listing-form-aside li strong {
+  color: var(--cimerko-text);
+}
+
+.listing-form-aside > p,
+.listing-form-aside li small {
+  color: var(--cimerko-muted);
+}
+
+.listing-form-aside ul {
+  border-top-color: var(--cimerko-border);
+}
+
+.listing-form-aside li > span {
+  border-color: var(--cimerko-border);
+  color: var(--cimerko-purple-dark);
+  background: var(--cimerko-purple-soft);
+}
+
+@media (max-width: 850px) {
+  .listing-form-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-form-aside {
+    top: auto;
+  }
+}
+
+@media (max-width: 650px) {
+  .listing-form-section {
+    padding: 1.35rem 1.15rem;
+  }
+
+  .listing-form-actions {
+    padding: 1rem 1.15rem;
+  }
+}
