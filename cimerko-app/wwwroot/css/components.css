@@ -36,10 +36,12 @@
 .btn-primary,
 .btn-cimerko-primary,
 .cimerko-primary-button {
-  border: 1px solid var(--cm-violet);
-  color: #fff;
-  background: var(--cm-violet);
-  box-shadow: 0 8px 18px rgba(89, 66, 199, 0.18);
+ border: 1px solid var(--cm-violet);
+ color: #fff;
+ background: var(--cm-violet);
+ box-shadow: 0 14px 36px rgba(89, 66, 199, 0.20);
+ padding: 0.75rem 1.25rem;
+ border-radius: var(--cm-radius-pill);
 }
 
 .btn-primary:hover,
