@@ -58,11 +58,11 @@
 }
 
 @if (ViewData["NoContainer"] as bool? == true) {
-    <main role="main" class="pb-3">
+    <main role="main" class="site-content pb-3">
         @RenderBody()
     </main>
 } else {
-    <div class="container">
+    <div class="container site-content">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
