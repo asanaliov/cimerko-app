@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using cimerko_app.Models.Validation;
 
 namespace cimerko_app.Models;
 
@@ -13,8 +15,20 @@ public class RoommateProfile {
     [MaxLength(1000)]
     public string? Bio { get; set; }
 
-    [Range(18, 100)]
-    public int Age { get; set; }
+    [DataType(DataType.Date)]
+    [Display(Name = "Date of birth")]
+    [ValidDateOfBirth]
+    public DateOnly? DateOfBirth { get; set; }
+
+    [Column("Age")]
+    public int LegacyAge { get; private set; }
+
+    [NotMapped]
+    public int? Age => DateOfBirth.HasValue
+        ? CalculateAge(DateOfBirth.Value, DateOnly.FromDateTime(DateTime.Today))
+        : LegacyAge > 0
+            ? LegacyAge
+            : null;
 
     [Required]
     [MaxLength(100)]
@@ -49,4 +63,13 @@ public class RoommateProfile {
     [MaxLength(30)]
     [Display(Name = "Guest preference")]
     public string? GuestPreference { get; set; }
+
+    public static int CalculateAge(DateOnly dateOfBirth, DateOnly onDate) {
+        var age = onDate.Year - dateOfBirth.Year;
+        if (dateOfBirth > onDate.AddYears(-age)) {
+            age--;
+        }
+
+        return age;
+    }
 }

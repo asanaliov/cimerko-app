@@ -2,6 +2,9 @@
 @model RegisterModel
 @{
     ViewData["Title"] = "Create your account";
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var earliestDateOfBirth = today.AddYears(-101).AddDays(1).ToString("yyyy-MM-dd");
+    var latestDateOfBirth = today.AddYears(-18).ToString("yyyy-MM-dd");
 }
 
 <div class="auth-shell">
@@ -44,9 +47,13 @@
                         <span asp-validation-for="Input.LastName" class="text-danger"></span>
                     </div>
                     <div class="col-sm-4">
-                        <label asp-for="Input.Age" class="form-label"></label>
-                        <input asp-for="Input.Age" class="form-control" autocomplete="off" min="18" max="100"/>
-                        <span asp-validation-for="Input.Age" class="text-danger"></span>
+                        <label asp-for="Input.DateOfBirth" class="form-label"></label>
+                        <input asp-for="Input.DateOfBirth"
+                               class="form-control"
+                               autocomplete="bday"
+                               min="@earliestDateOfBirth"
+                               max="@latestDateOfBirth"/>
+                        <span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
                     </div>
                     <div class="col-sm-8">
                         <label asp-for="Input.City" class="form-label"></label>

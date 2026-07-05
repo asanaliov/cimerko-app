@@ -5,6 +5,9 @@
     var profileImageUrl = ViewBag.ProfileImageUrl as string;
     var fullName = ViewBag.FullName as string ?? string.Empty;
     var initial = string.IsNullOrWhiteSpace(fullName) ? "?" : fullName[..1].ToUpperInvariant();
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var earliestDateOfBirth = today.AddYears(-101).AddDays(1).ToString("yyyy-MM-dd");
+    var latestDateOfBirth = today.AddYears(-18).ToString("yyyy-MM-dd");
 }
 
 <div class="profile-edit-shell">
@@ -71,9 +74,14 @@
 
                 <div class="row g-3 mb-4">
                     <div class="col-sm-4">
-                        <label asp-for="Age" class="form-label"></label>
-                        <input asp-for="Age" class="form-control" min="18" max="100"/>
-                        <span asp-validation-for="Age" class="text-danger"></span>
+                        <label asp-for="DateOfBirth" class="form-label"></label>
+                        <input asp-for="DateOfBirth"
+                               class="form-control"
+                               autocomplete="bday"
+                               min="@earliestDateOfBirth"
+                               max="@latestDateOfBirth"
+                               required/>
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
                     </div>
                     <div class="col-sm-8">
                         <label asp-for="City" class="form-label"></label>

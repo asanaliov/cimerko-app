@@ -111,8 +111,7 @@ public class ProfileController : Controller {
         ViewBag.ProfileImageUrl = user.ProfileImageUrl;
 
         return View(user.RoommateProfile ?? new RoommateProfile {
-            UserId = userId,
-            Age = 18
+            UserId = userId
         });
     }
 
@@ -122,7 +121,7 @@ public class ProfileController : Controller {
         string fullName,
         IFormFile? profileImage,
         bool removeProfileImage,
-        [Bind("Bio,Age,City,Gender,University,StudyProgram,SmokingPreference,PetsPreference,CleanlinessLevel,SleepSchedule,GuestPreference")]
+        [Bind("Bio,DateOfBirth,City,Gender,University,StudyProgram,SmokingPreference,PetsPreference,CleanlinessLevel,SleepSchedule,GuestPreference")]
         RoommateProfile formProfile) {
         var userId = CurrentUserId();
         if (userId == null) {
@@ -175,7 +174,7 @@ public class ProfileController : Controller {
         }
 
         profile.Bio = formProfile.Bio;
-        profile.Age = formProfile.Age;
+        profile.DateOfBirth = formProfile.DateOfBirth;
         profile.City = formProfile.City;
         profile.Gender = formProfile.Gender;
         profile.University = formProfile.University;
@@ -240,7 +239,11 @@ public class ProfileController : Controller {
                 IsComplete = !string.IsNullOrWhiteSpace(user.FullName)
             },
             new { Name = "Bio", EditAnchor = "Bio", IsComplete = !string.IsNullOrWhiteSpace(profile?.Bio) },
-            new { Name = "Age", EditAnchor = "Age", IsComplete = profile?.Age is >= 18 and <= 100 },
+            new {
+                Name = "Date of birth",
+                EditAnchor = "DateOfBirth",
+                IsComplete = profile?.DateOfBirth != null
+            },
             new { Name = "City", EditAnchor = "City", IsComplete = !string.IsNullOrWhiteSpace(profile?.City) },
             new {
                 Name = "University",

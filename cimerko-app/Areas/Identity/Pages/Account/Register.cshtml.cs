@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using cimerko_app.Data;
 using cimerko_app.Models;
+using cimerko_app.Models.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -71,7 +72,7 @@ public class RegisterModel : PageModel {
 
         _context.RoommateProfiles.Add(new RoommateProfile {
             UserId = user.Id,
-            Age = Input.Age,
+            DateOfBirth = Input.DateOfBirth,
             City = Input.City.Trim()
         });
         await _context.SaveChangesAsync();
@@ -111,8 +112,11 @@ public class RegisterModel : PageModel {
         [Display(Name = "Surname")]
         public string LastName { get; set; } = string.Empty;
 
-        [Range(18, 100)]
-        public int Age { get; set; } = 18;
+        [Required]
+        [DataType(DataType.Date)]
+        [Display(Name = "Date of birth")]
+        [ValidDateOfBirth]
+        public DateOnly? DateOfBirth { get; set; }
 
         [Required]
         [StringLength(100)]
