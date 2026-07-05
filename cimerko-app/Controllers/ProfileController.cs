@@ -84,6 +84,48 @@ public class ProfileController : Controller {
         return View(user);
     }
 
+    [AllowAnonymous]
+    public async Task<IActionResult> Roommates()
+    {
+        ViewData["Title"] = "Roommates";
+
+        var visitorId = CurrentUserId();
+        RoommateProfile? visitorProfile = null;
+        if (visitorId != null)
+        {
+            visitorProfile = await _context.RoommateProfiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.UserId == visitorId);
+        }
+
+        var users = await _context.Users
+            .Include(u => u.RoommateProfile)
+            .Include(u => u.Listings)
+            .Where(u => u.RoommateProfile != null && u.Listings.Any(l => l.IsActive && l.Type == ListingType.LookingForRoommate))
+            .AsNoTracking()
+            .ToListAsync();
+
+        var results = new List<RoommateSearchResultViewModel>();
+        foreach (var u in users)
+        {
+            var compatibility = ProfileCompatibilityCalculator.Calculate(visitorProfile, u.RoommateProfile);
+            results.Add(new RoommateSearchResultViewModel
+            {
+                User = u,
+                CompatibilityScore = compatibility.Score
+            });
+        }
+
+        // sort: highest compatibility first (nulls last)
+        results = results
+            .OrderByDescending(r => r.CompatibilityScore ?? -1)
+            .ThenBy(r => (r.User.FullName ?? r.User.Email))
+            .ToList();
+
+        var vm = new RoommateSearchViewModel { Results = results };
+        return View(vm);
+    }
+
     public IActionResult MyProfile() {
         var userId = CurrentUserId();
         if (userId == null) {

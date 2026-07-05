@@ -1,0 +1,68 @@
+@model cimerko_app.Models.ViewModels.RoommateSearchViewModel
+
+@{
+    ViewData["Title"] = "Roommates";
+}
+
+<div class="page-shell">
+    <header class="listing-page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3 mb-5">
+        <div>
+            <span class="listing-eyebrow">Find a cimer</span>
+            <h1 class="listing-page-title">People looking for a roommate</h1>
+            <p class="listing-page-intro">Sorted by compatibility with your profile.</p>
+        </div>
+    </header>
+
+    @if (Model.Results.Count == 0) {
+        <div class="empty-state py-5">
+            <h3>No roommates found</h3>
+            <p class="text-muted mt-2 mb-4">No users are currently looking for a roommate.</p>
+        </div>
+    }
+    else {
+        <div class="row g-4">
+            @foreach (var item in Model.Results) {
+                var user = item.User;
+                var profile = user.RoommateProfile;
+                var initial = (user.FullName ?? user.Email ?? "").Trim() == "" ? "?" : (user.FullName ?? user.Email).Trim()[..1].ToUpperInvariant();
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="listing-card">
+                        <div class="listing-card-content">
+                            <div>
+                                <h3><a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id">@((string.IsNullOrWhiteSpace(user.FullName) ? user.Email : user.FullName))</a></h3>
+                                <p class="listing-card-location">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5.5-8 11-8 11S4 15.5 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                                    @profile?.City
+                                </p>
+                                <p class="text-muted">@profile?.Bio?.Length > 120 ? profile.Bio[..120] + "…" : profile?.Bio</p>
+                            </div>
+
+                            <div class="listing-card-footer">
+                                <div class="listing-card-owner">
+                                    <div class="avatar-circle avatar-circle-sm">
+                                        @if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl)) {
+                                            <img src="@user.ProfileImageUrl" alt="@user.FullName" />
+                                        } else {
+                                            <span>@initial</span>
+                                        }
+                                    </div>
+                                    <span>View profile</span>
+                                </div>
+
+                                <div>
+                                    @if (item.CompatibilityScore.HasValue) {
+                                        <span class="badge-soft">Compatibility: @item.CompatibilityScore.Value% </span>
+                                    }
+                                    else {
+                                        <span class="badge-soft">Compatibility: -</span>
+                                    }
+                                    <a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id" class="cimerko-primary-button listing-card-details-link">View</a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    }
+</div>
