@@ -8495,3 +8495,132 @@ body::after {
     border-radius: var(--radius-sm);
   }
 }
+
+/* Premium listing cards */
+.listing-card-grid > [class*="col-"] {
+  display: flex;
+}
+
+.listing-card {
+  width: 100%;
+  border-color: rgba(227, 222, 212, 0.9);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition:
+    border-color var(--transition-smooth),
+    box-shadow var(--transition-smooth),
+    transform var(--transition-smooth);
+}
+
+.listing-card:hover,
+.listing-card:focus-within {
+  border-color: rgba(98, 84, 223, 0.18);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-6px);
+}
+
+.listing-card-img-wrap {
+  height: 238px;
+  isolation: isolate;
+}
+
+.listing-card-img-wrap::after {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  height: 42%;
+  background: linear-gradient(to top, rgba(24, 21, 18, 0.28), transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.listing-card-image-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.listing-card-image-link:focus-visible {
+  outline: 3px solid var(--cimerko-purple);
+  outline-offset: -3px;
+}
+
+.listing-card-img {
+  transition: transform 420ms ease;
+}
+
+.listing-card:hover .listing-card-img,
+.listing-card:focus-within .listing-card-img {
+  transform: scale(1.045);
+}
+
+.listing-card-price-badge {
+  bottom: var(--space-4);
+  left: var(--space-4);
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 8px 20px rgba(45, 39, 32, 0.14);
+}
+
+.listing-card-save-btn {
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 42px;
+  height: 42px;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.listing-card-save-btn:hover,
+.listing-card-save-btn:focus-visible {
+  box-shadow: 0 8px 20px rgba(45, 39, 32, 0.18);
+  transform: translateY(-1px) scale(1.04);
+}
+
+.listing-card-content {
+  padding: var(--space-5);
+}
+
+.listing-card-content h3 {
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.listing-card-badges .badge-soft:first-child {
+  color: var(--cimerko-green);
+  background: var(--cimerko-green-light);
+}
+
+.listing-card-footer-new {
+  padding-top: var(--space-4);
+}
+
+.listing-card-details-link {
+  min-height: 38px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.75rem;
+}
+
+.listing-card-details-link svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+@media (max-width: 575.98px) {
+  .listing-card-img-wrap {
+    height: 225px;
+  }
+
+  .listing-card-content {
+    padding: 1.25rem;
+  }
+}
