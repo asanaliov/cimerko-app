@@ -411,6 +411,26 @@ a {
   }
 }
 
+@media (min-width: 992px) {
+  .site-navbar {
+    position: relative;
+  }
+
+  .site-navbar .navbar-collapse {
+    position: static;
+  }
+
+  .site-nav-links {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .site-account-nav {
+    margin-left: auto;
+  }
+}
+
 @media (max-width: 991.98px) {
   .site-navbar {
     border-radius: 24px;
