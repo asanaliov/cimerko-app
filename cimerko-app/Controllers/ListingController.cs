@@ -41,7 +41,9 @@ public class ListingController : Controller {
             .Include(listing => listing.Owner)
             .ThenInclude(owner => owner!.RoommateProfile)
             .Include(listing => listing.Images)
-            .Where(listing => listing.IsActive)
+            .Where(listing =>
+                listing.IsActive &&
+                listing.ModerationStatus == ListingModerationStatus.Approved)
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(model.Title)) {
@@ -141,6 +143,14 @@ public class ListingController : Controller {
 
         var userId = CurrentUserId();
         var isOwner = userId == listing.OwnerId;
+        var isAdmin = User.IsInRole(AppRoles.Admin);
+        if ((!listing.IsActive ||
+             listing.ModerationStatus != ListingModerationStatus.Approved) &&
+            !isOwner &&
+            !isAdmin) {
+            return NotFound();
+        }
+
         var isSaved = userId != null && !isOwner &&
                       await _context.SavedListings.AnyAsync(savedListing =>
                           savedListing.UserId == userId && savedListing.ListingId == listing.Id);
@@ -158,13 +168,15 @@ public class ListingController : Controller {
                 AverageRating = user.ReviewsReceived
                     .Select(review => (double?)review.Rating)
                     .Average(),
-                ActiveListingCount = user.Listings.Count(ownerListing => ownerListing.IsActive)
+                ActiveListingCount = user.Listings.Count(ownerListing =>
+                    ownerListing.IsActive &&
+                    ownerListing.ModerationStatus == ListingModerationStatus.Approved)
             })
             .FirstOrDefaultAsync();
 
         return View(new ListingDetailsViewModel {
             Listing = listing,
-            IsOwner = isOwner,
+            IsOwner = isOwner || isAdmin,
             IsSaved = isSaved,
             ExistingRequest = existingRequest,
             OwnerReviewCount = ownerSummary?.ReviewCount ?? 0,
@@ -192,7 +204,8 @@ public class ListingController : Controller {
 
         listing.OwnerId = userId;
         listing.CreatedAt = DateTime.UtcNow;
-        listing.IsActive = true;
+        listing.IsActive = false;
+        listing.ModerationStatus = ListingModerationStatus.Pending;
         ModelState.Remove(nameof(Listing.OwnerId));
         ApplyListingTypeRules(listing);
 
@@ -224,7 +237,8 @@ public class ListingController : Controller {
                 throw;
             }
 
-            return RedirectToAction(nameof(Index));
+            TempData["ListingMessage"] = "Your listing was submitted for admin approval.";
+            return RedirectToAction(nameof(Details), new { id = listing.Id });
         }
 
         if (hadUploadedImages) {
@@ -244,7 +258,7 @@ public class ListingController : Controller {
         var listing = await _context.Listings
             .Include(item => item.Images)
             .FirstOrDefaultAsync(item => item.Id == id);
-        if (listing == null || listing.OwnerId != CurrentUserId()) {
+        if (listing == null || !CanManageListing(listing)) {
             return NotFound();
         }
 
@@ -266,7 +280,7 @@ public class ListingController : Controller {
         var listing = await _context.Listings
             .Include(item => item.Images)
             .FirstOrDefaultAsync(item => item.Id == id);
-        if (listing == null || listing.OwnerId != CurrentUserId()) {
+        if (listing == null || !CanManageListing(listing)) {
             return NotFound();
         }
 
@@ -293,7 +307,20 @@ public class ListingController : Controller {
         listing.RoomCount = formListing.RoomCount;
         listing.RoommatesNeeded = formListing.RoommatesNeeded;
         listing.AvailableFrom = formListing.AvailableFrom;
-        listing.IsActive = formListing.IsActive;
+        if (User.IsInRole(AppRoles.Admin)) {
+            listing.IsActive =
+                formListing.IsActive &&
+                listing.ModerationStatus == ListingModerationStatus.Approved;
+            if (!formListing.IsActive) {
+                listing.ModerationStatus = ListingModerationStatus.Inactive;
+            }
+        }
+        else {
+            listing.IsActive = false;
+            listing.ModerationStatus = formListing.IsActive
+                ? ListingModerationStatus.Pending
+                : ListingModerationStatus.Inactive;
+        }
 
         foreach (var image in imagesToRemove) {
             listing.Images.Remove(image);
@@ -333,6 +360,11 @@ public class ListingController : Controller {
             DeleteLocalListingImage(image.ImageUrl);
         }
 
+        TempData["ListingMessage"] = User.IsInRole(AppRoles.Admin)
+            ? "Listing updated."
+            : formListing.IsActive
+                ? "Your changes were saved and submitted for admin approval."
+                : "Your listing was marked as inactive.";
         return RedirectToAction(nameof(Details), new { id = listing.Id });
     }
 
@@ -345,7 +377,7 @@ public class ListingController : Controller {
             .Include(item => item.Owner)
             .FirstOrDefaultAsync(item => item.Id == id);
 
-        if (listing == null || listing.OwnerId != CurrentUserId()) {
+        if (listing == null || !CanManageListing(listing)) {
             return NotFound();
         }
 
@@ -358,7 +390,7 @@ public class ListingController : Controller {
         var listing = await _context.Listings
             .Include(item => item.Images)
             .FirstOrDefaultAsync(item => item.Id == id);
-        if (listing == null || listing.OwnerId != CurrentUserId()) {
+        if (listing == null || !CanManageListing(listing)) {
             return NotFound();
         }
 
@@ -373,11 +405,17 @@ public class ListingController : Controller {
             DeleteLocalListingImage(imageUrl);
         }
 
-        return RedirectToAction(nameof(Index));
+        return User.IsInRole(AppRoles.Admin)
+            ? RedirectToAction("Listings", "Admin")
+            : RedirectToAction(nameof(Index));
     }
 
     private string? CurrentUserId() {
         return User.FindFirstValue(ClaimTypes.NameIdentifier);
+    }
+
+    private bool CanManageListing(Listing listing) {
+        return listing.OwnerId == CurrentUserId() || User.IsInRole(AppRoles.Admin);
     }
 
     private void ApplyListingTypeRules(Listing listing) {

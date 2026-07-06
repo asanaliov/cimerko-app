@@ -1,0 +1,113 @@
+@model cimerko_app.Models.ViewModels.AdminUsersViewModel
+@{
+    ViewData["Title"] = "Manage users";
+}
+
+<section class="admin-dashboard">
+    <header class="admin-dashboard-header">
+        <div>
+            <span class="admin-dashboard-eyebrow">Administration</span>
+            <h1>User management</h1>
+            <p>Search accounts, manage roles, and block or remove suspicious users.</p>
+        </div>
+    </header>
+
+    <partial name="_AdminNavigation"/>
+
+    @if (TempData["AdminMessage"] != null) {
+        <div class="alert alert-info">@TempData["AdminMessage"]</div>
+    }
+
+    <form asp-action="Users" method="get" class="admin-filter-bar">
+        <div class="admin-filter-field admin-filter-grow">
+            <label asp-for="Search">Name or email</label>
+            <input asp-for="Search" type="search" placeholder="Search users"/>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Search)) {
+            <a asp-action="Users" class="btn btn-outline-secondary">Clear</a>
+        }
+    </form>
+
+    <section class="admin-panel-card" aria-labelledby="users-heading">
+        <div class="admin-panel-heading">
+            <div>
+                <span>Accounts</span>
+                <h2 id="users-heading">@Model.Users.Count users</h2>
+            </div>
+        </div>
+
+        @if (Model.Users.Count == 0) {
+            <p class="admin-empty-state">No users match this search.</p>
+        }
+        else {
+            <div class="table-responsive">
+                <table class="table admin-table admin-management-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">User</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Joined</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var row in Model.Users) {
+                        <tr>
+                            <td>
+                                <strong>@row.User.FullName</strong>
+                                <small>@row.User.Email</small>
+                            </td>
+                            <td>
+                                <form asp-action="ChangeRole" method="post" class="admin-inline-form">
+                                    <input type="hidden" name="id" value="@row.User.Id"/>
+                                    <select name="role" aria-label="Role for @row.User.FullName">
+                                        @foreach (var role in AppRoles.All) {
+                                            <option value="@role"
+                                                    selected="@(row.Role == role ? "selected" : null)">@role</option>
+                                        }
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                </form>
+                            </td>
+                            <td>
+                                <span class="admin-status @(row.IsBlocked ? "is-rejected" : "is-approved")">
+                                    @(row.IsBlocked ? "Blocked" : "Active")
+                                </span>
+                            </td>
+                            <td>@row.User.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                            <td>
+                                <div class="admin-row-actions">
+                                    <a asp-controller="Profile"
+                                       asp-action="Details"
+                                       asp-route-id="@row.User.Id"
+                                       class="btn btn-sm btn-outline-secondary">View</a>
+                                    @if (row.IsBlocked) {
+                                        <form asp-action="UnblockUser" method="post">
+                                            <input type="hidden" name="id" value="@row.User.Id"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-success">Unblock</button>
+                                        </form>
+                                    }
+                                    else {
+                                        <form asp-action="BlockUser" method="post">
+                                            <input type="hidden" name="id" value="@row.User.Id"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-warning">Block</button>
+                                        </form>
+                                    }
+                                    <form asp-action="DeleteUser"
+                                          method="post"
+                                          onsubmit="return confirm('Delete this user and all account data?');">
+                                        <input type="hidden" name="id" value="@row.User.Id"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</section>

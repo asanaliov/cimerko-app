@@ -14,6 +14,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Review> Reviews { get; set; }
     public DbSet<ListingImage> ListingImages { get; set; }
     public DbSet<Notification> Notifications { get; set; }
+    public DbSet<Report> Reports { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
@@ -83,6 +84,33 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<Review>()
             .HasIndex(review => new { review.ReviewerId, review.ReviewedUserId })
             .IsUnique();
+
+        builder.Entity<Report>()
+            .HasOne(report => report.Reporter)
+            .WithMany()
+            .HasForeignKey(report => report.ReporterId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Report>()
+            .HasOne(report => report.ReportedUser)
+            .WithMany()
+            .HasForeignKey(report => report.ReportedUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Report>()
+            .HasOne(report => report.Listing)
+            .WithMany(listing => listing.Reports)
+            .HasForeignKey(report => report.ListingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Report>()
+            .HasOne(report => report.Review)
+            .WithMany(review => review.Reports)
+            .HasForeignKey(report => report.ReviewId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Report>()
+            .HasIndex(report => new { report.Status, report.CreatedAt });
 
         builder.Entity<Notification>()
             .HasOne(notification => notification.Recipient)

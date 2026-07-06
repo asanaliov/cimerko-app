@@ -1,0 +1,62 @@
+@model cimerko_app.Models.ViewModels.CreateReportViewModel
+
+@{
+    ViewData["Title"] = "Submit report";
+}
+
+<section class="report-form-page">
+    <header class="admin-dashboard-header">
+        <div>
+            <span class="admin-dashboard-eyebrow">Safety and moderation</span>
+            <h1>Report @Model.TargetName</h1>
+            <p>Tell the admin team what is wrong. Reports are only visible to administrators.</p>
+        </div>
+    </header>
+
+    <form asp-action="Create" method="post" class="report-form-card">
+        <input asp-for="TargetType" type="hidden"/>
+        <input asp-for="ListingId" type="hidden"/>
+        <input asp-for="ReportedUserId" type="hidden"/>
+        <input asp-for="TargetName" type="hidden"/>
+
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+        <div class="listing-form-field">
+            <label asp-for="Reason"></label>
+            <select asp-for="Reason"
+                    asp-items="Html.GetEnumSelectList<ReportReason>()"
+                    required>
+                <option value="">Choose a reason</option>
+            </select>
+            <span asp-validation-for="Reason" class="listing-form-error"></span>
+        </div>
+
+        <div class="listing-form-field">
+            <label asp-for="Details"></label>
+            <textarea asp-for="Details"
+                      rows="6"
+                      placeholder="Add facts that will help the admin review this report."></textarea>
+            <span asp-validation-for="Details" class="listing-form-error"></span>
+        </div>
+
+        <div class="report-form-actions">
+            @if (Model.TargetType == ReportTargetType.Listing) {
+                <a asp-controller="Listing"
+                   asp-action="Details"
+                   asp-route-id="@Model.ListingId"
+                   class="btn btn-outline-secondary">Cancel</a>
+            }
+            else {
+                <a asp-controller="Profile"
+                   asp-action="Details"
+                   asp-route-id="@Model.ReportedUserId"
+                   class="btn btn-outline-secondary">Cancel</a>
+            }
+            <button type="submit" class="btn btn-danger">Submit report</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

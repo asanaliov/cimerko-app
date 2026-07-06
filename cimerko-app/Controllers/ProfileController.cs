@@ -34,7 +34,9 @@ public class ProfileController : Controller {
 
         var user = await _context.Users
             .Include(item => item.RoommateProfile)
-            .Include(item => item.Listings.Where(listing => listing.IsActive))
+            .Include(item => item.Listings.Where(listing =>
+                listing.IsActive &&
+                listing.ModerationStatus == ListingModerationStatus.Approved))
             .Include(item => item.ReviewsReceived)
             .ThenInclude(review => review.Reviewer)
             .FirstOrDefaultAsync(item => item.Id == id);
@@ -102,7 +104,10 @@ public class ProfileController : Controller {
             .Include(u => u.RoommateProfile)
             .Include(u => u.Listings)
             .Where(u => u.RoommateProfile != null
-                        && u.Listings.Any(l => l.IsActive && l.Type == ListingType.LookingForRoommate)
+                        && u.Listings.Any(l =>
+                            l.IsActive &&
+                            l.ModerationStatus == ListingModerationStatus.Approved &&
+                            l.Type == ListingType.LookingForRoommate)
                         && (visitorId == null || u.Id != visitorId))
             .AsNoTracking()
             .ToListAsync();
@@ -343,7 +348,9 @@ public class ProfileController : Controller {
         int? compatibilityScore) {
         var badges = new List<ProfileBadgeViewModel>();
         var profile = user.RoommateProfile;
-        var activeListingCount = user.Listings.Count(listing => listing.IsActive);
+        var activeListingCount = user.Listings.Count(listing =>
+            listing.IsActive &&
+            listing.ModerationStatus == ListingModerationStatus.Approved);
         var reviewCount = user.ReviewsReceived.Count;
         var averageRating = reviewCount == 0
             ? 0

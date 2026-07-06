@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using cimerko_app.Data;
 using cimerko_app.Models;
+using cimerko_app.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,10 @@ public class SavedListingController : Controller {
         }
 
         var savedListings = await _context.SavedListings
-            .Where(savedListing => savedListing.UserId == userId)
+            .Where(savedListing =>
+                savedListing.UserId == userId &&
+                savedListing.Listing!.IsActive &&
+                savedListing.Listing.ModerationStatus == ListingModerationStatus.Approved)
             .Include(savedListing => savedListing.Listing)
             .ThenInclude(listing => listing!.Owner)
             .Include(savedListing => savedListing.Listing)
@@ -42,7 +46,9 @@ public class SavedListingController : Controller {
         }
 
         var listing = await _context.Listings.FindAsync(listingId);
-        if (listing == null || !listing.IsActive) {
+        if (listing == null ||
+            !listing.IsActive ||
+            listing.ModerationStatus != ListingModerationStatus.Approved) {
             return NotFound();
         }
 

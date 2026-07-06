@@ -59,7 +59,9 @@ public class ListingRequestController : Controller {
         }
 
         var listing = await _context.Listings.FindAsync(listingId);
-        if (listing == null || !listing.IsActive) {
+        if (listing == null ||
+            !listing.IsActive ||
+            listing.ModerationStatus != ListingModerationStatus.Approved) {
             return NotFound();
         }
 

@@ -1,0 +1,145 @@
+@model cimerko_app.Models.ViewModels.AdminListingsViewModel
+@{
+    ViewData["Title"] = "Manage listings";
+}
+
+<section class="admin-dashboard">
+    <header class="admin-dashboard-header">
+        <div>
+            <span class="admin-dashboard-eyebrow">Administration</span>
+            <h1>Listing management</h1>
+            <p>Review submissions and filter the full listing catalogue.</p>
+        </div>
+    </header>
+
+    <partial name="_AdminNavigation"/>
+
+    @if (TempData["AdminMessage"] != null) {
+        <div class="alert alert-info">@TempData["AdminMessage"]</div>
+    }
+
+    <form asp-action="Listings" method="get" class="admin-filter-bar admin-listing-filters">
+        <div class="admin-filter-field">
+            <label asp-for="City"></label>
+            <input asp-for="City" placeholder="Any city"/>
+        </div>
+        <div class="admin-filter-field">
+            <label asp-for="MinimumPrice">Minimum price</label>
+            <input asp-for="MinimumPrice" type="number" min="0" step="1"/>
+        </div>
+        <div class="admin-filter-field">
+            <label asp-for="MaximumPrice">Maximum price</label>
+            <input asp-for="MaximumPrice" type="number" min="0" step="1"/>
+        </div>
+        <div class="admin-filter-field">
+            <label asp-for="Type"></label>
+            <select asp-for="Type" asp-items="Html.GetEnumSelectList<ListingType>()">
+                <option value="">All types</option>
+            </select>
+        </div>
+        <div class="admin-filter-field">
+            <label asp-for="Status"></label>
+            <select asp-for="Status" asp-items="Html.GetEnumSelectList<ListingModerationStatus>()">
+                <option value="">All statuses</option>
+            </select>
+        </div>
+        <label class="admin-filter-checkbox">
+            <input asp-for="ReportedOnly"/>
+            Reported only
+        </label>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a asp-action="Listings" class="btn btn-outline-secondary">Clear</a>
+    </form>
+
+    <section class="admin-panel-card" aria-labelledby="listings-heading">
+        <div class="admin-panel-heading">
+            <div>
+                <span>Housing</span>
+                <h2 id="listings-heading">@Model.Listings.Count listings</h2>
+            </div>
+        </div>
+
+        @if (Model.Listings.Count == 0) {
+            <p class="admin-empty-state">No listings match these filters.</p>
+        }
+        else {
+            <div class="table-responsive">
+                <table class="table admin-table admin-management-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Listing</th>
+                        <th scope="col">Owner</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var row in Model.Listings) {
+                        var listing = row.Listing;
+                        <tr>
+                            <td>
+                                <strong>@listing.Title</strong>
+                                <small>@listing.City</small>
+                            </td>
+                            <td>@(listing.Owner?.FullName ?? listing.Owner?.Email)</td>
+                            <td>@listing.MonthlyRent.ToString("0.##") €</td>
+                            <td>@listing.Type.GetDisplayName()</td>
+                            <td>
+                                @if (row.OpenReportCount > 0) {
+                                    <a asp-action="Reports"
+                                       class="admin-status is-reported">
+                                        Reported (@row.OpenReportCount)
+                                    </a>
+                                }
+                                else {
+                                    <span class="admin-status is-@listing.ModerationStatus.ToString().ToLowerInvariant()">
+                                        @listing.ModerationStatus.GetDisplayName()
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <div class="admin-row-actions">
+                                    <a asp-controller="Listing"
+                                       asp-action="Details"
+                                       asp-route-id="@listing.Id"
+                                       class="btn btn-sm btn-outline-secondary">View</a>
+                                    <a asp-controller="Listing"
+                                       asp-action="Edit"
+                                       asp-route-id="@listing.Id"
+                                       class="btn btn-sm btn-outline-primary">Edit</a>
+                                    @if (listing.ModerationStatus != ListingModerationStatus.Approved) {
+                                        <form asp-action="ApproveListing" method="post">
+                                            <input type="hidden" name="id" value="@listing.Id"/>
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                    }
+                                    @if (listing.ModerationStatus != ListingModerationStatus.Rejected) {
+                                        <form asp-action="RejectListing" method="post">
+                                            <input type="hidden" name="id" value="@listing.Id"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-warning">Reject</button>
+                                        </form>
+                                    }
+                                    @if (listing.ModerationStatus == ListingModerationStatus.Approved) {
+                                        <form asp-action="DeactivateListing" method="post">
+                                            <input type="hidden" name="id" value="@listing.Id"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">Inactive</button>
+                                        </form>
+                                    }
+                                    <form asp-action="DeleteListing"
+                                          method="post"
+                                          onsubmit="return confirm('Permanently delete this listing?');">
+                                        <input type="hidden" name="id" value="@listing.Id"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</section>

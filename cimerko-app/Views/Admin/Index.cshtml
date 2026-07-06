@@ -1,71 +1,79 @@
 @model cimerko_app.Models.ViewModels.AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Admin panel";
+    ViewData["Title"] = "Admin dashboard";
 }
 
 <section class="admin-dashboard">
     <header class="admin-dashboard-header">
         <div>
             <span class="admin-dashboard-eyebrow">Administration</span>
-            <h1>Admin panel</h1>
-            <p>Monitor members, listings, requests, and reviews across Cimerko.</p>
+            <h1>Dashboard overview</h1>
+            <p>Review platform activity and handle items that need attention.</p>
         </div>
-        <a class="btn btn-primary" asp-controller="Listing" asp-action="Index">Browse listings</a>
     </header>
+
+    <partial name="_AdminNavigation"/>
 
     <div class="admin-stats" aria-label="Platform summary">
         <article class="admin-stat-card">
-            <span>Members</span>
+            <span>Total users</span>
             <strong>@Model.UserCount</strong>
+            <small>@Model.NewUsersThisWeek new this week</small>
         </article>
         <article class="admin-stat-card">
-            <span>Active listings</span>
-            <strong>@Model.ActiveListingCount</strong>
-            <small>@Model.ListingCount total</small>
+            <span>Total listings</span>
+            <strong>@Model.ListingCount</strong>
         </article>
         <article class="admin-stat-card">
-            <span>Pending requests</span>
-            <strong>@Model.PendingRequestCount</strong>
+            <span>Pending approval</span>
+            <strong>@Model.PendingListingCount</strong>
+            <small>Listings awaiting review</small>
         </article>
         <article class="admin-stat-card">
-            <span>Reviews</span>
-            <strong>@Model.ReviewCount</strong>
+            <span>Open reports</span>
+            <strong>@Model.OpenReportCount</strong>
+            <small>@Model.NewUsersThisMonth new users this month</small>
         </article>
     </div>
 
+    @if (TempData["AdminMessage"] != null) {
+        <div class="alert alert-info">@TempData["AdminMessage"]</div>
+    }
+
     <div class="admin-dashboard-grid">
-        <section class="admin-panel-card" aria-labelledby="recent-members-heading">
+        <section class="admin-panel-card" aria-labelledby="pending-listings-heading">
             <div class="admin-panel-heading">
                 <div>
-                    <span>Accounts</span>
-                    <h2 id="recent-members-heading">Recent members</h2>
+                    <span>Listings</span>
+                    <h2 id="pending-listings-heading">Pending approval</h2>
                 </div>
+                <a asp-action="Listings" asp-route-status="@ListingModerationStatus.Pending">View all</a>
             </div>
 
-            @if (Model.RecentUsers.Count == 0) {
-                <p class="admin-empty-state">No members have registered yet.</p>
+            @if (Model.RecentPendingListings.Count == 0) {
+                <p class="admin-empty-state">No listings are waiting for approval.</p>
             }
             else {
                 <div class="table-responsive">
                     <table class="table admin-table">
                         <thead>
                         <tr>
-                            <th scope="col">Member</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Joined</th>
+                            <th scope="col">Listing</th>
+                            <th scope="col">Owner</th>
+                            <th scope="col">Submitted</th>
                             <th scope="col"><span class="visually-hidden">Actions</span></th>
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach (var user in Model.RecentUsers) {
+                        @foreach (var listing in Model.RecentPendingListings) {
                             <tr>
-                                <td>@user.FullName</td>
-                                <td>@user.Email</td>
-                                <td>@user.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                                <td>@listing.Title</td>
+                                <td>@(listing.Owner?.FullName ?? listing.Owner?.Email)</td>
+                                <td>@listing.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
                                 <td>
-                                    <a asp-controller="Profile"
+                                    <a asp-controller="Listing"
                                        asp-action="Details"
-                                       asp-route-id="@user.Id">View</a>
+                                       asp-route-id="@listing.Id">Review</a>
                                 </td>
                             </tr>
                         }
@@ -75,43 +83,38 @@
             }
         </section>
 
-        <section class="admin-panel-card" aria-labelledby="recent-listings-heading">
+        <section class="admin-panel-card" aria-labelledby="open-reports-heading">
             <div class="admin-panel-heading">
                 <div>
-                    <span>Housing</span>
-                    <h2 id="recent-listings-heading">Recent listings</h2>
+                    <span>Moderation</span>
+                    <h2 id="open-reports-heading">Recent reports</h2>
                 </div>
+                <a asp-action="Reports">View all</a>
             </div>
 
-            @if (Model.RecentListings.Count == 0) {
-                <p class="admin-empty-state">No listings have been posted yet.</p>
+            @if (Model.RecentOpenReports.Count == 0) {
+                <p class="admin-empty-state">There are no open reports.</p>
             }
             else {
                 <div class="table-responsive">
                     <table class="table admin-table">
                         <thead>
                         <tr>
-                            <th scope="col">Listing</th>
-                            <th scope="col">Owner</th>
-                            <th scope="col">Status</th>
-                            <th scope="col"><span class="visually-hidden">Actions</span></th>
+                            <th scope="col">Target</th>
+                            <th scope="col">Reason</th>
+                            <th scope="col">Reported</th>
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach (var listing in Model.RecentListings) {
+                        @foreach (var report in Model.RecentOpenReports) {
                             <tr>
-                                <td>@listing.Title</td>
-                                <td>@listing.Owner?.FullName</td>
                                 <td>
-                                    <span class="admin-status @(listing.IsActive ? "is-active" : "is-inactive")">
-                                        @(listing.IsActive ? "Active" : "Inactive")
-                                    </span>
+                                    @(report.TargetType == ReportTargetType.Listing
+                                        ? report.Listing?.Title
+                                        : report.ReportedUser?.FullName)
                                 </td>
-                                <td>
-                                    <a asp-controller="Listing"
-                                       asp-action="Details"
-                                       asp-route-id="@listing.Id">View</a>
-                                </td>
+                                <td>@report.Reason.GetDisplayName()</td>
+                                <td>@report.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
                             </tr>
                         }
                         </tbody>

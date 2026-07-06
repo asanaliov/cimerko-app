@@ -1,0 +1,116 @@
+@model cimerko_app.Models.ViewModels.AdminReportsViewModel
+@{
+    ViewData["Title"] = "Manage reports";
+}
+
+<section class="admin-dashboard">
+    <header class="admin-dashboard-header">
+        <div>
+            <span class="admin-dashboard-eyebrow">Administration</span>
+            <h1>Reports and moderation</h1>
+            <p>Review user reports, inspect the target, and record the outcome.</p>
+        </div>
+    </header>
+
+    <partial name="_AdminNavigation"/>
+
+    @if (TempData["AdminMessage"] != null) {
+        <div class="alert alert-info">@TempData["AdminMessage"]</div>
+    }
+
+    <form asp-action="Reports" method="get" class="admin-filter-bar">
+        <div class="admin-filter-field">
+            <label asp-for="Status"></label>
+            <select asp-for="Status" asp-items="Html.GetEnumSelectList<ReportStatus>()">
+                <option value="">All statuses</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <section class="admin-panel-card" aria-labelledby="reports-heading">
+        <div class="admin-panel-heading">
+            <div>
+                <span>Moderation queue</span>
+                <h2 id="reports-heading">@Model.Reports.Count reports</h2>
+            </div>
+        </div>
+
+        @if (Model.Reports.Count == 0) {
+            <p class="admin-empty-state">No reports match this filter.</p>
+        }
+        else {
+            <div class="table-responsive">
+                <table class="table admin-table admin-management-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Target</th>
+                        <th scope="col">Reason</th>
+                        <th scope="col">Reporter</th>
+                        <th scope="col">Details</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var report in Model.Reports) {
+                        <tr>
+                            <td>
+                                @if (report.TargetType == ReportTargetType.Listing && report.Listing != null) {
+                                    <a asp-controller="Listing"
+                                       asp-action="Details"
+                                       asp-route-id="@report.ListingId">@report.Listing.Title</a>
+                                    <small>Listing</small>
+                                }
+                                else if (report.TargetType == ReportTargetType.User && report.ReportedUser != null) {
+                                    <a asp-controller="Profile"
+                                       asp-action="Details"
+                                       asp-route-id="@report.ReportedUserId">
+                                        @(report.ReportedUser.FullName ?? report.ReportedUser.Email)
+                                    </a>
+                                    <small>User</small>
+                                }
+                                else {
+                                    <strong>@report.TargetType #@(report.ReviewId ?? report.ListingId)</strong>
+                                }
+                            </td>
+                            <td>
+                                <strong>@report.Reason.GetDisplayName()</strong>
+                                <small>@report.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</small>
+                            </td>
+                            <td>@(report.Reporter?.FullName ?? report.Reporter?.Email)</td>
+                            <td class="admin-report-details">
+                                @(string.IsNullOrWhiteSpace(report.Details) ? "No additional details" : report.Details)
+                            </td>
+                            <td>
+                                <span class="admin-status is-@report.Status.ToString().ToLowerInvariant()">
+                                    @report.Status
+                                </span>
+                            </td>
+                            <td>
+                                @if (report.Status == ReportStatus.Open) {
+                                    <div class="admin-row-actions">
+                                        <form asp-action="ResolveReport" method="post">
+                                            <input type="hidden" name="id" value="@report.Id"/>
+                                            <button type="submit" class="btn btn-sm btn-success">Resolve</button>
+                                        </form>
+                                        <form asp-action="DismissReport" method="post">
+                                            <input type="hidden" name="id" value="@report.Id"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">Dismiss</button>
+                                        </form>
+                                    </div>
+                                }
+                                else {
+                                    <small>
+                                        Closed @report.ResolvedAt?.ToLocalTime().ToString("dd MMM yyyy")
+                                    </small>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</section>

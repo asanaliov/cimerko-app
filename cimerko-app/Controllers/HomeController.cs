@@ -3,6 +3,7 @@ using cimerko_app.Data;
 using Microsoft.AspNetCore.Mvc;
 using cimerko_app.Models;
 using cimerko_app.Models.ViewModels;
+using cimerko_app.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace cimerko_app.Controllers;
@@ -17,7 +18,9 @@ public class HomeController : Controller {
     public async Task<IActionResult> Index() {
         var latestListings = await _context.Listings
             .AsNoTracking()
-            .Where(listing => listing.IsActive)
+            .Where(listing =>
+                listing.IsActive &&
+                listing.ModerationStatus == ListingModerationStatus.Approved)
             .Include(listing => listing.Owner)
             .Include(listing => listing.Images)
             .OrderByDescending(listing => listing.CreatedAt)

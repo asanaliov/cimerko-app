@@ -1,0 +1,14 @@
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    string LinkClass(string action) =>
+        string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+            ? "admin-nav-link is-active"
+            : "admin-nav-link";
+}
+
+<nav class="admin-navigation" aria-label="Admin sections">
+    <a asp-action="Index" class="@LinkClass("Index")">Overview</a>
+    <a asp-action="Users" class="@LinkClass("Users")">Users</a>
+    <a asp-action="Listings" class="@LinkClass("Listings")">Listings</a>
+    <a asp-action="Reports" class="@LinkClass("Reports")">Reports</a>
+</nav>

@@ -152,8 +152,8 @@
                 <label class="listing-form-status">
                     <input asp-for="IsActive"/>
                     <span>
-                        <strong>Listing is active</strong>
-                        <small>Active listings appear in search and can receive requests.</small>
+                        <strong>Submit listing as active</strong>
+                        <small>Active listings appear in search after admin approval.</small>
                     </span>
                 </label>
             </section>
@@ -242,7 +242,12 @@
                 </svg>
             </div>
             <h2>Before you save</h2>
-            <p>Changes are visible as soon as you save the listing.</p>
+            @if (User.IsInRole(AppRoles.Admin)) {
+                <p>Admin changes keep the current moderation status unless you deactivate the listing.</p>
+            }
+            else {
+                <p>Active changes are sent to an admin for approval before becoming public.</p>
+            }
             <ul>
                 <li>
                     <span>1</span>

@@ -39,6 +39,9 @@ public class Listing {
 
     public bool IsActive { get; set; } = true;
 
+    [Display(Name = "Moderation status")]
+    public ListingModerationStatus ModerationStatus { get; set; } = ListingModerationStatus.Pending;
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Required]
@@ -51,4 +54,6 @@ public class Listing {
     public ICollection<ListingRequest> Requests { get; set; } = new List<ListingRequest>();
 
     public ICollection<ListingImage> Images { get; set; } = new List<ListingImage>();
+
+    public ICollection<Report> Reports { get; set; } = new List<Report>();
 }

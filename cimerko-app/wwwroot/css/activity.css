@@ -456,6 +456,35 @@
 }
 
 /* Admin */
+.admin-navigation {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+  padding: 0.35rem;
+  overflow-x: auto;
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-pill);
+  background: var(--cm-surface);
+  box-shadow: var(--cm-shadow-xs);
+}
+
+.admin-nav-link {
+  flex: 1 0 auto;
+  padding: 0.65rem 1rem;
+  border-radius: var(--cm-radius-pill);
+  color: var(--cm-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+}
+
+.admin-nav-link:hover,
+.admin-nav-link.is-active {
+  color: #fff;
+  background: var(--cm-violet);
+}
+
 .admin-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -520,6 +549,10 @@
 }
 
 .admin-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   padding: 1.2rem 1.3rem;
   border-bottom: 1px solid var(--cm-border);
 }
@@ -535,6 +568,13 @@
 .admin-panel-heading h2 {
   margin: 0.25rem 0 0;
   font-size: 1.05rem;
+}
+
+.admin-panel-heading > a {
+  color: var(--cm-violet);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-decoration: none;
 }
 
 .admin-table {
@@ -569,23 +609,173 @@
   text-decoration: none;
 }
 
-.admin-status {
-  padding: 0.4rem 0.55rem;
+.admin-table td > strong,
+.admin-table td > small {
+  display: block;
 }
 
-.admin-status.is-active {
+.admin-table td > small {
+  margin-top: 0.2rem;
+  color: var(--cm-muted);
+}
+
+.admin-status {
+  display: inline-flex;
+  border-radius: var(--cm-radius-pill);
+  padding: 0.4rem 0.55rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.admin-status.is-active,
+.admin-status.is-approved,
+.admin-status.is-resolved {
   color: var(--cm-success);
   background: var(--cm-success-soft);
 }
 
-.admin-status.is-inactive {
+.admin-status.is-inactive,
+.admin-status.is-dismissed {
   color: var(--cm-muted);
   background: var(--cm-surface-soft);
+}
+
+.admin-status.is-pending,
+.admin-status.is-open {
+  color: #8a5a00;
+  background: #fff4cf;
+}
+
+.admin-status.is-rejected,
+.admin-status.is-reported {
+  color: var(--cm-danger);
+  background: var(--cm-danger-soft);
 }
 
 .admin-empty-state {
   margin: 1rem;
   padding: 2rem;
+}
+
+.admin-filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-lg);
+  background: var(--cm-surface);
+  box-shadow: var(--cm-shadow-xs);
+}
+
+.admin-filter-field {
+  min-width: 145px;
+}
+
+.admin-filter-grow {
+  flex: 1;
+}
+
+.admin-filter-field label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--cm-muted);
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-filter-field input,
+.admin-filter-field select,
+.admin-inline-form select {
+  width: 100%;
+  min-height: 38px;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--cm-border-strong);
+  border-radius: var(--cm-radius-sm);
+  color: var(--cm-ink);
+  background: var(--cm-surface);
+  font-size: 0.72rem;
+}
+
+.admin-listing-filters {
+  flex-wrap: wrap;
+}
+
+.admin-filter-checkbox {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--cm-muted);
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+
+.admin-management-table {
+  min-width: 940px;
+}
+
+.admin-inline-form,
+.admin-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.admin-inline-form select {
+  min-width: 105px;
+}
+
+.admin-row-actions {
+  flex-wrap: wrap;
+}
+
+.admin-row-actions form {
+  margin: 0;
+}
+
+.admin-report-details {
+  max-width: 260px;
+  white-space: normal;
+}
+
+.report-form-page {
+  width: min(100%, 760px);
+  margin: 0 auto;
+}
+
+.report-form-card {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-lg);
+  background: var(--cm-surface);
+  box-shadow: var(--cm-shadow-sm);
+}
+
+.report-form-card .listing-form-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.report-form-card .listing-form-field select,
+.report-form-card .listing-form-field textarea {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--cm-border-strong);
+  border-radius: var(--cm-radius-sm);
+  color: var(--cm-ink);
+  background: var(--cm-surface);
+}
+
+.report-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
 }
 
 /* Privacy */
@@ -708,6 +898,15 @@
   .admin-dashboard-grid {
     grid-template-columns: 1fr;
   }
+
+  .admin-filter-bar {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .admin-filter-field {
+    flex: 1 1 180px;
+  }
 }
 
 @media (max-width: 767.98px) {
@@ -716,6 +915,10 @@
   .admin-dashboard-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .admin-filter-bar > .btn {
+    flex: 1 1 auto;
   }
 
   .notification-item {
@@ -767,6 +970,19 @@
 
   .admin-stats {
     grid-template-columns: 1fr;
+  }
+
+  .admin-navigation {
+    border-radius: var(--cm-radius-md);
+  }
+
+  .admin-nav-link {
+    min-width: 100px;
+  }
+
+  .report-form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
   }
 
   .error-card-actions {

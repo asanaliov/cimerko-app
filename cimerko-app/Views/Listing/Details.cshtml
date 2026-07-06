@@ -48,6 +48,22 @@
             @TempData["RequestMessage"]
         </div>
     }
+    @if (TempData["ListingMessage"] != null) {
+        <div class="alert alert-info rounded-3 mb-4">
+            @TempData["ListingMessage"]
+        </div>
+    }
+    @if (TempData["ReportMessage"] != null) {
+        <div class="alert alert-info rounded-3 mb-4">
+            @TempData["ReportMessage"]
+        </div>
+    }
+    @if (Model.IsOwner && listing.ModerationStatus != ListingModerationStatus.Approved) {
+        <div class="alert alert-warning rounded-3 mb-4">
+            Moderation status: @listing.ModerationStatus.GetDisplayName().
+            This listing is not visible in public search.
+        </div>
+    }
 
     <div class="property-shell">
         <!-- Hero Area -->
@@ -122,6 +138,12 @@
                         title="Copy listing link">
                     Share
                 </button>
+                @if (!Model.IsOwner && User.Identity?.IsAuthenticated == true) {
+                    <a asp-controller="Report"
+                       asp-action="Listing"
+                       asp-route-id="@listing.Id"
+                       class="hero-action-btn">Report</a>
+                }
             </div>
         </div>
 
