@@ -35,11 +35,13 @@ document.querySelectorAll("[data-listing-type-form]").forEach(form => {
     updateListingTypeFields();
 });
 
-document.querySelectorAll("[data-home-gallery]").forEach(gallery => {
+document.querySelectorAll("[data-photo-gallery]").forEach(gallery => {
     const image = gallery.querySelector("[data-gallery-image]");
     const currentPhoto = gallery.querySelector("[data-gallery-current]");
     const photos = [...gallery.querySelectorAll("[data-gallery-photo]")];
-    const openButtons = [...document.querySelectorAll("[data-gallery-open]")];
+    const openButtons = [
+        ...document.querySelectorAll(`[data-gallery-open="${gallery.id}"]`)
+    ];
     const closeButton = gallery.querySelector("[data-gallery-close]");
     const previousButton = gallery.querySelector("[data-gallery-previous]");
     const nextButton = gallery.querySelector("[data-gallery-next]");

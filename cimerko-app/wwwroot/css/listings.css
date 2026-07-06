@@ -1265,8 +1265,12 @@
   gap: 0.7rem;
 }
 
-.thumbnail-stack a {
+.thumbnail-stack button {
   display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
 }
 
 .hero-thumb {
@@ -1281,6 +1285,11 @@
 }
 
 .hero-thumb:hover {
+  border-color: #fff;
+  transform: scale(1.03);
+}
+
+.thumbnail-stack button:focus-visible .hero-thumb {
   border-color: #fff;
   transform: scale(1.03);
 }

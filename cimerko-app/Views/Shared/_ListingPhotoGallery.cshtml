@@ -1,0 +1,87 @@
+@model cimerko_app.Models.ViewModels.ListingPhotoGalleryViewModel
+
+@if (Model.Images.Count > 0) {
+    var firstImage = Model.Images[0];
+    var titleId = $"{Model.DialogId}Title";
+
+    <dialog id="@Model.DialogId"
+            class="home-photo-viewer"
+            data-photo-gallery
+            aria-labelledby="@titleId">
+        <div class="home-photo-viewer-shell">
+            <header class="home-photo-viewer-header">
+                <div>
+                    <h2 id="@titleId">@Model.Title</h2>
+                    <p>
+                        Photo <span data-gallery-current>1</span>
+                        of <span>@Model.Images.Count</span>
+                    </p>
+                </div>
+                <button type="button"
+                        class="home-photo-viewer-close"
+                        data-gallery-close
+                        aria-label="Close photo viewer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 6l12 12M18 6 6 18"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="home-photo-viewer-stage">
+                @if (Model.Images.Count > 1) {
+                    <button type="button"
+                            class="home-photo-viewer-arrow is-previous"
+                            data-gallery-previous
+                            aria-label="View previous photo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m15 18-6-6 6-6"/>
+                        </svg>
+                    </button>
+                }
+
+                <img src="@firstImage.ImageUrl"
+                     alt="@Model.Title photo 1"
+                     data-gallery-image/>
+
+                @if (Model.Images.Count > 1) {
+                    <button type="button"
+                            class="home-photo-viewer-arrow is-next"
+                            data-gallery-next
+                            aria-label="View next photo">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m9 18 6-6-6-6"/>
+                        </svg>
+                    </button>
+                }
+            </div>
+
+            @if (Model.Images.Count > 1) {
+                <div class="home-photo-viewer-thumbnails"
+                     aria-label="Choose a listing photo">
+                    @for (var photoIndex = 0;
+                          photoIndex < Model.Images.Count;
+                          photoIndex++) {
+                        var image = Model.Images[photoIndex];
+                        <button type="button"
+                                class="@(photoIndex == 0 ? "is-active" : null)"
+                                data-gallery-photo
+                                data-gallery-index="@photoIndex"
+                                data-image-url="@image.ImageUrl"
+                                data-image-alt="@Model.Title photo @(photoIndex + 1)"
+                                aria-label="View photo @(photoIndex + 1)"
+                                aria-pressed="@(photoIndex == 0 ? "true" : "false")">
+                            <img src="@image.ImageUrl" alt="" loading="lazy"/>
+                        </button>
+                    }
+                </div>
+            }
+            else {
+                <span data-gallery-photo
+                      data-gallery-index="0"
+                      data-image-url="@firstImage.ImageUrl"
+                      data-image-alt="@Model.Title photo 1"
+                      hidden></span>
+            }
+        </div>
+    </dialog>
+}

@@ -29,6 +29,11 @@
         ? $"{listing.Address}, {listing.City}"
         : listing.City;
     var mapQuery = Uri.EscapeDataString(locationLabel);
+    var photoGallery = new cimerko_app.Models.ViewModels.ListingPhotoGalleryViewModel {
+        DialogId = "listingPhotoViewer",
+        Title = listing.Title,
+        Images = listingImages
+    };
 }
 
 <div class="listing-showcase">
@@ -60,14 +65,14 @@
             <div class="thumbnail-stack d-none d-md-flex">
                 @for (int i = 0; i < 3; i++) {
                     if (i < listingImages.Count) {
-                        <a href="@listingImages[i].ImageUrl"
-                           target="_blank"
-                           rel="noopener"
-                           aria-label="Open listing photo @(i + 1)">
+                        <button type="button"
+                                data-gallery-open="listingPhotoViewer"
+                                data-gallery-index="@i"
+                                aria-label="View listing photo @(i + 1)">
                             <img src="@listingImages[i].ImageUrl"
                                  class="hero-thumb"
                                  alt="@listing.Title photo @(i + 1)" />
-                        </a>
+                        </button>
                     } else {
                         <div class="hero-thumb placeholder-thumb d-flex align-items-center justify-content-center">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
@@ -78,12 +83,12 @@
 
             <div class="hero-actions">
                 @if (primaryImage != null) {
-                    <a href="@primaryImage.ImageUrl"
-                       target="_blank"
-                       rel="noopener"
-                       class="hero-action-btn">
+                    <button type="button"
+                            class="hero-action-btn"
+                            data-gallery-open="listingPhotoViewer"
+                            data-gallery-index="0">
                         View @listingImages.Count @(listingImages.Count == 1 ? "photo" : "photos")
-                    </a>
+                    </button>
                 }
                 @if (!Model.IsOwner) {
                     <a href="#contact" class="hero-action-btn">Contact</a>
@@ -453,6 +458,11 @@
         </div>
     </div>
 </div>
+
+@if (primaryImage != null) {
+    <partial name="_ListingPhotoGallery"
+             model="photoGallery"/>
+}
 
 @section Scripts {
     <script>
