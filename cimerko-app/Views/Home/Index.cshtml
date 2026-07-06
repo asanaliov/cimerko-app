@@ -42,30 +42,33 @@
 
                 @if (featuredImages.Count > 0) {
                     <div class="home-showcase-thumbnails" aria-label="Featured listing photos">
-                        @foreach (var image in featuredImages.Take(4)) {
-                            <a href="@image.ImageUrl"
-                               target="_blank"
-                               rel="noopener"
-                               aria-label="Open a photo of @featuredListing.Title">
+                        @for (var photoIndex = 0;
+                              photoIndex < Math.Min(featuredImages.Count, 4);
+                              photoIndex++) {
+                            var image = featuredImages[photoIndex];
+                            <button type="button"
+                                    data-gallery-open
+                                    data-gallery-index="@photoIndex"
+                                    aria-label="View photo @(photoIndex + 1) of @featuredListing.Title">
                                 <img src="@image.ImageUrl" alt=""/>
-                            </a>
+                            </button>
                         }
                     </div>
                 }
 
                 <div class="home-showcase-actions">
                     @if (featuredImage != null) {
-                        <a href="@featuredImage.ImageUrl"
-                           target="_blank"
-                           rel="noopener"
-                           class="home-showcase-pill">
+                        <button type="button"
+                                class="home-showcase-pill"
+                                data-gallery-open
+                                data-gallery-index="0">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <rect x="3" y="5" width="18" height="16" rx="2"/>
                                 <circle cx="9" cy="10" r="2"/>
                                 <path d="m21 16-5-5L5 21"/>
                             </svg>
-                            Photos
-                        </a>
+                            View @featuredImages.Count @(featuredImages.Count == 1 ? "photo" : "photos")
+                        </button>
                     }
                     <a asp-controller="Listing"
                        asp-action="Details"
@@ -137,6 +140,88 @@
                 </div>
             </aside>
         </section>
+
+        @if (featuredImage != null) {
+            <dialog class="home-photo-viewer"
+                    data-home-gallery
+                    aria-labelledby="homePhotoViewerTitle">
+                <div class="home-photo-viewer-shell">
+                    <header class="home-photo-viewer-header">
+                        <div>
+                            <h2 id="homePhotoViewerTitle">@featuredListing.Title</h2>
+                            <p>
+                                Photo <span data-gallery-current>1</span>
+                                of <span>@featuredImages.Count</span>
+                            </p>
+                        </div>
+                        <button type="button"
+                                class="home-photo-viewer-close"
+                                data-gallery-close
+                                aria-label="Close photo viewer">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M6 6l12 12M18 6 6 18"/>
+                            </svg>
+                        </button>
+                    </header>
+
+                    <div class="home-photo-viewer-stage">
+                        @if (featuredImages.Count > 1) {
+                            <button type="button"
+                                    class="home-photo-viewer-arrow is-previous"
+                                    data-gallery-previous
+                                    aria-label="View previous photo">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="m15 18-6-6 6-6"/>
+                                </svg>
+                            </button>
+                        }
+
+                        <img src="@featuredImage.ImageUrl"
+                             alt="@featuredListing.Title photo 1"
+                             data-gallery-image/>
+
+                        @if (featuredImages.Count > 1) {
+                            <button type="button"
+                                    class="home-photo-viewer-arrow is-next"
+                                    data-gallery-next
+                                    aria-label="View next photo">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="m9 18 6-6-6-6"/>
+                                </svg>
+                            </button>
+                        }
+                    </div>
+
+                    @if (featuredImages.Count > 1) {
+                        <div class="home-photo-viewer-thumbnails"
+                             aria-label="Choose a featured listing photo">
+                            @for (var photoIndex = 0;
+                                  photoIndex < featuredImages.Count;
+                                  photoIndex++) {
+                                var image = featuredImages[photoIndex];
+                                <button type="button"
+                                        class="@(photoIndex == 0 ? "is-active" : null)"
+                                        data-gallery-photo
+                                        data-gallery-index="@photoIndex"
+                                        data-image-url="@image.ImageUrl"
+                                        data-image-alt="@featuredListing.Title photo @(photoIndex + 1)"
+                                        aria-label="View photo @(photoIndex + 1)"
+                                        aria-pressed="@(photoIndex == 0 ? "true" : "false")">
+                                    <img src="@image.ImageUrl" alt="" loading="lazy"/>
+                                </button>
+                            }
+                        </div>
+                    }
+                    else {
+                        <span data-gallery-photo
+                              data-gallery-index="0"
+                              data-image-url="@featuredImage.ImageUrl"
+                              data-image-alt="@featuredListing.Title photo 1"
+                              hidden></span>
+                    }
+                </div>
+            </dialog>
+        }
     }
     else {
         <section class="home-showcase-empty">

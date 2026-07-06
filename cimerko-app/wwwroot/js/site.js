@@ -34,3 +34,81 @@ document.querySelectorAll("[data-listing-type-form]").forEach(form => {
     typeSelect.addEventListener("change", updateListingTypeFields);
     updateListingTypeFields();
 });
+
+document.querySelectorAll("[data-home-gallery]").forEach(gallery => {
+    const image = gallery.querySelector("[data-gallery-image]");
+    const currentPhoto = gallery.querySelector("[data-gallery-current]");
+    const photos = [...gallery.querySelectorAll("[data-gallery-photo]")];
+    const openButtons = [...document.querySelectorAll("[data-gallery-open]")];
+    const closeButton = gallery.querySelector("[data-gallery-close]");
+    const previousButton = gallery.querySelector("[data-gallery-previous]");
+    const nextButton = gallery.querySelector("[data-gallery-next]");
+    let activeIndex = 0;
+    let opener = null;
+
+    if (!image || !currentPhoto || photos.length === 0 || !closeButton) {
+        return;
+    }
+
+    const showPhoto = index => {
+        activeIndex = (index + photos.length) % photos.length;
+        const activePhoto = photos[activeIndex];
+
+        image.src = activePhoto.dataset.imageUrl;
+        image.alt = activePhoto.dataset.imageAlt;
+        currentPhoto.textContent = activeIndex + 1;
+
+        photos.forEach((photo, photoIndex) => {
+            const isActive = photoIndex === activeIndex;
+            photo.classList.toggle("is-active", isActive);
+            photo.setAttribute("aria-pressed", isActive.toString());
+        });
+
+        activePhoto.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "center"
+        });
+    };
+
+    const openGallery = event => {
+        opener = event.currentTarget;
+        gallery.showModal();
+        showPhoto(Number(opener.dataset.galleryIndex) || 0);
+        closeButton.focus();
+    };
+
+    openButtons.forEach(button => {
+        button.addEventListener("click", openGallery);
+    });
+
+    photos.forEach((photo, photoIndex) => {
+        photo.addEventListener("click", () => showPhoto(photoIndex));
+    });
+
+    previousButton?.addEventListener("click", () => showPhoto(activeIndex - 1));
+    nextButton?.addEventListener("click", () => showPhoto(activeIndex + 1));
+    closeButton.addEventListener("click", () => gallery.close());
+
+    gallery.addEventListener("click", event => {
+        if (event.target === gallery) {
+            gallery.close();
+        }
+    });
+
+    gallery.addEventListener("keydown", event => {
+        if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            showPhoto(activeIndex - 1);
+        }
+
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            showPhoto(activeIndex + 1);
+        }
+    });
+
+    gallery.addEventListener("close", () => {
+        opener?.focus();
+    });
+});
