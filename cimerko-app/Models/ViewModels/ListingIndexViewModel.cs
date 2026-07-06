@@ -48,6 +48,9 @@ public class ListingIndexViewModel {
     public bool HasActiveFilters =>
         !string.IsNullOrWhiteSpace(Title) ||
         !string.IsNullOrWhiteSpace(City) ||
+        HasAdvancedFilters;
+
+    public bool HasAdvancedFilters =>
         Type.HasValue ||
         MinimumBudget.HasValue ||
         MaximumBudget.HasValue ||
