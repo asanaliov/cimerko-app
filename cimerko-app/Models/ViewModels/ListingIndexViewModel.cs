@@ -20,6 +20,43 @@ public class ListingIndexViewModel {
     [Range(0, 100000)]
     public decimal? MaximumBudget { get; set; }
 
+    [Display(Name = "Bedrooms")]
+    [Range(0, 20)]
+    public int? BedroomCount { get; set; }
+
+    [Display(Name = "Preferred tenant")]
+    public TenantTypePreference? TenantTypePreference { get; set; }
+
+    [Display(Name = "Rental smoking policy")]
+    public RentalSmokingPolicy? RentalSmokingPolicy { get; set; }
+
+    [Display(Name = "Rental pet policy")]
+    public RentalPetPolicy? RentalPetPolicy { get; set; }
+
+    [Display(Name = "Preferred roommate gender")]
+    public RoommateGenderPreference? RoommateGenderPreference { get; set; }
+
+    [Display(Name = "Housing plan")]
+    public RoommateHousingPlan? RoommateHousingPlan { get; set; }
+
+    [Display(Name = "Pet-friendly")]
+    public bool RoommatePetFriendly { get; set; }
+
+    [Display(Name = "Smoke-free")]
+    public bool RoommateSmokeFree { get; set; }
+
+    [Display(Name = "Early-bird routine")]
+    public bool RoommateEarlyBird { get; set; }
+
+    [Display(Name = "Night-owl routine")]
+    public bool RoommateNightOwl { get; set; }
+
+    [Display(Name = "Tidy shared spaces")]
+    public bool RoommateTidy { get; set; }
+
+    [Display(Name = "Guests welcome")]
+    public bool RoommateGuestsWelcome { get; set; }
+
     [Display(Name = "Smoking preference")]
     public string? SmokingPreference { get; set; }
 
@@ -54,6 +91,42 @@ public class ListingIndexViewModel {
         Type.HasValue ||
         MinimumBudget.HasValue ||
         MaximumBudget.HasValue ||
+        BedroomCount.HasValue ||
+        TenantTypePreference.HasValue ||
+        RentalSmokingPolicy.HasValue ||
+        RentalPetPolicy.HasValue ||
+        RoommateGenderPreference.HasValue ||
+        RoommateHousingPlan.HasValue ||
+        RoommatePetFriendly ||
+        RoommateSmokeFree ||
+        RoommateEarlyBird ||
+        RoommateNightOwl ||
+        RoommateTidy ||
+        RoommateGuestsWelcome ||
+        !string.IsNullOrWhiteSpace(SmokingPreference) ||
+        !string.IsNullOrWhiteSpace(PetsPreference) ||
+        !string.IsNullOrWhiteSpace(CleanlinessLevel) ||
+        !string.IsNullOrWhiteSpace(SleepSchedule) ||
+        !string.IsNullOrWhiteSpace(GuestPreference) ||
+        AvailableNow ||
+        HasImages;
+
+    public bool ShouldExpandFilters =>
+        MinimumBudget.HasValue ||
+        MaximumBudget.HasValue ||
+        (BedroomCount.HasValue &&
+         !(Type == ListingType.PlaceForRent && BedroomCount == 0)) ||
+        TenantTypePreference.HasValue ||
+        RentalSmokingPolicy.HasValue ||
+        RentalPetPolicy.HasValue ||
+        RoommateGenderPreference.HasValue ||
+        RoommateHousingPlan.HasValue ||
+        RoommatePetFriendly ||
+        RoommateSmokeFree ||
+        RoommateEarlyBird ||
+        RoommateNightOwl ||
+        RoommateTidy ||
+        RoommateGuestsWelcome ||
         !string.IsNullOrWhiteSpace(SmokingPreference) ||
         !string.IsNullOrWhiteSpace(PetsPreference) ||
         !string.IsNullOrWhiteSpace(CleanlinessLevel) ||

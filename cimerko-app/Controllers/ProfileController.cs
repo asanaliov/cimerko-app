@@ -46,6 +46,7 @@ public class ProfileController : Controller {
         }
 
         var visitorId = CurrentUserId();
+        var isAdmin = User.IsInRole(AppRoles.Admin);
         ViewBag.CurrentUserId = visitorId;
         ViewBag.IsOwnProfile = visitorId == id;
         var canWriteReview = false;
@@ -64,7 +65,7 @@ public class ProfileController : Controller {
         ViewBag.CanWriteReview = canWriteReview;
 
         int? compatibilityScore = null;
-        if (visitorId != null && visitorId != id) {
+        if (visitorId != null && visitorId != id && !isAdmin) {
             var visitorProfile = await _context.RoommateProfiles
                 .AsNoTracking()
                 .FirstOrDefaultAsync(profile => profile.UserId == visitorId);
@@ -87,50 +88,126 @@ public class ProfileController : Controller {
     }
 
     [AllowAnonymous]
-    public async Task<IActionResult> Roommates()
-    {
+    public async Task<IActionResult> Roommates(RoommateSearchViewModel model) {
         ViewData["Title"] = "Roommates";
+
+        if (model.MinimumBudget.HasValue &&
+            model.MaximumBudget.HasValue &&
+            model.MinimumBudget.Value > model.MaximumBudget.Value) {
+            ModelState.AddModelError(
+                nameof(model.MaximumBudget),
+                "Maximum budget must be greater than or equal to minimum budget.");
+        }
 
         var visitorId = CurrentUserId();
         RoommateProfile? visitorProfile = null;
-        if (visitorId != null)
-        {
+        if (visitorId != null) {
             visitorProfile = await _context.RoommateProfiles
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.UserId == visitorId);
+                .FirstOrDefaultAsync(profile => profile.UserId == visitorId);
         }
 
-        var users = await _context.Users
-            .Include(u => u.RoommateProfile)
-            .Include(u => u.Listings)
-            .Where(u => u.RoommateProfile != null
-                        && u.Listings.Any(l =>
-                            l.IsActive &&
-                            l.ModerationStatus == ListingModerationStatus.Approved &&
-                            l.Type == ListingType.LookingForRoommate)
-                        && (visitorId == null || u.Id != visitorId))
+        var listingsQuery = _context.Listings
+            .Include(listing => listing.Owner)
+            .ThenInclude(owner => owner!.RoommateProfile)
+            .Where(listing =>
+                listing.IsActive &&
+                listing.ModerationStatus == ListingModerationStatus.Approved &&
+                listing.Type == ListingType.LookingForRoommate &&
+                listing.Owner!.RoommateProfile != null &&
+                (visitorId == null || listing.OwnerId != visitorId))
             .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(model.City)) {
+            var city = model.City.Trim();
+            listingsQuery = listingsQuery.Where(listing => listing.City.Contains(city));
+        }
+
+        if (model.MinimumBudget.HasValue) {
+            listingsQuery = listingsQuery.Where(listing =>
+                listing.MonthlyRent >= model.MinimumBudget.Value);
+        }
+
+        if (model.MaximumBudget.HasValue) {
+            listingsQuery = listingsQuery.Where(listing =>
+                listing.MonthlyRent <= model.MaximumBudget.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.Gender)) {
+            var gender = model.Gender.Trim();
+            listingsQuery = listingsQuery.Where(listing =>
+                listing.Owner!.RoommateProfile!.Gender == gender);
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.SmokingPreference)) {
+            var smokingPreference = model.SmokingPreference.Trim();
+            listingsQuery = listingsQuery.Where(listing =>
+                listing.Owner!.RoommateProfile!.SmokingPreference == smokingPreference);
+        }
+
+        if (model.HousingPlan.HasValue) {
+            listingsQuery = listingsQuery.Where(listing =>
+                listing.RoommateHousingPlan == model.HousingPlan.Value);
+        }
+
+        if (model.PetFriendly) {
+            listingsQuery = listingsQuery.Where(listing => listing.RoommatePetFriendly);
+        }
+
+        if (model.SmokeFree) {
+            listingsQuery = listingsQuery.Where(listing => listing.RoommateSmokeFree);
+        }
+
+        if (model.EarlyBird) {
+            listingsQuery = listingsQuery.Where(listing => listing.RoommateEarlyBird);
+        }
+
+        if (model.NightOwl) {
+            listingsQuery = listingsQuery.Where(listing => listing.RoommateNightOwl);
+        }
+
+        if (model.Tidy) {
+            listingsQuery = listingsQuery.Where(listing => listing.RoommateTidy);
+        }
+
+        if (model.GuestsWelcome) {
+            listingsQuery = listingsQuery.Where(listing => listing.RoommateGuestsWelcome);
+        }
+
+        if (model.AvailableBy.HasValue) {
+            var availableBy = model.AvailableBy.Value.Date;
+            listingsQuery = listingsQuery.Where(listing =>
+                !listing.AvailableFrom.HasValue ||
+                listing.AvailableFrom.Value <= availableBy);
+        }
+
+        var listings = await listingsQuery
+            .OrderByDescending(listing => listing.CreatedAt)
             .ToListAsync();
 
-        var results = new List<RoommateSearchResultViewModel>();
-        foreach (var u in users)
-        {
-            var compatibility = ProfileCompatibilityCalculator.Calculate(visitorProfile, u.RoommateProfile);
-            results.Add(new RoommateSearchResultViewModel
-            {
-                User = u,
-                CompatibilityScore = compatibility.Score
-            });
-        }
+        var results = listings
+            .GroupBy(listing => listing.OwnerId)
+            .Select(group => group.First())
+            .Select(listing => {
+                var compatibility = ProfileCompatibilityCalculator.Calculate(
+                    visitorProfile,
+                    listing.Owner!.RoommateProfile);
 
-        // sort: highest compatibility first (nulls last)
-        results = results
-            .OrderByDescending(r => r.CompatibilityScore ?? -1)
-            .ThenBy(r => (r.User.FullName ?? r.User.Email))
+                return new RoommateSearchResultViewModel {
+                    User = listing.Owner,
+                    Listing = listing,
+                    CompatibilityScore = compatibility.Score,
+                    StrongMatches = compatibility.StrongMatches,
+                    PossibleConflicts = compatibility.PossibleConflicts
+                };
+            })
+            .OrderByDescending(result => result.CompatibilityScore ?? -1)
+            .ThenBy(result => result.User.FullName)
             .ToList();
 
-        var vm = new RoommateSearchViewModel { Results = results };
-        return View(vm);
+        model.Results = results;
+        return View(model);
     }
 
     public IActionResult MyProfile() {

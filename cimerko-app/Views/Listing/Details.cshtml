@@ -29,6 +29,8 @@
         ? $"{listing.Address}, {listing.City}"
         : listing.City;
     var mapQuery = Uri.EscapeDataString(locationLabel);
+    var googleMapsUrl = $"https://www.google.com/maps/search/?api=1&query={mapQuery}";
+    var contactRole = listing.Type == ListingType.PlaceForRent ? "landlord" : "listing owner";
     var photoGallery = new cimerko_app.Models.ViewModels.ListingPhotoGalleryViewModel {
         DialogId = "listingPhotoViewer",
         Title = listing.Title,
@@ -229,14 +231,14 @@
                     } else {
                         <form asp-controller="ListingRequest" asp-action="Create" method="post" class="action-card-request mb-3">
                             <input type="hidden" name="listingId" value="@listing.Id"/>
-                            <label for="request-message-@listing.Id">Message to the landlord</label>
+                            <label for="request-message-@listing.Id">Message to the @contactRole</label>
                             <textarea id="request-message-@listing.Id"
                                       name="message"
                                       class="form-control"
                                       rows="3"
                                       placeholder="Introduce yourself and ask about the listing"
                                       required></textarea>
-                            <button type="submit" class="btn-cimerko-primary w-100">Contact landlord</button>
+                            <button type="submit" class="btn-cimerko-primary w-100">Contact @contactRole</button>
                         </form>
                     }
                 } else {
@@ -253,6 +255,12 @@
                         <small>Rooms</small>
                         <strong>@listing.RoomCount</strong>
                     </div>
+                    @if (listing.Type == ListingType.PlaceForRent && listing.BedroomCount.HasValue) {
+                        <div>
+                            <small>Bedrooms</small>
+                            <strong>@(listing.BedroomCount == 0 ? "Studio" : listing.BedroomCount)</strong>
+                        </div>
+                    }
                     <div>
                         <small>Available</small>
                         <strong>@(listing.AvailableFrom?.ToString("dd MMM") ?? "Now")</strong>
@@ -280,7 +288,7 @@
 
                 <div class="location-line">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    <a href="https://www.openstreetmap.org/search?query=@mapQuery"
+                    <a href="@googleMapsUrl"
                        target="_blank"
                        rel="noopener"
                        class="location-link">
@@ -337,6 +345,16 @@
                             <small>Rooms</small>
                             <strong>@listing.RoomCount</strong>
                         </div>
+                        @if (listing.Type == ListingType.PlaceForRent && listing.BedroomCount.HasValue) {
+                            <div class="fact-item">
+                                <small>Bedrooms</small>
+                                <strong>
+                                    @(listing.BedroomCount.Value == 0
+                                        ? "Studio"
+                                        : listing.BedroomCount.Value)
+                                </strong>
+                            </div>
+                        }
                         @if (listing.Type == ListingType.LookingForRoommate && listing.RoommatesNeeded.HasValue) {
                             <div class="fact-item">
                                 <small>Roommates needed</small>
@@ -348,21 +366,49 @@
 
                 <section id="preferences" class="content-section-block">
                     <h3>Preferences</h3>
-                    @if (ownerProfile != null && (
-                        !string.IsNullOrWhiteSpace(ownerProfile.SmokingPreference) ||
-                        !string.IsNullOrWhiteSpace(ownerProfile.PetsPreference) ||
-                        !string.IsNullOrWhiteSpace(ownerProfile.CleanlinessLevel) ||
-                        !string.IsNullOrWhiteSpace(ownerProfile.SleepSchedule) ||
-                        !string.IsNullOrWhiteSpace(ownerProfile.GuestPreference))) {
+                    @if (listing.Type == ListingType.PlaceForRent) {
+                        <p class="text-muted-soft">These are property and tenant criteria set for this rental.</p>
                         <div class="d-flex flex-wrap gap-2">
-                            @if (!string.IsNullOrWhiteSpace(ownerProfile.SmokingPreference)) { <span class="badge-soft">@ownerProfile.SmokingPreference</span> }
-                            @if (!string.IsNullOrWhiteSpace(ownerProfile.PetsPreference)) { <span class="badge-soft">@ownerProfile.PetsPreference</span> }
-                            @if (!string.IsNullOrWhiteSpace(ownerProfile.CleanlinessLevel)) { <span class="badge-soft">@ownerProfile.CleanlinessLevel</span> }
-                            @if (!string.IsNullOrWhiteSpace(ownerProfile.SleepSchedule)) { <span class="badge-soft">@ownerProfile.SleepSchedule</span> }
-                            @if (!string.IsNullOrWhiteSpace(ownerProfile.GuestPreference)) { <span class="badge-soft">@ownerProfile.GuestPreference</span> }
+                            @if (listing.TenantTypePreference != TenantTypePreference.NoPreference) {
+                                <span class="badge-soft">@listing.TenantTypePreference.GetDisplayName()</span>
+                            }
+                            @if (listing.RentalSmokingPolicy != RentalSmokingPolicy.NotSpecified) {
+                                <span class="badge-soft">@listing.RentalSmokingPolicy.GetDisplayName()</span>
+                            }
+                            @if (listing.RentalPetPolicy != RentalPetPolicy.NotSpecified) {
+                                <span class="badge-soft">@listing.RentalPetPolicy.GetDisplayName()</span>
+                            }
+                            @if (listing.TenantTypePreference == TenantTypePreference.NoPreference &&
+                                 listing.RentalSmokingPolicy == RentalSmokingPolicy.NotSpecified &&
+                                 listing.RentalPetPolicy == RentalPetPolicy.NotSpecified) {
+                                <span class="text-muted-soft">No rental preferences have been specified.</span>
+                            }
                         </div>
                     } else {
-                        <p class="text-muted-soft">No preferences have been shared yet.</p>
+                        <p class="text-muted-soft">These preferences describe the roommate and household fit.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (listing.RoommateHousingPlan.HasValue) {
+                                <span class="badge-soft">@listing.RoommateHousingPlan.Value.GetDisplayName()</span>
+                            }
+                            @if (listing.RoommateGenderPreference != RoommateGenderPreference.NoPreference) {
+                                <span class="badge-soft">@listing.RoommateGenderPreference.GetDisplayName() preferred</span>
+                            }
+                            @if (listing.RoommatePetFriendly) { <span class="badge-soft">Pet-friendly</span> }
+                            @if (listing.RoommateSmokeFree) { <span class="badge-soft">Smoke-free</span> }
+                            @if (listing.RoommateEarlyBird) { <span class="badge-soft">Early-bird routine</span> }
+                            @if (listing.RoommateNightOwl) { <span class="badge-soft">Night-owl routine</span> }
+                            @if (listing.RoommateTidy) { <span class="badge-soft">Tidy shared spaces</span> }
+                            @if (listing.RoommateGuestsWelcome) { <span class="badge-soft">Guests welcome</span> }
+                            @if (!string.IsNullOrWhiteSpace(ownerProfile?.SmokingPreference)) { <span class="badge-soft">@ownerProfile.SmokingPreference</span> }
+                            @if (!string.IsNullOrWhiteSpace(ownerProfile?.PetsPreference)) { <span class="badge-soft">@ownerProfile.PetsPreference</span> }
+                            @if (!string.IsNullOrWhiteSpace(ownerProfile?.CleanlinessLevel)) { <span class="badge-soft">@ownerProfile.CleanlinessLevel</span> }
+                            @if (!string.IsNullOrWhiteSpace(ownerProfile?.SleepSchedule)) { <span class="badge-soft">@ownerProfile.SleepSchedule</span> }
+                            @if (!string.IsNullOrWhiteSpace(ownerProfile?.GuestPreference)) { <span class="badge-soft">@ownerProfile.GuestPreference</span> }
+                            @if (listing.RoommateGenderPreference == RoommateGenderPreference.NoPreference &&
+                                 ownerProfile == null) {
+                                <span class="text-muted-soft">No roommate preferences have been shared yet.</span>
+                            }
+                        </div>
                     }
                 </section>
 
@@ -375,7 +421,16 @@
                             </svg>
                             <span>
                                 <small>Home layout</small>
-                                <strong>@listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</strong>
+                                <strong>
+                                    @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")
+                                    @if (listing.Type == ListingType.PlaceForRent && listing.BedroomCount.HasValue) {
+                                        <span>
+                                            , @(listing.BedroomCount.Value == 0
+                                                ? "studio"
+                                                : $"{listing.BedroomCount} {(listing.BedroomCount == 1 ? "bedroom" : "bedrooms")}")
+                                        </span>
+                                    }
+                                </strong>
                             </span>
                         </div>
                         <div class="amenity-item">
@@ -432,7 +487,7 @@
                                     : "Only the city is shown until the owner shares more details.")
                             </p>
                         </div>
-                        <a href="https://www.openstreetmap.org/search?query=@mapQuery"
+                        <a href="@googleMapsUrl"
                            target="_blank"
                            rel="noopener"
                            class="cimerko-light-pill">
@@ -454,6 +509,12 @@
                         <div class="landlord-card-info">
                             <h4>@ownerName</h4>
                             <p>@owner?.Email</p>
+                            @if (!string.IsNullOrWhiteSpace(listing.ContactPhone)) {
+                                <p><a href="tel:@listing.ContactPhone">@listing.ContactPhone</a></p>
+                            }
+                            else {
+                                <p>Phone number not provided</p>
+                            }
                         </div>
                         <div class="ms-auto">
                             <a asp-controller="Profile" asp-action="Details" asp-route-id="@listing.OwnerId" class="btn-cimerko-light">View Profile</a>

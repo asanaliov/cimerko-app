@@ -16,14 +16,17 @@ public class AdminController : Controller {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser>? _userManager;
     private readonly LocalImageStorage? _imageStorage;
+    private readonly NotificationService _notificationService;
 
     public AdminController(
         ApplicationDbContext context,
         UserManager<ApplicationUser>? userManager = null,
-        LocalImageStorage? imageStorage = null) {
+        LocalImageStorage? imageStorage = null,
+        NotificationService? notificationService = null) {
         _context = context;
         _userManager = userManager;
         _imageStorage = imageStorage;
+        _notificationService = notificationService ?? new NotificationService(context);
     }
 
     public async Task<IActionResult> Index() {
@@ -383,8 +386,23 @@ public class AdminController : Controller {
             return NotFound();
         }
 
+        var shouldNotifyOwner =
+            status == ListingModerationStatus.Approved &&
+            listing.ModerationStatus != ListingModerationStatus.Approved;
+
         listing.ModerationStatus = status;
         listing.IsActive = isActive;
+
+        if (shouldNotifyOwner) {
+            _notificationService.Add(
+                listing.OwnerId,
+                CurrentUserId(),
+                "Listing approved",
+                $"Your listing \"{listing.Title}\" is now visible.",
+                $"/Listing/Details/{listing.Id}",
+                listing.Id);
+        }
+
         await _context.SaveChangesAsync();
         TempData["AdminMessage"] = message;
         return RedirectToAction(nameof(Listings));

@@ -6,14 +6,39 @@ document.querySelectorAll("[data-listing-type-form]").forEach(form => {
     const typeHelp = form.querySelector("[data-listing-type-help]");
     const roommatesField = form.querySelector("[data-roommates-needed-field]");
     const roommatesInput = form.querySelector("[data-roommates-needed]");
+    const bedroomsField = form.querySelector("[data-bedrooms-field]");
+    const bedroomsInput = form.querySelector("[data-bedrooms]");
+    const studioToggle = form.querySelector("[data-studio-toggle]");
     const factsFields = form.querySelector("[data-listing-facts-fields]");
+    const preferencesSection = form.querySelector("[data-listing-preferences-section]");
+    const rentalPreferences = form.querySelector("[data-rental-preferences]");
+    const roommatePreferences = form.querySelector("[data-roommate-preferences]");
 
-    if (!typeSelect || !typeHelp || !roommatesField || !roommatesInput) {
+    if (!typeSelect ||
+        !typeHelp ||
+        !roommatesField ||
+        !roommatesInput ||
+        !bedroomsField ||
+        !bedroomsInput ||
+        !studioToggle ||
+        !preferencesSection ||
+        !rentalPreferences ||
+        !roommatePreferences) {
         return;
     }
 
     const placeForRentValue = "1";
     const lookingForRoommateValue = "2";
+
+    const updateStudioFields = isPlaceForRent => {
+        studioToggle.disabled = !isPlaceForRent;
+        bedroomsInput.disabled = !isPlaceForRent || studioToggle.checked;
+        bedroomsInput.required = isPlaceForRent && !studioToggle.checked;
+
+        if (isPlaceForRent && studioToggle.checked) {
+            bedroomsInput.value = "0";
+        }
+    };
 
     const updateListingTypeFields = () => {
         const isPlaceForRent = typeSelect.value === placeForRentValue;
@@ -28,10 +53,22 @@ document.querySelectorAll("[data-listing-type-form]").forEach(form => {
         roommatesField.hidden = !isLookingForRoommate;
         roommatesInput.disabled = !isLookingForRoommate;
         roommatesInput.required = isLookingForRoommate;
+        bedroomsField.hidden = !isPlaceForRent;
+        updateStudioFields(isPlaceForRent);
+        preferencesSection.hidden = !isPlaceForRent && !isLookingForRoommate;
+        rentalPreferences.hidden = !isPlaceForRent;
+        roommatePreferences.hidden = !isLookingForRoommate;
+        rentalPreferences.querySelectorAll("select, input").forEach(input => {
+            input.disabled = !isPlaceForRent;
+        });
+        roommatePreferences.querySelectorAll("select, input").forEach(input => {
+            input.disabled = !isLookingForRoommate;
+        });
         factsFields?.classList.toggle("is-place-for-rent", isPlaceForRent);
     };
 
     typeSelect.addEventListener("change", updateListingTypeFields);
+    studioToggle.addEventListener("change", updateListingTypeFields);
     updateListingTypeFields();
 });
 

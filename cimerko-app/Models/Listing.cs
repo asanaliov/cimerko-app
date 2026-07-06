@@ -25,15 +25,63 @@ public class Listing {
     [MaxLength(200)]
     public string? Address { get; set; }
 
+    [Required]
+    [Phone]
+    [MaxLength(30)]
+    [Display(Name = "Contact phone number")]
+    public string ContactPhone { get; set; } = string.Empty;
+
     [Range(0, 100000)]
     public decimal MonthlyRent { get; set; }
 
     [Range(1, 20)]
     public int RoomCount { get; set; }
 
+    [Range(0, 20)]
+    [Display(Name = "Bedrooms")]
+    public int? BedroomCount { get; set; }
+
     [Range(1, 10)]
     [Display(Name = "Roommates needed")]
     public int? RoommatesNeeded { get; set; }
+
+    [Display(Name = "Preferred tenant")]
+    [EnumDataType(typeof(TenantTypePreference))]
+    public TenantTypePreference TenantTypePreference { get; set; }
+
+    [Display(Name = "Smoking policy")]
+    [EnumDataType(typeof(RentalSmokingPolicy))]
+    public RentalSmokingPolicy RentalSmokingPolicy { get; set; }
+
+    [Display(Name = "Pet policy")]
+    [EnumDataType(typeof(RentalPetPolicy))]
+    public RentalPetPolicy RentalPetPolicy { get; set; }
+
+    [Display(Name = "Preferred roommate gender")]
+    [EnumDataType(typeof(RoommateGenderPreference))]
+    public RoommateGenderPreference RoommateGenderPreference { get; set; }
+
+    [Display(Name = "Housing plan")]
+    [EnumDataType(typeof(RoommateHousingPlan))]
+    public RoommateHousingPlan? RoommateHousingPlan { get; set; }
+
+    [Display(Name = "Pet-friendly home")]
+    public bool RoommatePetFriendly { get; set; }
+
+    [Display(Name = "Smoke-free home")]
+    public bool RoommateSmokeFree { get; set; }
+
+    [Display(Name = "Early-bird routine")]
+    public bool RoommateEarlyBird { get; set; }
+
+    [Display(Name = "Night-owl routine")]
+    public bool RoommateNightOwl { get; set; }
+
+    [Display(Name = "Tidy shared spaces")]
+    public bool RoommateTidy { get; set; }
+
+    [Display(Name = "Guests are welcome")]
+    public bool RoommateGuestsWelcome { get; set; }
 
     public DateTime? AvailableFrom { get; set; }
 

@@ -355,7 +355,16 @@
                                         @listingType
                                     </span>
                                     <h3>@listing.Title</h3>
-                                    <p>@listing.City · @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</p>
+                                    <p>
+                                        @listing.City · @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")
+                                        @if (listing.Type == ListingType.PlaceForRent && listing.BedroomCount.HasValue) {
+                                            <span>
+                                                · @(listing.BedroomCount.Value == 0
+                                                    ? "studio"
+                                                    : $"{listing.BedroomCount} {(listing.BedroomCount == 1 ? "bedroom" : "bedrooms")}")
+                                            </span>
+                                        }
+                                    </p>
                                 </div>
                                 <div class="profile-listing-footer">
                                     <strong>@listing.MonthlyRent.ToString("0") € <small>/ month</small></strong>
@@ -469,56 +478,68 @@
         <aside class="profile-details-sidebar @(!showSidebar ? "d-none" : "")">
             @if (showCompatibility) {
                 <section class="profile-compatibility-card">
-                    <span class="profile-kicker">Your compatibility</span>
                     @if (compatibilityScore.HasValue) {
-                        <div class="profile-compatibility-score">@compatibilityScore%</div>
-                        <span class="profile-compatibility-badge @compatibilityClass">
-                            @compatibilityLabel: @compatibilityScore%
-                        </span>
-                        <div class="progress profile-compatibility-progress"
-                             role="progressbar"
-                             aria-label="@compatibilityLabel"
-                             aria-valuenow="@compatibilityScore"
-                             aria-valuemin="0"
-                             aria-valuemax="100">
-                            <div class="progress-bar @compatibilityClass"
-                                 style="width: @compatibilityScore%">
+                        <header class="profile-compatibility-header">
+                            <span class="profile-kicker">Your compatibility</span>
+                            <div class="profile-compatibility-summary">
+                                <div class="profile-compatibility-score @compatibilityClass">
+                                    <strong>@compatibilityScore%</strong>
+                                    <span>match</span>
+                                </div>
+                                <div>
+                                    <span class="profile-compatibility-badge @compatibilityClass">
+                                        @compatibilityLabel
+                                    </span>
+                                    <p>
+                                        Based on @comparedPreferences shared
+                                        @(comparedPreferences == 1 ? "preference" : "preferences").
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <p>
-                            Based on @comparedPreferences shared
-                            @(comparedPreferences == 1 ? "preference" : "preferences").
-                        </p>
-                        <div class="profile-compatibility-breakdown">
-                            @if (compatibilityStrongMatches.Count > 0) {
-                                <div>
-                                    <h3>Strong matches</h3>
-                                    <ul class="profile-match-list">
-                                        @foreach (var match in compatibilityStrongMatches) {
-                                            <li>@match</li>
-                                        }
-                                    </ul>
+                        </header>
+                        <div class="profile-compatibility-body">
+                            <div class="progress profile-compatibility-progress"
+                                 role="progressbar"
+                                 aria-label="@compatibilityLabel"
+                                 aria-valuenow="@compatibilityScore"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                <div class="progress-bar @compatibilityClass"
+                                     style="width: @compatibilityScore%">
                                 </div>
-                            }
-                            @if (compatibilityPossibleConflicts.Count > 0) {
-                                <div>
-                                    <h3>Possible conflicts</h3>
-                                    <ul class="profile-conflict-list">
-                                        @foreach (var conflict in compatibilityPossibleConflicts) {
-                                            <li>@conflict</li>
-                                        }
-                                    </ul>
-                                </div>
-                            }
+                            </div>
+                            <div class="profile-compatibility-breakdown">
+                                @if (compatibilityStrongMatches.Count > 0) {
+                                    <div>
+                                        <h3>Strong matches</h3>
+                                        <ul class="profile-match-list">
+                                            @foreach (var match in compatibilityStrongMatches) {
+                                                <li>@match</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                                @if (compatibilityPossibleConflicts.Count > 0) {
+                                    <div>
+                                        <h3>Possible conflicts</h3>
+                                        <ul class="profile-conflict-list">
+                                            @foreach (var conflict in compatibilityPossibleConflicts) {
+                                                <li>@conflict</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                            <small>Smoking and cleanliness have the greatest influence.</small>
                         </div>
                     }
                     else {
                         <div class="profile-compatibility-empty">
+                            <span class="profile-kicker">Your compatibility</span>
                             <strong>Compatibility unavailable</strong>
                             <p>Not enough preference information to calculate compatibility.</p>
                         </div>
                     }
-                    <small>Smoking and cleanliness have the greatest influence.</small>
                 </section>
             }
 

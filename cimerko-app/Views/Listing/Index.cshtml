@@ -6,6 +6,14 @@
     var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
     var saveUrl = Url.Action("Save", "SavedListing");
     var removeUrl = Url.Action("Remove", "SavedListing");
+    var mapLocation = string.IsNullOrWhiteSpace(Model.City)
+        ? "Skopje, North Macedonia"
+        : Model.City.Trim();
+    var mapQuery = Uri.EscapeDataString(mapLocation);
+    var googleMapsUrl = $"https://www.google.com/maps/search/?api=1&query={mapQuery}";
+    var googleMapsEmbedUrl = $"https://www.google.com/maps?q={mapQuery}&z=12&output=embed";
+    var isRentalSearch = Model.Type == ListingType.PlaceForRent;
+    var isRoommateSearch = Model.Type == ListingType.LookingForRoommate;
 }
 
 <div class="page-shell">
@@ -27,6 +35,9 @@
 
     <form asp-action="Index" method="get" class="listing-discovery-form">
         <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+        @if (Model.Type.HasValue) {
+            <input asp-for="Type" type="hidden"/>
+        }
 
         <div class="listing-search-custom flex-column flex-md-row align-items-stretch align-items-md-center gap-3">
             <div class="search-input-group py-2">
@@ -47,7 +58,7 @@
             </button>
         </div>
 
-        <details class="mb-5" open="@(Model.HasAdvancedFilters ? "open" : null)">
+        <details class="mb-5" open="@(Model.ShouldExpandFilters ? "open" : null)">
             <summary class="filters-toggle-summary">
                 <span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
@@ -62,13 +73,22 @@
             </summary>
 
             <div class="filters-grid-custom">
+                <p class="filter-context-label">
+                    @(isRentalSearch
+                        ? "Rental and tenant filters"
+                        : isRoommateSearch
+                            ? "Roommate and lifestyle filters"
+                            : "Common listing filters")
+                </p>
                 <div class="row g-3">
-                    <div class="col-6 col-md-3">
-                        <label asp-for="Type">Listing type</label>
-                        <select asp-for="Type" asp-items="Html.GetEnumSelectList<ListingType>()">
-                            <option value="">Any type</option>
-                        </select>
-                    </div>
+                    @if (!Model.Type.HasValue) {
+                        <div class="col-6 col-md-4">
+                            <label asp-for="Type">Listing type</label>
+                            <select asp-for="Type" asp-items="Html.GetEnumSelectList<ListingType>()">
+                                <option value="">Any type</option>
+                            </select>
+                        </div>
+                    }
                     <div class="col-6 col-md-3">
                         <label asp-for="MinimumBudget">Minimum budget</label>
                         <input asp-for="MinimumBudget" type="number" min="0" step="0.01" placeholder="No minimum"/>
@@ -78,51 +98,59 @@
                         <input asp-for="MaximumBudget" type="number" min="0" step="0.01" placeholder="No maximum"/>
                         <span asp-validation-for="MaximumBudget" class="listing-form-error"></span>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <label asp-for="CleanlinessLevel">Cleanliness</label>
-                        <select asp-for="CleanlinessLevel">
-                            <option value="">Any level</option>
-                            <option value="Relaxed">Relaxed</option>
-                            <option value="Balanced">Balanced</option>
-                            <option value="Very tidy">Very tidy</option>
-                        </select>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <label asp-for="SmokingPreference">Smoking</label>
-                        <select asp-for="SmokingPreference">
-                            <option value="">Any preference</option>
-                            <option value="No smoking">No smoking</option>
-                            <option value="Outside only">Outside only</option>
-                            <option value="Smoking is okay">Smoking is okay</option>
-                        </select>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <label asp-for="PetsPreference">Pets</label>
-                        <select asp-for="PetsPreference">
-                            <option value="">Any preference</option>
-                            <option value="No pets">No pets</option>
-                            <option value="Pets are welcome">Pets are welcome</option>
-                            <option value="Ask first">Ask first</option>
-                        </select>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <label asp-for="SleepSchedule">Sleep schedule</label>
-                        <select asp-for="SleepSchedule">
-                            <option value="">Any schedule</option>
-                            <option value="Early bird">Early bird</option>
-                            <option value="Flexible">Flexible</option>
-                            <option value="Night owl">Night owl</option>
-                        </select>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <label asp-for="GuestPreference">Guests</label>
-                        <select asp-for="GuestPreference">
-                            <option value="">Any preference</option>
-                            <option value="Rarely">Rarely</option>
-                            <option value="Occasionally">Occasionally</option>
-                            <option value="Often">Often</option>
-                        </select>
-                    </div>
+                    @if (isRentalSearch) {
+                        <div class="col-6 col-md-3">
+                            <label asp-for="BedroomCount"></label>
+                            <input asp-for="BedroomCount" type="number" min="0" max="20" placeholder="Any"/>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label asp-for="TenantTypePreference"></label>
+                            <select asp-for="TenantTypePreference"
+                                    asp-items="Html.GetEnumSelectList<TenantTypePreference>()">
+                                <option value="">Any tenant preference</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label asp-for="RentalSmokingPolicy"></label>
+                            <select asp-for="RentalSmokingPolicy"
+                                    asp-items="Html.GetEnumSelectList<RentalSmokingPolicy>()">
+                                <option value="">Any smoking policy</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label asp-for="RentalPetPolicy"></label>
+                            <select asp-for="RentalPetPolicy"
+                                    asp-items="Html.GetEnumSelectList<RentalPetPolicy>()">
+                                <option value="">Any pet policy</option>
+                            </select>
+                        </div>
+                    }
+                    else if (isRoommateSearch) {
+                        <div class="col-6 col-md-3">
+                            <label asp-for="RoommateGenderPreference"></label>
+                            <select asp-for="RoommateGenderPreference"
+                                    asp-items="Html.GetEnumSelectList<RoommateGenderPreference>()">
+                                <option value="">Any preference</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label asp-for="RoommateHousingPlan"></label>
+                            <select asp-for="RoommateHousingPlan"
+                                    asp-items="Html.GetEnumSelectList<RoommateHousingPlan>()">
+                                <option value="">Any housing plan</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <div class="filter-option-grid">
+                                <label><input asp-for="RoommatePetFriendly"/> Pet-friendly</label>
+                                <label><input asp-for="RoommateSmokeFree"/> Smoke-free</label>
+                                <label><input asp-for="RoommateEarlyBird"/> Early-bird routine</label>
+                                <label><input asp-for="RoommateNightOwl"/> Night-owl routine</label>
+                                <label><input asp-for="RoommateTidy"/> Tidy shared spaces</label>
+                                <label><input asp-for="RoommateGuestsWelcome"/> Guests welcome</label>
+                            </div>
+                        </div>
+                    }
                 </div>
 
                 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between pt-4 border-top mt-4 gap-3">
@@ -145,24 +173,34 @@
                 </div>
             </div>
         </details>
-    </form>
+            </form>
             <nav class="listing-category-tabs" aria-label="Listing categories">
-                <a asp-action="Index" class="is-active">Recommended</a>
-                <a asp-action="Index" asp-route-Type="@ListingType.PlaceForRent">Private rooms</a>
-                <a asp-action="Index" asp-route-Type="@ListingType.LookingForRoommate">Shared rooms</a>
-                <a asp-action="Index" asp-route-AvailableNow="true">Studios</a>
+                <a asp-action="Index"
+                   class="@(!Model.Type.HasValue && !Model.BedroomCount.HasValue ? "is-active" : "")">All listings</a>
+                <a asp-action="Index"
+                   asp-route-Type="@ListingType.PlaceForRent"
+                   class="@(Model.Type == ListingType.PlaceForRent && !Model.BedroomCount.HasValue ? "is-active" : "")">Places for rent</a>
+                <a asp-action="Index"
+                   asp-route-Type="@ListingType.LookingForRoommate"
+                   class="@(Model.Type == ListingType.LookingForRoommate ? "is-active" : "")">Roommate listings</a>
+                <a asp-action="Index"
+                   asp-route-Type="@ListingType.PlaceForRent"
+                   asp-route-BedroomCount="0"
+                   class="@(Model.Type == ListingType.PlaceForRent && Model.BedroomCount == 0 ? "is-active" : "")">Studios</a>
             </nav>
         </div>
 
-        <aside class="listing-map-card" aria-label="Map of listings in Skopje">
-            <span class="listing-map-label">Skopje</span>
-            <span class="listing-map-pin pin-one">⌂</span>
-            <span class="listing-map-pin pin-two">⌂</span>
-            <span class="listing-map-pin pin-three">⌂</span>
-            <span class="listing-map-pin pin-four">⌂</span>
-            <span class="listing-map-pin pin-five">⌂</span>
-            <span class="listing-map-controls" aria-hidden="true">+<i></i>−</span>
-            <button type="button" class="listing-map-search">Search this area</button>
+        <aside class="listing-map-card" aria-label="Map of listings around @mapLocation">
+            <iframe src="@googleMapsEmbedUrl"
+                    title="Google map of @mapLocation"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <a href="@googleMapsUrl"
+               target="_blank"
+               rel="noopener"
+               class="listing-map-search">
+                Open @mapLocation in Google Maps
+            </a>
         </aside>
     </section>
 
@@ -215,7 +253,6 @@
                 <div class="col-12 col-md-6 col-xl-4">
                     <article class="listing-card">
                         <div class="listing-card-img-wrap">
-                            <span class="listing-card-featured">☆ Featured</span>
                             @if (canSave) {
                                 <form asp-controller="SavedListing"
                                       asp-action="@(isSaved ? "Remove" : "Save")"
@@ -261,7 +298,6 @@
                                 <div class="listing-card-reference-price">
                                     <strong>@listing.MonthlyRent.ToString("0") €</strong>
                                     <span>/ month</span>
-                                    <span class="listing-card-rating">★ 4.6 <small>(132)</small></span>
                                 </div>
                                 @if (!string.IsNullOrWhiteSpace(listing.Description)) {
                                     <p class="listing-card-description">
@@ -271,8 +307,23 @@
                                 <div class="listing-card-badges">
                                     <span class="badge-soft">@typeLabel</span>
                                     <span class="badge-soft">@listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</span>
+                                    @if (listing.Type == ListingType.PlaceForRent && listing.BedroomCount.HasValue) {
+                                        <span class="badge-soft">
+                                            @(listing.BedroomCount.Value == 0
+                                                ? "Studio"
+                                                : $"{listing.BedroomCount} {(listing.BedroomCount == 1 ? "bedroom" : "bedrooms")}")
+                                        </span>
+                                    }
                                     @if (listing.Type == ListingType.LookingForRoommate && listing.RoommatesNeeded.HasValue) {
                                         <span class="badge-soft">@listing.RoommatesNeeded needed</span>
+                                    }
+                                    @if (listing.Type == ListingType.LookingForRoommate &&
+                                         listing.RoommateGenderPreference != RoommateGenderPreference.NoPreference) {
+                                        <span class="badge-soft">@listing.RoommateGenderPreference.GetDisplayName() preferred</span>
+                                    }
+                                    @if (listing.Type == ListingType.LookingForRoommate &&
+                                         listing.RoommateHousingPlan.HasValue) {
+                                        <span class="badge-soft">@listing.RoommateHousingPlan.Value.GetDisplayName()</span>
                                     }
                                     <span class="badge-soft">@(listing.AvailableFrom?.ToString("dd MMM") ?? "Available now")</span>
                                 </div>

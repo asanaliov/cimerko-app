@@ -7,129 +7,220 @@
 <div class="page-shell roommates-shell">
     <header class="listing-page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3 mb-4">
         <div>
-            <span class="listing-eyebrow">Find your perfect roommate</span>
-            <h1 class="listing-page-title">People looking for a roommate</h1>
-            <p class="listing-page-intro">Connect with verified students who match your lifestyle and habits.</p>
+            <span class="listing-eyebrow">Find your roommate</span>
+            <h1 class="listing-page-title">People with active roommate listings</h1>
+            <p class="listing-page-intro">Filter real listings and compare the lifestyle details people have actually shared.</p>
         </div>
+        @if (User.Identity?.IsAuthenticated == true) {
+            <a asp-controller="Listing"
+               asp-action="Create"
+               asp-route-type="@ListingType.LookingForRoommate"
+               class="btn-cimerko-primary">Post a roommate listing</a>
+        }
     </header>
 
-    <div class="roommate-filters mb-4">
-        <nav class="pill-tabs" aria-label="Roommate filters">
-            <a class="pill-tab">Study habits<span class="text-muted">Any</span></a>
-            <a class="pill-tab">Budget<span class="text-muted">Any</span></a>
-            <a class="pill-tab">Smoking<span class="text-muted">Any</span></a>
-            <a class="pill-tab">Gender preference<span class="text-muted">Any</span></a>
-            <a class="pill-tab">Move-in date<span class="text-muted">Any</span></a>
-            <a class="pill-tab">Interests<span class="text-muted">Any</span></a>
-            <button class="btn btn-search-purple">Search</button>
-        </nav>
+    <form asp-action="Roommates" method="get" class="roommate-filter-form detail-card mb-4">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+        <div class="row g-3 align-items-end">
+            <div class="col-sm-6 col-lg-3">
+                <label asp-for="City" class="form-label"></label>
+                <input asp-for="City" class="form-control" placeholder="Any city"/>
+            </div>
+            <div class="col-sm-6 col-lg-2">
+                <label asp-for="MinimumBudget" class="form-label"></label>
+                <input asp-for="MinimumBudget"
+                       class="form-control"
+                       type="number"
+                       min="0"
+                       step="0.01"
+                       placeholder="No minimum"/>
+            </div>
+            <div class="col-sm-6 col-lg-2">
+                <label asp-for="MaximumBudget" class="form-label"></label>
+                <input asp-for="MaximumBudget"
+                       class="form-control"
+                       type="number"
+                       min="0"
+                       step="0.01"
+                       placeholder="No maximum"/>
+                <span asp-validation-for="MaximumBudget" class="listing-form-error"></span>
+            </div>
+            <div class="col-sm-6 col-lg-2">
+                <label asp-for="Gender" class="form-label"></label>
+                <select asp-for="Gender" class="form-select">
+                    <option value="">Any gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <label asp-for="HousingPlan" class="form-label"></label>
+                <select asp-for="HousingPlan"
+                        asp-items="Html.GetEnumSelectList<RoommateHousingPlan>()"
+                        class="form-select">
+                    <option value="">Any housing plan</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <label asp-for="AvailableBy" class="form-label"></label>
+                <input asp-for="AvailableBy" class="form-control" type="date"/>
+            </div>
+            <div class="col-12">
+                <div class="filter-option-grid">
+                    <label><input asp-for="PetFriendly"/> Pet-friendly</label>
+                    <label><input asp-for="SmokeFree"/> Smoke-free</label>
+                    <label><input asp-for="EarlyBird"/> Early-bird routine</label>
+                    <label><input asp-for="NightOwl"/> Night-owl routine</label>
+                    <label><input asp-for="Tidy"/> Tidy shared spaces</label>
+                    <label><input asp-for="GuestsWelcome"/> Guests welcome</label>
+                </div>
+            </div>
+            <div class="col-12 d-flex justify-content-sm-end gap-2">
+                @if (Model.HasActiveFilters) {
+                    <a asp-action="Roommates" class="btn btn-outline-secondary">Clear filters</a>
+                }
+                <button type="submit" class="btn btn-search-purple">Search roommates</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="listing-results-heading mb-4">
+        <h2>Roommate matches</h2>
+        <p>
+            @Model.Results.Count
+            @(Model.Results.Count == 1 ? "person found" : "people found")
+        </p>
     </div>
 
     @if (Model.Results.Count == 0) {
         <div class="empty-state py-5">
-            <h3>No roommates found</h3>
-            <p class="text-muted mt-2 mb-4">No users are currently looking for a roommate.</p>
+            <h3>@(Model.HasActiveFilters ? "No matching roommates" : "No roommate listings yet")</h3>
+            <p class="text-muted mt-2 mb-4">
+                @(Model.HasActiveFilters
+                    ? "Try increasing the budget range or clearing a filter."
+                    : "People appear here after their roommate listing is approved.")
+            </p>
+            @if (Model.HasActiveFilters) {
+                <a asp-action="Roommates" class="btn-cimerko-primary">Clear filters</a>
+            }
         </div>
     }
     else {
-        var top = Model.Results.FirstOrDefault();
-        var others = Model.Results.Skip(1).ToList();
+        <div class="row g-4">
+            @for (var index = 0; index < Model.Results.Count; index++) {
+                var item = Model.Results[index];
+                var user = item.User;
+                var profile = user.RoommateProfile;
+                var listing = item.Listing;
+                var displayName = string.IsNullOrWhiteSpace(user.FullName)
+                    ? user.Email ?? "Cimerko member"
+                    : user.FullName;
+                var initial = displayName.Trim()[..1].ToUpperInvariant();
+                var education = new[] { profile?.University, profile?.StudyProgram }
+                    .Where(value => !string.IsNullOrWhiteSpace(value));
 
-        <div class="roommates-grid">
-            <div class="roommates-left">
-                <h2 class="mb-3">Recommended matches</h2>
-                <div class="row g-4">
-                    @foreach (var item in others) {
-                        var user = item.User;
-                        var profile = user.RoommateProfile;
-                        var initial = (user.FullName ?? user.Email ?? "").Trim() == "" ? "?" : (user.FullName ?? user.Email).Trim()[..1].ToUpperInvariant();
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <article class="listing-card roommate-card">
-                                <div class="roommate-card-avatar">
-                                    <div class="avatar-circle">
-                                        @if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl)) {
-                                            <img src="@user.ProfileImageUrl" alt="@user.FullName" />
-                                        } else {
-                                            <span>@initial</span>
-                                        }
-                                    </div>
-                                    @if (item.CompatibilityScore.HasValue) {
-                                        <div class="compatibility-chip">@item.CompatibilityScore.Value%</div>
-                                    }
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="listing-card roommate-card h-100">
+                        <div class="roommate-card-avatar">
+                            <div class="avatar-circle">
+                                @if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl)) {
+                                    <img src="@user.ProfileImageUrl" alt="@displayName"/>
+                                } else {
+                                    <span>@initial</span>
+                                }
+                            </div>
+                            @if (item.CompatibilityScore.HasValue) {
+                                <div class="compatibility-chip">
+                                    @item.CompatibilityScore.Value% match
                                 </div>
-
-                                <div class="listing-card-content">
-                                    <h3><a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id">@((string.IsNullOrWhiteSpace(user.FullName) ? user.Email : user.FullName))</a></h3>
-                                    <p class="text-muted">@profile?.University ?? "" - @profile?.StudyProgram ?? ""</p>
-                                    <p class="listing-card-location">@profile?.City</p>
-                                    <p class="listing-card-description">@((profile?.Bio?.Length > 120) ? profile.Bio[..120] + "…" : profile?.Bio)</p>
-
-                                    <div class="listing-card-badges mt-2">
-                                        @if (!string.IsNullOrWhiteSpace(profile?.CleanlinessLevel)) { <span class="badge-soft">@profile.CleanlinessLevel</span> }
-                                        @if (!string.IsNullOrWhiteSpace(profile?.SleepSchedule)) { <span class="badge-soft">@profile.SleepSchedule</span> }
-                                        @if (!string.IsNullOrWhiteSpace(profile?.SmokingPreference)) { <span class="badge-soft">@profile.SmokingPreference</span> }
-                                    </div>
-
-                                    <div class="listing-card-footer">
-                                        <div class="listing-card-owner">
-                                            <div class="avatar-circle avatar-circle-sm">
-                                                @if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl)) {
-                                                    <img src="@user.ProfileImageUrl" alt="@user.FullName" />
-                                                } else {
-                                                    <span>@initial</span>
-                                                }
-                                            </div>
-                                            <span>View profile</span>
-                                        </div>
-
-                                        <div>
-                                            <a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id" class="cimerko-primary-button listing-card-details-link">View</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
+                            }
+                            @if (index == 0 && item.CompatibilityScore.HasValue) {
+                                <span class="badge-soft">Top match</span>
+                            }
                         </div>
-                    }
+
+                        <div class="listing-card-content">
+                            <div>
+                                <h3>
+                                    <a asp-controller="Profile"
+                                       asp-action="Details"
+                                       asp-route-id="@user.Id">@displayName</a>
+                                </h3>
+                                @if (education.Any()) {
+                                    <p class="text-muted">@string.Join(" - ", education)</p>
+                                }
+                                <p class="listing-card-location">@listing.City</p>
+                                <div class="listing-card-reference-price">
+                                    <strong>@listing.MonthlyRent.ToString("0") €</strong>
+                                    <span>/ month</span>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(profile?.Bio)) {
+                                    <p class="listing-card-description">
+                                        @(profile.Bio.Length > 140
+                                            ? profile.Bio[..140] + "..."
+                                            : profile.Bio)
+                                    </p>
+                                }
+
+                                <div class="listing-card-badges mt-2">
+                                    @if (!string.IsNullOrWhiteSpace(profile?.Gender)) {
+                                        <span class="badge-soft">@profile.Gender</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(profile?.CleanlinessLevel)) {
+                                        <span class="badge-soft">@profile.CleanlinessLevel</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(profile?.SleepSchedule)) {
+                                        <span class="badge-soft">@profile.SleepSchedule</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(profile?.SmokingPreference)) {
+                                        <span class="badge-soft">@profile.SmokingPreference</span>
+                                    }
+                                    @if (listing.RoommateGenderPreference != RoommateGenderPreference.NoPreference) {
+                                        <span class="badge-soft">@listing.RoommateGenderPreference.GetDisplayName() preferred</span>
+                                    }
+                                    @if (listing.RoommateHousingPlan.HasValue) {
+                                        <span class="badge-soft">@listing.RoommateHousingPlan.Value.GetDisplayName()</span>
+                                    }
+                                    @if (listing.RoommatePetFriendly) { <span class="badge-soft">Pet-friendly</span> }
+                                    @if (listing.RoommateSmokeFree) { <span class="badge-soft">Smoke-free</span> }
+                                    @if (listing.RoommateEarlyBird) { <span class="badge-soft">Early bird</span> }
+                                    @if (listing.RoommateNightOwl) { <span class="badge-soft">Night owl</span> }
+                                    @if (listing.RoommateTidy) { <span class="badge-soft">Tidy home</span> }
+                                    @if (listing.RoommateGuestsWelcome) { <span class="badge-soft">Guests welcome</span> }
+                                    <span class="badge-soft">
+                                        @(listing.AvailableFrom?.ToString("dd MMM yyyy") ?? "Available now")
+                                    </span>
+                                </div>
+
+                                @if (item.StrongMatches.Count > 0) {
+                                    <p class="roommate-match-note">
+                                        Strong match: @string.Join(", ", item.StrongMatches)
+                                    </p>
+                                }
+                                @if (item.PossibleConflicts.Count > 0) {
+                                    <p class="roommate-conflict-note">
+                                        Check together: @string.Join(", ", item.PossibleConflicts)
+                                    </p>
+                                }
+                            </div>
+
+                            <div class="listing-card-footer-new">
+                                <a asp-controller="Profile"
+                                   asp-action="Details"
+                                   asp-route-id="@user.Id"
+                                   class="btn-cimerko-light">View profile</a>
+                                <a asp-controller="Listing"
+                                   asp-action="Details"
+                                   asp-route-id="@listing.Id"
+                                   class="cimerko-primary-button listing-card-details-link">
+                                    View listing
+                                </a>
+                            </div>
+                        </div>
+                    </article>
                 </div>
-            </div>
-
-            <aside class="roommates-right">
-                @if (top != null) {
-                    var user = top.User;
-                    var profile = user.RoommateProfile;
-                    <div class="roommate-topcard detail-card">
-                        <div class="topcard-strip">Your top match</div>
-                        <div class="topcard-body">
-                            <div class="topcard-avatar">
-                                <div class="avatar-circle avatar-lg">
-                                    @if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl)) {
-                                        <img src="@user.ProfileImageUrl" alt="@user.FullName" />
-                                    } else {
-                                        <span>@((user.FullName ?? user.Email ?? "").Trim()[..1].ToUpperInvariant())</span>
-                                    }
-                                </div>
-                                <div class="compatibility-large">@((top.CompatibilityScore.HasValue) ? top.CompatibilityScore.Value.ToString() : "-")%</div>
-                            </div>
-
-                            <h3>@((string.IsNullOrWhiteSpace(user.FullName) ? user.Email : user.FullName))</h3>
-                            <p class="text-muted">@profile?.University ?? "" - @profile?.StudyProgram ?? ""</p>
-
-                            <div class="topcard-summary mt-3">
-                                <p class="text-muted">You both value a clean, quiet home and enjoy similar routines.</p>
-                            </div>
-
-                            <ul class="topcard-facts">
-                                <li>Study habits <strong class="text-success">Very similar</strong></li>
-                                <li>Lifestyle <strong class="text-success">Highly compatible</strong></li>
-                                <li>Interests <strong>5 in common</strong></li>
-                            </ul>
-
-                            <a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id" class="btn-cimerko-primary w-100 mt-3">View profile</a>
-                            <button class="btn btn-outline-secondary w-100 mt-2">Send connection request</button>
-                        </div>
-                    </div>
-                }
-            </aside>
+            }
         </div>
     }
 </div>

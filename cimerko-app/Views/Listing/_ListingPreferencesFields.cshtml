@@ -1,0 +1,113 @@
+@model Listing
+
+<section class="listing-form-section"
+         data-listing-preferences-section
+         hidden="@(Model.Type != ListingType.PlaceForRent &&
+                   Model.Type != ListingType.LookingForRoommate)">
+    <div class="listing-form-section-heading">
+        <span>04</span>
+        <div>
+            <h2>Who and what the home allows</h2>
+            <p>The questions change with the listing type so rental rules stay separate from roommate matching.</p>
+        </div>
+    </div>
+
+    <div class="listing-form-fields"
+         data-rental-preferences
+         hidden="@(Model.Type != ListingType.PlaceForRent)">
+        <div class="listing-form-field">
+            <label asp-for="TenantTypePreference"></label>
+            <select asp-for="TenantTypePreference"
+                    asp-items="Html.GetEnumSelectList<TenantTypePreference>()"></select>
+            <span asp-validation-for="TenantTypePreference" class="listing-form-error"></span>
+        </div>
+
+        <div class="listing-form-field">
+            <label asp-for="RentalSmokingPolicy"></label>
+            <select asp-for="RentalSmokingPolicy"
+                    asp-items="Html.GetEnumSelectList<RentalSmokingPolicy>()"></select>
+            <span asp-validation-for="RentalSmokingPolicy" class="listing-form-error"></span>
+        </div>
+
+        <div class="listing-form-field">
+            <label asp-for="RentalPetPolicy"></label>
+            <select asp-for="RentalPetPolicy"
+                    asp-items="Html.GetEnumSelectList<RentalPetPolicy>()"></select>
+            <span asp-validation-for="RentalPetPolicy" class="listing-form-error"></span>
+        </div>
+    </div>
+
+    <div class="listing-form-fields"
+         data-roommate-preferences
+         hidden="@(Model.Type != ListingType.LookingForRoommate)">
+        <div class="listing-form-field listing-form-field-wide">
+            <fieldset class="listing-choice-fieldset">
+                <legend>Do you already have a place?</legend>
+                <div class="listing-choice-grid">
+                    <label class="listing-choice-card">
+                        <input asp-for="RoommateHousingPlan"
+                               type="radio"
+                               value="@RoommateHousingPlan.HavePlace"/>
+                        <span>
+                            <strong>I already have a place</strong>
+                            <small>I need roommates for an existing home.</small>
+                        </span>
+                    </label>
+                    <label class="listing-choice-card">
+                        <input asp-for="RoommateHousingPlan"
+                               type="radio"
+                               value="@RoommateHousingPlan.SearchTogether"/>
+                        <span>
+                            <strong>Search together</strong>
+                            <small>I want to find a home with new roommates.</small>
+                        </span>
+                    </label>
+                </div>
+            </fieldset>
+            <span asp-validation-for="RoommateHousingPlan" class="listing-form-error"></span>
+        </div>
+
+        <div class="listing-form-field">
+            <label asp-for="RoommateGenderPreference"></label>
+            <select asp-for="RoommateGenderPreference"
+                    asp-items="Html.GetEnumSelectList<RoommateGenderPreference>()"></select>
+            <small class="listing-form-field-hint">Choose who you would be comfortable sharing a home with.</small>
+            <span asp-validation-for="RoommateGenderPreference" class="listing-form-error"></span>
+        </div>
+
+        <div class="listing-form-field listing-form-field-wide">
+            <fieldset class="listing-choice-fieldset">
+                <legend>Lifestyle preferences</legend>
+                <p class="listing-form-static-copy">
+                    Tick the preferences that matter for this roommate search.
+                </p>
+                <div class="listing-check-grid">
+                    <label>
+                        <input asp-for="RoommatePetFriendly"/>
+                        <span>Pet-friendly home</span>
+                    </label>
+                    <label>
+                        <input asp-for="RoommateSmokeFree"/>
+                        <span>Smoke-free home</span>
+                    </label>
+                    <label>
+                        <input asp-for="RoommateEarlyBird"/>
+                        <span>Early-bird routine</span>
+                    </label>
+                    <label>
+                        <input asp-for="RoommateNightOwl"/>
+                        <span>Night-owl routine</span>
+                    </label>
+                    <label>
+                        <input asp-for="RoommateTidy"/>
+                        <span>Tidy shared spaces</span>
+                    </label>
+                    <label>
+                        <input asp-for="RoommateGuestsWelcome"/>
+                        <span>Guests are welcome</span>
+                    </label>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</section>

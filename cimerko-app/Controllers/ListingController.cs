@@ -68,32 +68,109 @@ public class ListingController : Controller {
             query = query.Where(listing => listing.MonthlyRent <= model.MaximumBudget.Value);
         }
 
+        if (model.BedroomCount.HasValue) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.PlaceForRent &&
+                listing.BedroomCount == model.BedroomCount.Value);
+        }
+
+        if (model.TenantTypePreference.HasValue) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.PlaceForRent &&
+                listing.TenantTypePreference == model.TenantTypePreference.Value);
+        }
+
+        if (model.RentalSmokingPolicy.HasValue) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.PlaceForRent &&
+                listing.RentalSmokingPolicy == model.RentalSmokingPolicy.Value);
+        }
+
+        if (model.RentalPetPolicy.HasValue) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.PlaceForRent &&
+                listing.RentalPetPolicy == model.RentalPetPolicy.Value);
+        }
+
+        if (model.RoommateGenderPreference.HasValue) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
+                listing.RoommateGenderPreference == model.RoommateGenderPreference.Value);
+        }
+
+        if (model.RoommateHousingPlan.HasValue) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
+                listing.RoommateHousingPlan == model.RoommateHousingPlan.Value);
+        }
+
+        if (model.RoommatePetFriendly) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
+                listing.RoommatePetFriendly);
+        }
+
+        if (model.RoommateSmokeFree) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
+                listing.RoommateSmokeFree);
+        }
+
+        if (model.RoommateEarlyBird) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
+                listing.RoommateEarlyBird);
+        }
+
+        if (model.RoommateNightOwl) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
+                listing.RoommateNightOwl);
+        }
+
+        if (model.RoommateTidy) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
+                listing.RoommateTidy);
+        }
+
+        if (model.RoommateGuestsWelcome) {
+            query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
+                listing.RoommateGuestsWelcome);
+        }
+
         if (!string.IsNullOrWhiteSpace(model.SmokingPreference)) {
             query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
                 listing.Owner!.RoommateProfile != null &&
                 listing.Owner.RoommateProfile.SmokingPreference == model.SmokingPreference);
         }
 
         if (!string.IsNullOrWhiteSpace(model.PetsPreference)) {
             query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
                 listing.Owner!.RoommateProfile != null &&
                 listing.Owner.RoommateProfile.PetsPreference == model.PetsPreference);
         }
 
         if (!string.IsNullOrWhiteSpace(model.CleanlinessLevel)) {
             query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
                 listing.Owner!.RoommateProfile != null &&
                 listing.Owner.RoommateProfile.CleanlinessLevel == model.CleanlinessLevel);
         }
 
         if (!string.IsNullOrWhiteSpace(model.SleepSchedule)) {
             query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
                 listing.Owner!.RoommateProfile != null &&
                 listing.Owner.RoommateProfile.SleepSchedule == model.SleepSchedule);
         }
 
         if (!string.IsNullOrWhiteSpace(model.GuestPreference)) {
             query = query.Where(listing =>
+                listing.Type == ListingType.LookingForRoommate &&
                 listing.Owner!.RoommateProfile != null &&
                 listing.Owner.RoommateProfile.GuestPreference == model.GuestPreference);
         }
@@ -185,8 +262,13 @@ public class ListingController : Controller {
         });
     }
 
-    public IActionResult Create() {
+    public IActionResult Create(ListingType? type = null) {
+        var selectedType = type is ListingType.PlaceForRent or ListingType.LookingForRoommate
+            ? type.Value
+            : default;
+
         return View(new Listing {
+            Type = selectedType,
             RoomCount = 1
         });
     }
@@ -194,9 +276,10 @@ public class ListingController : Controller {
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        [Bind("Title,Description,Type,City,Address,MonthlyRent,RoomCount,RoommatesNeeded,AvailableFrom")]
+        [Bind("Title,Description,Type,City,Address,ContactPhone,MonthlyRent,RoomCount,BedroomCount,RoommatesNeeded,TenantTypePreference,RentalSmokingPolicy,RentalPetPolicy,RoommateGenderPreference,RoommateHousingPlan,RoommatePetFriendly,RoommateSmokeFree,RoommateEarlyBird,RoommateNightOwl,RoommateTidy,RoommateGuestsWelcome,AvailableFrom")]
         Listing listing,
-        List<IFormFile>? listingImages) {
+        List<IFormFile>? listingImages,
+        bool isStudio = false) {
         var userId = CurrentUserId();
         if (userId == null) {
             return Challenge();
@@ -206,6 +289,11 @@ public class ListingController : Controller {
         listing.CreatedAt = DateTime.UtcNow;
         listing.IsActive = false;
         listing.ModerationStatus = ListingModerationStatus.Pending;
+        listing.ContactPhone = listing.ContactPhone?.Trim() ?? string.Empty;
+        if (listing.Type == ListingType.PlaceForRent && isStudio) {
+            listing.BedroomCount = 0;
+        }
+
         ModelState.Remove(nameof(Listing.OwnerId));
         ApplyListingTypeRules(listing);
 
@@ -269,10 +357,11 @@ public class ListingController : Controller {
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
         int id,
-        [Bind("Id,Title,Description,Type,City,Address,MonthlyRent,RoomCount,RoommatesNeeded,AvailableFrom,IsActive")]
+        [Bind("Id,Title,Description,Type,City,Address,ContactPhone,MonthlyRent,RoomCount,BedroomCount,RoommatesNeeded,TenantTypePreference,RentalSmokingPolicy,RentalPetPolicy,RoommateGenderPreference,RoommateHousingPlan,RoommatePetFriendly,RoommateSmokeFree,RoommateEarlyBird,RoommateNightOwl,RoommateTidy,RoommateGuestsWelcome,AvailableFrom,IsActive")]
         Listing formListing,
         List<IFormFile>? listingImages,
-        List<int>? removeImageIds) {
+        List<int>? removeImageIds,
+        bool isStudio = false) {
         if (id != formListing.Id) {
             return NotFound();
         }
@@ -285,6 +374,11 @@ public class ListingController : Controller {
         }
 
         ModelState.Remove(nameof(Listing.OwnerId));
+        formListing.ContactPhone = formListing.ContactPhone?.Trim() ?? string.Empty;
+        if (formListing.Type == ListingType.PlaceForRent && isStudio) {
+            formListing.BedroomCount = 0;
+        }
+
         ApplyListingTypeRules(formListing);
         var requestedRemovalIds = removeImageIds?.ToHashSet() ?? [];
         var imagesToRemove = listing.Images
@@ -303,9 +397,22 @@ public class ListingController : Controller {
         listing.Type = formListing.Type;
         listing.City = formListing.City;
         listing.Address = formListing.Address;
+        listing.ContactPhone = formListing.ContactPhone;
         listing.MonthlyRent = formListing.MonthlyRent;
         listing.RoomCount = formListing.RoomCount;
+        listing.BedroomCount = formListing.BedroomCount;
         listing.RoommatesNeeded = formListing.RoommatesNeeded;
+        listing.TenantTypePreference = formListing.TenantTypePreference;
+        listing.RentalSmokingPolicy = formListing.RentalSmokingPolicy;
+        listing.RentalPetPolicy = formListing.RentalPetPolicy;
+        listing.RoommateGenderPreference = formListing.RoommateGenderPreference;
+        listing.RoommateHousingPlan = formListing.RoommateHousingPlan;
+        listing.RoommatePetFriendly = formListing.RoommatePetFriendly;
+        listing.RoommateSmokeFree = formListing.RoommateSmokeFree;
+        listing.RoommateEarlyBird = formListing.RoommateEarlyBird;
+        listing.RoommateNightOwl = formListing.RoommateNightOwl;
+        listing.RoommateTidy = formListing.RoommateTidy;
+        listing.RoommateGuestsWelcome = formListing.RoommateGuestsWelcome;
         listing.AvailableFrom = formListing.AvailableFrom;
         if (User.IsInRole(AppRoles.Admin)) {
             listing.IsActive =
@@ -419,16 +526,50 @@ public class ListingController : Controller {
     }
 
     private void ApplyListingTypeRules(Listing listing) {
-        if (listing.Type == ListingType.LookingForRoommate && !listing.RoommatesNeeded.HasValue) {
-            ModelState.AddModelError(
-                nameof(Listing.RoommatesNeeded),
-                "Enter how many roommates you need.");
+        if (listing.Type == ListingType.LookingForRoommate) {
+            listing.BedroomCount = null;
+            listing.TenantTypePreference = TenantTypePreference.NoPreference;
+            listing.RentalSmokingPolicy = RentalSmokingPolicy.NotSpecified;
+            listing.RentalPetPolicy = RentalPetPolicy.NotSpecified;
+            ModelState.Remove(nameof(Listing.BedroomCount));
+            ModelState.Remove(nameof(Listing.TenantTypePreference));
+            ModelState.Remove(nameof(Listing.RentalSmokingPolicy));
+            ModelState.Remove(nameof(Listing.RentalPetPolicy));
+
+            if (!listing.RoommatesNeeded.HasValue) {
+                ModelState.AddModelError(
+                    nameof(Listing.RoommatesNeeded),
+                    "Enter how many roommates you need.");
+            }
+
+            if (!listing.RoommateHousingPlan.HasValue) {
+                ModelState.AddModelError(
+                    nameof(Listing.RoommateHousingPlan),
+                    "Choose whether you already have a place or want to search together.");
+            }
+
             return;
         }
 
         if (listing.Type == ListingType.PlaceForRent) {
             listing.RoommatesNeeded = null;
+            listing.RoommateGenderPreference = RoommateGenderPreference.NoPreference;
+            listing.RoommateHousingPlan = null;
+            listing.RoommatePetFriendly = false;
+            listing.RoommateSmokeFree = false;
+            listing.RoommateEarlyBird = false;
+            listing.RoommateNightOwl = false;
+            listing.RoommateTidy = false;
+            listing.RoommateGuestsWelcome = false;
             ModelState.Remove(nameof(Listing.RoommatesNeeded));
+            ModelState.Remove(nameof(Listing.RoommateGenderPreference));
+            ModelState.Remove(nameof(Listing.RoommateHousingPlan));
+
+            if (!listing.BedroomCount.HasValue) {
+                ModelState.AddModelError(
+                    nameof(Listing.BedroomCount),
+                    "Enter the number of bedrooms. Use 0 for a studio.");
+            }
         }
     }
 

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using cimerko_app.Data;
 
@@ -10,9 +11,11 @@ using cimerko_app.Data;
 namespace cimerko_app.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260706134315_AddListingPreferencesAndBedrooms")]
+    partial class AddListingPreferencesAndBedrooms
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
@@ -248,11 +251,6 @@ namespace cimerko_app.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ContactPhone")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -283,28 +281,7 @@ namespace cimerko_app.Data.Migrations
                     b.Property<int>("RoomCount")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("RoommateEarlyBird")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("RoommateGenderPreference")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("RoommateGuestsWelcome")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("RoommateHousingPlan")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("RoommateNightOwl")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("RoommatePetFriendly")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("RoommateSmokeFree")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("RoommateTidy")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("RoommatesNeeded")

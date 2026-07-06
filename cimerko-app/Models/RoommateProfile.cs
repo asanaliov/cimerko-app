@@ -35,6 +35,9 @@ public class RoommateProfile {
     public string City { get; set; } = string.Empty;
 
     [MaxLength(30)]
+    [RegularExpression(
+        "^(Male|Female|Prefer not to say)$",
+        ErrorMessage = "Choose Male, Female, or Prefer not to say.")]
     public string? Gender { get; set; }
 
     [MaxLength(100)]
