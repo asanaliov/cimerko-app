@@ -1,0 +1,127 @@
+.login-tabs button {
+  position: relative;
+  padding: 1.2rem;
+  border: 0;
+  color: var(--cm-muted);
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 650;
+  text-align: center;
+}
+
+.login-tabs button.is-active {
+  border-radius: 25px 25px 0 0;
+  color: var(--cm-violet);
+  background: #fff;
+}
+
+.login-tabs button.is-active::after {
+  position: absolute;
+  right: 18px;
+  bottom: 0;
+  left: 18px;
+  height: 2px;
+  background: var(--cm-violet);
+  content: "";
+}
+
+.login-heading-register {
+  margin-bottom: 1.5rem;
+}
+
+.login-card .form-select {
+  min-height: 50px;
+  border-color: var(--cm-border-strong);
+  border-radius: 12px;
+}
+
+.login-card .text-danger {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+}
+
+.account-type-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.account-type-fieldset legend {
+  margin-bottom: 0.5rem;
+}
+
+.account-type-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.account-type-option {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border: 1px solid var(--cm-border-strong);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.account-type-option:has(input:checked) {
+  border-color: var(--cm-violet);
+  background: var(--cm-violet-soft);
+}
+
+.account-type-option input {
+  margin-top: 0.2rem;
+  accent-color: var(--cm-violet);
+}
+
+.account-type-option span {
+  display: grid;
+  min-width: 0;
+}
+
+.account-type-option strong {
+  font-size: 0.82rem;
+}
+
+.account-type-option small {
+  color: var(--cm-muted);
+  font-size: 0.68rem;
+}
+
+.auth-text-button {
+  padding: 0;
+  border: 0;
+  color: var(--cm-violet);
+  background: transparent;
+  font-weight: 800;
+}
+
+.auth-text-button:hover,
+.auth-text-button:focus {
+  color: var(--cm-violet-dark);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.login-register-compact {
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 575.98px) {
+  .login-card {
+    padding-inline: 1.25rem;
+  }
+
+  .login-tabs {
+    margin-right: -1.25rem;
+    margin-left: -1.25rem;
+  }
+
+  .account-type-options {
+    grid-template-columns: 1fr;
+  }
+}

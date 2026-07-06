@@ -1,7 +1,10 @@
 @page
 @model LoginModel
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = Model.ActiveTab == "register" ? "Create your account" : "Log in";
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var earliestDateOfBirth = today.AddYears(-101).AddDays(1).ToString("yyyy-MM-dd");
+    var latestDateOfBirth = today.AddYears(-18).ToString("yyyy-MM-dd");
 }
 
 <div class="login-shell">
@@ -18,74 +21,216 @@
         </ul>
     </section>
 
-    <section class="login-card" aria-labelledby="login-title">
-        <nav class="login-tabs" aria-label="Account access">
-            <span class="is-active">Login</span>
-            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create account</a>
+    <section class="login-card @(Model.ActiveTab == "register" ? "is-register-mode" : null)">
+        <nav class="login-tabs" aria-label="Account access" role="tablist">
+            <button id="login-tab"
+                    type="button"
+                    class="@(Model.ActiveTab == "login" ? "is-active" : null)"
+                    role="tab"
+                    aria-selected="@(Model.ActiveTab == "login" ? "true" : "false")"
+                    aria-controls="login-panel"
+                    data-auth-tab="login">
+                Login
+            </button>
+            <button id="register-tab"
+                    type="button"
+                    class="@(Model.ActiveTab == "register" ? "is-active" : null)"
+                    role="tab"
+                    aria-selected="@(Model.ActiveTab == "register" ? "true" : "false")"
+                    aria-controls="register-panel"
+                    data-auth-tab="register">
+                Create account
+            </button>
         </nav>
 
-        <div class="login-heading">
-            <h1 id="login-title">Welcome back 👋</h1>
-            <p>Log in to your Cimerko account</p>
+        <div id="login-panel"
+             role="tabpanel"
+             aria-labelledby="login-tab"
+             hidden="@(Model.ActiveTab != "login")">
+            <div class="login-heading">
+                <h1>Welcome back 👋</h1>
+                <p>Log in to your Cimerko account</p>
+            </div>
+
+            <form id="login-form"
+                  asp-page-handler="Login"
+                  asp-route-returnUrl="@Model.ReturnUrl"
+                  method="post">
+                <div asp-validation-summary="ModelOnly" class="login-validation-summary" role="alert"></div>
+
+                <div class="login-field">
+                    <label asp-for="Login.Email" class="form-label"></label>
+                    <input asp-for="Login.Email"
+                           class="form-control"
+                           autocomplete="username"
+                           inputmode="email"
+                           placeholder="you@example.com"
+                           autofocus="@(Model.ActiveTab == "login")"/>
+                    <span asp-validation-for="Login.Email" class="text-danger"></span>
+                </div>
+
+                <div class="login-field">
+                    <div class="login-password-label">
+                        <label asp-for="Login.Password" class="form-label"></label>
+                        <a asp-page="./ForgotPassword">Forgot password?</a>
+                    </div>
+                    <div class="login-password-input">
+                        <input asp-for="Login.Password"
+                               class="form-control"
+                               autocomplete="current-password"
+                               placeholder="Enter your password"/>
+                        <button type="button"
+                                class="login-password-toggle"
+                                aria-label="Show password"
+                                aria-pressed="false"
+                                title="Show password">
+                            <svg class="login-password-show-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/>
+                                <circle cx="12" cy="12" r="2.5"/>
+                            </svg>
+                            <svg class="login-password-hide-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="m4 4 16 16"/>
+                                <path d="M10.6 6.1A10.4 10.4 0 0 1 12 6c6 0 9.5 6 9.5 6a16.8 16.8 0 0 1-2.1 2.8"/>
+                                <path d="M6.2 6.3C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6c1.5 0 2.9-.4 4-1"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Login.Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-check login-remember">
+                    <input asp-for="Login.RememberMe" class="form-check-input"/>
+                    <label asp-for="Login.RememberMe" class="form-check-label"></label>
+                </div>
+
+                <button id="login-submit" type="submit" class="btn login-submit">
+                    Log in
+                </button>
+            </form>
+
+            <p class="login-register">
+                Do not have an account?
+                <button type="button" class="auth-text-button" data-auth-tab="register">
+                    Create an account
+                </button>
+            </p>
         </div>
 
-        <form id="account" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <div asp-validation-summary="ModelOnly" class="login-validation-summary" role="alert"></div>
-
-            <div class="login-field">
-                <label asp-for="Input.Email" class="form-label"></label>
-                <input asp-for="Input.Email"
-                       class="form-control"
-                       autocomplete="username"
-                       inputmode="email"
-                       placeholder="you@example.com"
-                       autofocus/>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
+        <div id="register-panel"
+             role="tabpanel"
+             aria-labelledby="register-tab"
+             hidden="@(Model.ActiveTab != "register")">
+            <div class="login-heading login-heading-register">
+                <h1>Create your account</h1>
+                <p>Tell us a little about yourself to get started.</p>
             </div>
 
-            <div class="login-field">
-                <div class="login-password-label">
-                    <label asp-for="Input.Password" class="form-label"></label>
-                    <a asp-page="./ForgotPassword">Forgot password?</a>
+            <form id="register-form"
+                  asp-page-handler="Register"
+                  asp-route-returnUrl="@Model.ReturnUrl"
+                  method="post">
+                <div asp-validation-summary="ModelOnly" class="login-validation-summary" role="alert"></div>
+
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label asp-for="Registration.FirstName" class="form-label"></label>
+                        <input asp-for="Registration.FirstName"
+                               class="form-control"
+                               autocomplete="given-name"
+                               placeholder="Alex"
+                               autofocus="@(Model.ActiveTab == "register")"/>
+                        <span asp-validation-for="Registration.FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="Registration.LastName" class="form-label"></label>
+                        <input asp-for="Registration.LastName"
+                               class="form-control"
+                               autocomplete="family-name"
+                               placeholder="Morgan"/>
+                        <span asp-validation-for="Registration.LastName" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-5">
+                        <label asp-for="Registration.DateOfBirth" class="form-label"></label>
+                        <input asp-for="Registration.DateOfBirth"
+                               class="form-control"
+                               autocomplete="bday"
+                               min="@earliestDateOfBirth"
+                               max="@latestDateOfBirth"/>
+                        <span asp-validation-for="Registration.DateOfBirth" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-7">
+                        <label asp-for="Registration.City" class="form-label"></label>
+                        <input asp-for="Registration.City"
+                               class="form-control"
+                               autocomplete="address-level2"
+                               placeholder="Skopje"/>
+                        <span asp-validation-for="Registration.City" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <fieldset class="account-type-fieldset">
+                            <legend class="form-label">I am a</legend>
+                            <div class="account-type-options">
+                                <label class="account-type-option">
+                                    <input asp-for="Registration.AccountType"
+                                           type="radio"
+                                           value="@AppRoles.Student"/>
+                                    <span>
+                                        <strong>Student</strong>
+                                        <small>Find a place or roommate</small>
+                                    </span>
+                                </label>
+                                <label class="account-type-option">
+                                    <input asp-for="Registration.AccountType"
+                                           type="radio"
+                                           value="@AppRoles.Landlord"/>
+                                    <span>
+                                        <strong>Landlord</strong>
+                                        <small>Post and manage housing</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </fieldset>
+                        <span asp-validation-for="Registration.AccountType" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Registration.Email" class="form-label"></label>
+                        <input asp-for="Registration.Email"
+                               class="form-control"
+                               autocomplete="username"
+                               inputmode="email"
+                               placeholder="you@example.com"/>
+                        <span asp-validation-for="Registration.Email" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="Registration.Password" class="form-label"></label>
+                        <input asp-for="Registration.Password"
+                               class="form-control"
+                               autocomplete="new-password"
+                               placeholder="Create a password"/>
+                        <span asp-validation-for="Registration.Password" class="text-danger"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="Registration.ConfirmPassword" class="form-label"></label>
+                        <input asp-for="Registration.ConfirmPassword"
+                               class="form-control"
+                               autocomplete="new-password"
+                               placeholder="Repeat password"/>
+                        <span asp-validation-for="Registration.ConfirmPassword" class="text-danger"></span>
+                    </div>
                 </div>
-                <div class="login-password-input">
-                    <input asp-for="Input.Password"
-                           class="form-control"
-                           autocomplete="current-password"
-                           placeholder="Enter your password"/>
-                    <button type="button"
-                            class="login-password-toggle"
-                            aria-label="Show password"
-                            aria-pressed="false"
-                            title="Show password">
-                        <svg class="login-password-show-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/>
-                            <circle cx="12" cy="12" r="2.5"/>
-                        </svg>
-                        <svg class="login-password-hide-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="m4 4 16 16"/>
-                            <path d="M10.6 6.1A10.4 10.4 0 0 1 12 6c6 0 9.5 6 9.5 6a16.8 16.8 0 0 1-2.1 2.8"/>
-                            <path d="M6.2 6.3C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6c1.5 0 2.9-.4 4-1"/>
-                        </svg>
+
+                <button id="register-submit" type="submit" class="btn login-submit">
+                    Create account
+                </button>
+
+                <p class="login-register login-register-compact">
+                    Already have an account?
+                    <button type="button" class="auth-text-button" data-auth-tab="login">
+                        Log in
                     </button>
-                </div>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-
-            <div class="form-check login-remember">
-                <input asp-for="Input.RememberMe" class="form-check-input"/>
-                <label asp-for="Input.RememberMe" class="form-check-label"></label>
-            </div>
-
-            <button id="login-submit" type="submit" class="btn login-submit">
-                Log in
-            </button>
-        </form>
-
-        <p class="login-register">
-            Do not have an account?
-            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create an account</a>
-        </p>
+                </p>
+            </form>
+        </div>
     </section>
 </div>
 
@@ -93,7 +238,65 @@
     <partial name="_ValidationScriptsPartial"/>
     <script>
         (() => {
-            const passwordInput = document.getElementById("Input_Password");
+            const card = document.querySelector(".login-card");
+            const tabs = document.querySelectorAll("[role='tab'][data-auth-tab]");
+            const tabTriggers = document.querySelectorAll("[data-auth-tab]");
+            const panels = {
+                login: document.getElementById("login-panel"),
+                register: document.getElementById("register-panel")
+            };
+
+            const setActiveTab = (tabName, shouldFocus) => {
+                if (!panels[tabName]) {
+                    return;
+                }
+
+                Object.entries(panels).forEach(([name, panel]) => {
+                    panel.hidden = name !== tabName;
+                });
+
+                tabs.forEach(tab => {
+                    const isActive = tab.dataset.authTab === tabName;
+                    tab.classList.toggle("is-active", isActive);
+                    tab.setAttribute("aria-selected", String(isActive));
+
+                    if (isActive && shouldFocus) {
+                        tab.focus();
+                    }
+                });
+
+                card?.classList.toggle("is-register-mode", tabName === "register");
+
+                const url = new URL(window.location.href);
+                url.searchParams.delete("handler");
+                if (tabName === "register") {
+                    url.searchParams.set("mode", "register");
+                } else {
+                    url.searchParams.delete("mode");
+                }
+                window.history.replaceState({}, "", url);
+            };
+
+            tabTriggers.forEach(trigger => {
+                trigger.addEventListener("click", () => {
+                    setActiveTab(trigger.dataset.authTab, trigger.getAttribute("role") !== "tab");
+                });
+            });
+
+            tabs.forEach((tab, index) => {
+                tab.addEventListener("keydown", event => {
+                    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    const offset = event.key === "ArrowRight" ? 1 : -1;
+                    const nextTab = tabs[(index + offset + tabs.length) % tabs.length];
+                    setActiveTab(nextTab.dataset.authTab, true);
+                });
+            });
+
+            const passwordInput = document.getElementById("Login_Password");
             const passwordToggle = document.querySelector(".login-password-toggle");
 
             if (!passwordInput || !passwordToggle) {
