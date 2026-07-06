@@ -40,16 +40,6 @@ body {
     var(--cm-bg);
 }
 
-body::before {
-  position: fixed;
-  z-index: 2000;
-  inset: 14px 44px;
-  border: 1px solid #e6dccd;
-  border-radius: 38px;
-  content: "";
-  pointer-events: none;
-}
-
 .container {
   width: calc(100% - 90px);
   max-width: 1358px;
@@ -1038,10 +1028,6 @@ body::before {
 }
 
 @media (max-width: 1199.98px) {
-  body::before {
-    inset-inline: 14px;
-  }
-
   .container,
   .site-content {
     width: calc(100% - 28px);
@@ -1102,10 +1088,6 @@ body::before {
 }
 
 @media (max-width: 767.98px) {
-  body::before {
-    display: none;
-  }
-
   .container,
   .site-content {
     width: 100%;
