@@ -30,12 +30,12 @@ document.querySelectorAll("[data-listing-type-form]").forEach(form => {
     const placeForRentValue = "1";
     const lookingForRoommateValue = "2";
 
-    const updateStudioFields = isPlaceForRent => {
-        studioToggle.disabled = !isPlaceForRent;
-        bedroomsInput.disabled = !isPlaceForRent || studioToggle.checked;
+    const updateStudioFields = (hasBedroomDetails, isPlaceForRent) => {
+        studioToggle.disabled = !hasBedroomDetails;
+        bedroomsInput.disabled = !hasBedroomDetails || studioToggle.checked;
         bedroomsInput.required = isPlaceForRent && !studioToggle.checked;
 
-        if (isPlaceForRent && studioToggle.checked) {
+        if (hasBedroomDetails && studioToggle.checked) {
             bedroomsInput.value = "0";
         }
     };
@@ -43,6 +43,7 @@ document.querySelectorAll("[data-listing-type-form]").forEach(form => {
     const updateListingTypeFields = () => {
         const isPlaceForRent = typeSelect.value === placeForRentValue;
         const isLookingForRoommate = typeSelect.value === lookingForRoommateValue;
+        const hasBedroomDetails = isPlaceForRent || isLookingForRoommate;
 
         typeHelp.textContent = isPlaceForRent
             ? "You have a room, apartment, or house to rent."
@@ -53,8 +54,8 @@ document.querySelectorAll("[data-listing-type-form]").forEach(form => {
         roommatesField.hidden = !isLookingForRoommate;
         roommatesInput.disabled = !isLookingForRoommate;
         roommatesInput.required = isLookingForRoommate;
-        bedroomsField.hidden = !isPlaceForRent;
-        updateStudioFields(isPlaceForRent);
+        bedroomsField.hidden = !hasBedroomDetails;
+        updateStudioFields(hasBedroomDetails, isPlaceForRent);
         preferencesSection.hidden = !isPlaceForRent && !isLookingForRoommate;
         rentalPreferences.hidden = !isPlaceForRent;
         roommatePreferences.hidden = !isLookingForRoommate;
@@ -70,6 +71,37 @@ document.querySelectorAll("[data-listing-type-form]").forEach(form => {
     typeSelect.addEventListener("change", updateListingTypeFields);
     studioToggle.addEventListener("change", updateListingTypeFields);
     updateListingTypeFields();
+});
+
+document.querySelectorAll("[data-home-featured-rotator]").forEach(rotator => {
+    const slides = [...rotator.querySelectorAll("[data-home-featured-slide]")];
+
+    if (slides.length < 2) {
+        return;
+    }
+
+    let activeIndex = slides.findIndex(slide => !slide.hidden);
+
+    if (activeIndex < 0) {
+        activeIndex = 0;
+    }
+
+    const showSlide = index => {
+        activeIndex = (index + slides.length) % slides.length;
+
+        slides.forEach((slide, slideIndex) => {
+            const isActive = slideIndex === activeIndex;
+
+            slide.hidden = !isActive;
+            slide.classList.toggle("is-active", isActive);
+        });
+    };
+
+    window.setInterval(() => {
+        if (!document.hidden) {
+            showSlide(activeIndex + 1);
+        }
+    }, 7000);
 });
 
 document.querySelectorAll("[data-photo-gallery]").forEach(gallery => {

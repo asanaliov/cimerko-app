@@ -182,6 +182,13 @@
                                     @if (listing.RoommateHousingPlan.HasValue) {
                                         <span class="badge-soft">@listing.RoommateHousingPlan.Value.GetDisplayName()</span>
                                     }
+                                    @if (listing.BedroomCount.HasValue) {
+                                        <span class="badge-soft">
+                                            @(listing.BedroomCount.Value == 0
+                                                ? "Studio"
+                                                : $"{listing.BedroomCount} {(listing.BedroomCount == 1 ? "bedroom" : "bedrooms")}")
+                                        </span>
+                                    }
                                     @if (listing.RoommatePetFriendly) { <span class="badge-soft">Pet-friendly</span> }
                                     @if (listing.RoommateSmokeFree) { <span class="badge-soft">Smoke-free</span> }
                                     @if (listing.RoommateEarlyBird) { <span class="badge-soft">Early bird</span> }

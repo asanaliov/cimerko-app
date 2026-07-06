@@ -345,7 +345,7 @@
                             <small>Rooms</small>
                             <strong>@listing.RoomCount</strong>
                         </div>
-                        @if (listing.Type == ListingType.PlaceForRent && listing.BedroomCount.HasValue) {
+                        @if (listing.BedroomCount.HasValue) {
                             <div class="fact-item">
                                 <small>Bedrooms</small>
                                 <strong>
@@ -423,7 +423,7 @@
                                 <small>Home layout</small>
                                 <strong>
                                     @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")
-                                    @if (listing.Type == ListingType.PlaceForRent && listing.BedroomCount.HasValue) {
+                                    @if (listing.BedroomCount.HasValue) {
                                         <span>
                                             , @(listing.BedroomCount.Value == 0
                                                 ? "studio"

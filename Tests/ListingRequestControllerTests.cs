@@ -85,9 +85,12 @@ public class ListingRequestControllerTests {
             Description = "A test listing.",
             Type = ListingType.PlaceForRent,
             City = "Berlin",
+            ContactPhone = "+49 30 123456",
             MonthlyRent = 500,
             RoomCount = 1,
-            IsActive = true
+            BedroomCount = 1,
+            IsActive = true,
+            ModerationStatus = ListingModerationStatus.Approved
         };
     }
 }

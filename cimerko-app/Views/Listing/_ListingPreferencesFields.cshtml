@@ -69,8 +69,20 @@
 
         <div class="listing-form-field">
             <label asp-for="RoommateGenderPreference"></label>
-            <select asp-for="RoommateGenderPreference"
-                    asp-items="Html.GetEnumSelectList<RoommateGenderPreference>()"></select>
+            <select asp-for="RoommateGenderPreference">
+                <option value="@((int)RoommateGenderPreference.NoPreference)"
+                        selected="@(Model.RoommateGenderPreference == RoommateGenderPreference.NoPreference)">
+                    No preference
+                </option>
+                <option value="@((int)RoommateGenderPreference.Women)"
+                        selected="@(Model.RoommateGenderPreference == RoommateGenderPreference.Women)">
+                    Female
+                </option>
+                <option value="@((int)RoommateGenderPreference.Men)"
+                        selected="@(Model.RoommateGenderPreference == RoommateGenderPreference.Men)">
+                    Male
+                </option>
+            </select>
             <small class="listing-form-field-hint">Choose who you would be comfortable sharing a home with.</small>
             <span asp-validation-for="RoommateGenderPreference" class="listing-form-error"></span>
         </div>

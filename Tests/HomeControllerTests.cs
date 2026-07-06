@@ -52,9 +52,14 @@ public class HomeControllerTests {
             Description = "Test listing",
             Type = ListingType.PlaceForRent,
             City = "Berlin",
+            ContactPhone = "+49 30 123456",
             MonthlyRent = 500,
             RoomCount = 1,
+            BedroomCount = 1,
             IsActive = isActive,
+            ModerationStatus = isActive
+                ? ListingModerationStatus.Approved
+                : ListingModerationStatus.Inactive,
             CreatedAt = createdAt
         };
     }

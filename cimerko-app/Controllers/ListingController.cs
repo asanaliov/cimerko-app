@@ -69,9 +69,7 @@ public class ListingController : Controller {
         }
 
         if (model.BedroomCount.HasValue) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.PlaceForRent &&
-                listing.BedroomCount == model.BedroomCount.Value);
+            query = query.Where(listing => listing.BedroomCount == model.BedroomCount.Value);
         }
 
         if (model.TenantTypePreference.HasValue) {
@@ -290,7 +288,7 @@ public class ListingController : Controller {
         listing.IsActive = false;
         listing.ModerationStatus = ListingModerationStatus.Pending;
         listing.ContactPhone = listing.ContactPhone?.Trim() ?? string.Empty;
-        if (listing.Type == ListingType.PlaceForRent && isStudio) {
+        if (listing.Type is ListingType.PlaceForRent or ListingType.LookingForRoommate && isStudio) {
             listing.BedroomCount = 0;
         }
 
@@ -375,7 +373,7 @@ public class ListingController : Controller {
 
         ModelState.Remove(nameof(Listing.OwnerId));
         formListing.ContactPhone = formListing.ContactPhone?.Trim() ?? string.Empty;
-        if (formListing.Type == ListingType.PlaceForRent && isStudio) {
+        if (formListing.Type is ListingType.PlaceForRent or ListingType.LookingForRoommate && isStudio) {
             formListing.BedroomCount = 0;
         }
 
@@ -527,11 +525,9 @@ public class ListingController : Controller {
 
     private void ApplyListingTypeRules(Listing listing) {
         if (listing.Type == ListingType.LookingForRoommate) {
-            listing.BedroomCount = null;
             listing.TenantTypePreference = TenantTypePreference.NoPreference;
             listing.RentalSmokingPolicy = RentalSmokingPolicy.NotSpecified;
             listing.RentalPetPolicy = RentalPetPolicy.NotSpecified;
-            ModelState.Remove(nameof(Listing.BedroomCount));
             ModelState.Remove(nameof(Listing.TenantTypePreference));
             ModelState.Remove(nameof(Listing.RentalSmokingPolicy));
             ModelState.Remove(nameof(Listing.RentalPetPolicy));

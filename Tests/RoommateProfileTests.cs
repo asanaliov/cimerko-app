@@ -30,7 +30,8 @@ public class RoommateProfileTests {
 
         Assert.Contains(
             validationResults,
-            result => result.MemberNames.Contains(nameof(RegisterModel.InputModel.DateOfBirth)));
+            result => result.MemberNames.Contains(
+                nameof(LoginModel.RegistrationInputModel.DateOfBirth)));
     }
 
     [Fact]
@@ -42,11 +43,12 @@ public class RoommateProfileTests {
 
         Assert.DoesNotContain(
             validationResults,
-            result => result.MemberNames.Contains(nameof(RegisterModel.InputModel.DateOfBirth)));
+            result => result.MemberNames.Contains(
+                nameof(LoginModel.RegistrationInputModel.DateOfBirth)));
     }
 
-    private static RegisterModel.InputModel ValidRegistrationInput() {
-        return new RegisterModel.InputModel {
+    private static LoginModel.RegistrationInputModel ValidRegistrationInput() {
+        return new LoginModel.RegistrationInputModel {
             FirstName = "Test",
             LastName = "Resident",
             DateOfBirth = DateOnly.FromDateTime(DateTime.Today).AddYears(-20),

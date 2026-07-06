@@ -152,7 +152,8 @@
 
                     <div class="listing-form-field"
                          data-bedrooms-field
-                         hidden="@(Model.Type != ListingType.PlaceForRent)">
+                         hidden="@(Model.Type != ListingType.PlaceForRent &&
+                                   Model.Type != ListingType.LookingForRoommate)">
                         <label asp-for="BedroomCount"></label>
                         <label class="listing-studio-toggle">
                             <input type="checkbox"

@@ -98,11 +98,13 @@
                         <input asp-for="MaximumBudget" type="number" min="0" step="0.01" placeholder="No maximum"/>
                         <span asp-validation-for="MaximumBudget" class="listing-form-error"></span>
                     </div>
-                    @if (isRentalSearch) {
+                    @if (isRentalSearch || isRoommateSearch) {
                         <div class="col-6 col-md-3">
                             <label asp-for="BedroomCount"></label>
                             <input asp-for="BedroomCount" type="number" min="0" max="20" placeholder="Any"/>
                         </div>
+                    }
+                    @if (isRentalSearch) {
                         <div class="col-6 col-md-3">
                             <label asp-for="TenantTypePreference"></label>
                             <select asp-for="TenantTypePreference"
@@ -307,7 +309,7 @@
                                 <div class="listing-card-badges">
                                     <span class="badge-soft">@typeLabel</span>
                                     <span class="badge-soft">@listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")</span>
-                                    @if (listing.Type == ListingType.PlaceForRent && listing.BedroomCount.HasValue) {
+                                    @if (listing.BedroomCount.HasValue) {
                                         <span class="badge-soft">
                                             @(listing.BedroomCount.Value == 0
                                                 ? "Studio"

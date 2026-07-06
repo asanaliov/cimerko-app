@@ -1950,7 +1950,12 @@
 .listing-choice-card input,
 .listing-check-grid input,
 .listing-studio-toggle input {
+  width: 1rem;
+  height: 1rem;
+  min-height: auto;
+  flex: 0 0 auto;
   margin-top: 0.2rem;
+  padding: 0;
   accent-color: var(--cm-violet);
 }
 
@@ -2054,7 +2059,7 @@
   font-size: 0.66rem;
 }
 
-.listing-form-field input,
+.listing-form-field input:not([type="checkbox"]):not([type="radio"]),
 .listing-form-field select,
 .listing-form-field textarea {
   width: 100%;
@@ -2075,7 +2080,7 @@
   resize: vertical;
 }
 
-.listing-form-field input:focus,
+.listing-form-field input:not([type="checkbox"]):not([type="radio"]):focus,
 .listing-form-field select:focus,
 .listing-form-field textarea:focus {
   border-color: var(--cm-violet);
@@ -2083,7 +2088,7 @@
   box-shadow: 0 0 0 0.22rem rgba(89, 66, 199, 0.11);
 }
 
-.listing-form-field input.input-validation-error,
+.listing-form-field input:not([type="checkbox"]):not([type="radio"]).input-validation-error,
 .listing-form-field select.input-validation-error,
 .listing-form-field textarea.input-validation-error {
   border-color: var(--cm-danger);

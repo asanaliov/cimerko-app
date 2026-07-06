@@ -6,6 +6,10 @@
 # dotenv files
 .env
 
+# Runtime user uploads
+cimerko-app/wwwroot/uploads/listings/
+cimerko-app/wwwroot/uploads/profiles/
+
 # User-specific files
 *.rsuser
 *.suo
