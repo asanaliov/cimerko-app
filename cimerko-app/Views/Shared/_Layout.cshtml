@@ -70,14 +70,13 @@
                                aria-current="@(currentController == "Home" && currentAction == "Privacy" ? "page" : null)"
                                asp-area="" asp-controller="Home" asp-action="Privacy">About</a>
                         </li>
-                        <li class="nav-item site-search-item" aria-hidden="true">
-                            <span class="site-search-link">
-                                <svg viewBox="0 0 24 24">
-                                    <circle cx="11" cy="11" r="7"/>
-                                    <path d="m20 20-4-4"/>
-                                </svg>
-                            </span>
-                        </li>
+                        @if (User.IsInRole(AppRoles.Admin)) {
+                            <li class="nav-item">
+                                <a class="@NavLinkClass("Admin")"
+                                   aria-current="@(currentController == "Admin" ? "page" : null)"
+                                   asp-area="" asp-controller="Admin" asp-action="Index">Admin panel</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial"/>
                 </div>
