@@ -2759,12 +2759,13 @@
   border: 0;
   border-radius: var(--cm-radius-lg);
   color: #fff;
-  background: #171715;
+  background: rgba(23, 23, 21, 0.32);
   box-shadow: 0 32px 100px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(18px);
 }
 
 .home-photo-viewer::backdrop {
-  background: rgba(17, 16, 14, 0.82);
+  background: rgba(17, 16, 14, 0.42);
   backdrop-filter: blur(8px);
 }
 
@@ -2842,7 +2843,7 @@
   flex: 1 1 auto;
   place-items: center;
   overflow: hidden;
-  background: #0d0d0c;
+  background: transparent;
 }
 
 .home-photo-viewer-stage > img {
