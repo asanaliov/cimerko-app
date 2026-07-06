@@ -5,6 +5,7 @@
     ViewData["Title"] = "Student housing and roommates";
 
     var featuredListings = Model.LatestListings
+        .Where(listing => listing.Type == ListingType.PlaceForRent)
         .OrderByDescending(listing => listing.Images.Count > 0)
         .ThenByDescending(listing => listing.CreatedAt)
         .ToList();
