@@ -1,7 +1,9 @@
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-    string NavLinkClass(string controller) =>
-        string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    string NavLinkClass(string controller, string? action = null) =>
+        string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase) &&
+        (action == null || string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase))
             ? "nav-link site-nav-link is-active"
             : "nav-link site-nav-link";
 }
@@ -19,6 +21,7 @@
     <link rel="stylesheet" href="~/css/profiles.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/css/activity.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/cimerko_app.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/reference.css" asp-append-version="true"/>
 </head>
 <body>
 @if (ViewData["HideGlobalHeader"] as bool? != true) {
@@ -33,7 +36,10 @@
                             <path d="M9 20v-6h6v6"/>
                         </svg>
                     </span>
-                    <span>Cimerko</span>
+                    <span class="site-brand-copy">
+                        <strong>Cimerko</strong>
+                        <small>Student living in Skopje</small>
+                    </span>
                 </a>
                 <button class="navbar-toggler site-navbar-toggler" type="button"
                         data-bs-toggle="collapse"
@@ -53,6 +59,24 @@
                             <a class="@NavLinkClass("Listing")"
                                aria-current="@(currentController == "Listing" ? "page" : null)"
                                asp-area="" asp-controller="Listing" asp-action="Index">Listings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="@NavLinkClass("Profile", "Roommates")"
+                               aria-current="@(currentController == "Profile" && currentAction == "Roommates" ? "page" : null)"
+                               asp-area="" asp-controller="Profile" asp-action="Roommates">Roommates</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="@NavLinkClass("Home", "Privacy")"
+                               aria-current="@(currentController == "Home" && currentAction == "Privacy" ? "page" : null)"
+                               asp-area="" asp-controller="Home" asp-action="Privacy">About</a>
+                        </li>
+                        <li class="nav-item site-search-item" aria-hidden="true">
+                            <span class="site-search-link">
+                                <svg viewBox="0 0 24 24">
+                                    <circle cx="11" cy="11" r="7"/>
+                                    <path d="m20 20-4-4"/>
+                                </svg>
+                            </span>
                         </li>
                     </ul>
                     <partial name="_LoginPartial"/>

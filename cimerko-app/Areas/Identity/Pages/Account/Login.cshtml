@@ -5,20 +5,28 @@
 }
 
 <div class="login-shell">
+    <section class="login-visual" aria-label="Cimerko housing benefits">
+        <div class="login-visual-copy">
+            <h1>Your new home<br/>in Skopje</h1>
+            <p>Find verified student homes, connect with flatmates, and live smarter.</p>
+        </div>
+        <ul class="login-benefits">
+            <li><strong>Verified listings</strong><span>Safe and trusted homes</span></li>
+            <li><strong>Roommate matching</strong><span>Find your perfect match</span></li>
+            <li><strong>All-inclusive living</strong><span>Bills, Wi-Fi and more</span></li>
+            <li><strong>24/7 support</strong><span>We are here for you</span></li>
+        </ul>
+    </section>
+
     <section class="login-card" aria-labelledby="login-title">
-        <a asp-area="" asp-controller="Home" asp-action="Index" class="login-brand">
-            <span class="login-brand-mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                    <path d="M4 11.5 12 5l8 6.5V20H4z"/>
-                    <path d="M9 20v-6h6v6"/>
-                </svg>
-            </span>
-            <span>Cimerko</span>
-        </a>
+        <nav class="login-tabs" aria-label="Account access">
+            <span class="is-active">Login</span>
+            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create account</a>
+        </nav>
 
         <div class="login-heading">
-            <h1 id="login-title">Welcome back</h1>
-            <p>Log in to continue finding your next home.</p>
+            <h1 id="login-title">Welcome back 👋</h1>
+            <p>Log in to your Cimerko account</p>
         </div>
 
         <form id="account" asp-route-returnUrl="@Model.ReturnUrl" method="post">
@@ -75,7 +83,7 @@
         </form>
 
         <p class="login-register">
-            New to Cimerko?
+            Do not have an account?
             <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create an account</a>
         </p>
     </section>
