@@ -425,6 +425,7 @@
   margin: 0;
 }
 
+.notification-profile-link,
 .notification-listing-link,
 .notification-read-button {
   display: inline-flex;
@@ -436,6 +437,17 @@
   font-size: 0.68rem;
   font-weight: 800;
   text-decoration: none;
+}
+
+.notification-profile-link {
+  border: 1px solid var(--cm-border-strong);
+  color: var(--cm-green);
+  background: var(--cm-green-soft);
+}
+
+.notification-profile-link:hover {
+  color: var(--cm-green-dark);
+  border-color: rgba(29, 73, 62, 0.28);
 }
 
 .notification-listing-link {
@@ -963,6 +975,7 @@
     grid-column: 1 / -1;
   }
 
+  .notification-profile-link,
   .notification-listing-link,
   .notification-read-button {
     width: 100%;

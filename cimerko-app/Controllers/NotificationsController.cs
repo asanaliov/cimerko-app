@@ -22,6 +22,8 @@ public class NotificationsController : Controller {
 
         var notifications = await _context.Notifications
             .AsNoTracking()
+            .Include(notification => notification.ListingRequest)
+            .ThenInclude(request => request!.Sender)
             .Where(notification => notification.RecipientId == userId)
             .OrderByDescending(notification => notification.CreatedAt)
             .ToListAsync();

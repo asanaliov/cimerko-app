@@ -37,6 +37,10 @@
     else {
         <div class="notifications-list">
             @foreach (var notification in Model) {
+                var hasRequestSenderProfile =
+                    !string.IsNullOrWhiteSpace(notification.ActorId) &&
+                    notification.ListingRequest?.SenderId == notification.ActorId;
+
                 <article class="notification-item @(!notification.IsRead ? "is-unread" : "")">
                     <span class="notification-item-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24">
@@ -59,6 +63,14 @@
                     </div>
 
                     <div class="notification-item-actions">
+                        @if (hasRequestSenderProfile) {
+                            <a asp-controller="Profile"
+                               asp-action="Details"
+                               asp-route-id="@notification.ActorId"
+                               class="notification-profile-link">
+                                View sender profile
+                            </a>
+                        }
                         @if (!string.IsNullOrWhiteSpace(notification.LinkUrl)) {
                             <a href="@notification.LinkUrl"
                                class="notification-listing-link">
