@@ -38,10 +38,11 @@
         .ToList();
     var profileCompletion = ViewBag.ProfileCompletion as ProfileCompletionViewModel;
     var showSidebar = showCompatibility || reviews.Count > 0 || canWriteReview;
-    var activeListings = Model.Listings
-        .Where(listing => listing.IsActive)
+    var profileListings = Model.Listings
         .OrderByDescending(listing => listing.CreatedAt)
         .ToList();
+    var pendingListingCount = profileListings.Count(listing =>
+        listing.ModerationStatus == ListingModerationStatus.Pending);
     var bioPreview = profile?.Bio;
     if (bioPreview?.Length > 180) {
         bioPreview = $"{bioPreview[..180].TrimEnd()}…";
@@ -235,6 +236,19 @@
                             <span>Faculty</span>
                             <strong>@(profile.StudyProgram ?? "Not specified")</strong>
                         </div>
+                        @if (!string.IsNullOrWhiteSpace(profile.ContactEmail) || isOwnProfile) {
+                            <div class="profile-fact profile-fact-wide">
+                                <span>Contact email</span>
+                                <strong>
+                                    @if (!string.IsNullOrWhiteSpace(profile.ContactEmail)) {
+                                        <a href="mailto:@profile.ContactEmail">@profile.ContactEmail</a>
+                                    }
+                                    else {
+                                        <span>Not specified</span>
+                                    }
+                                </strong>
+                            </div>
+                        }
                     </div>
                 }
             </section>
@@ -321,16 +335,22 @@
                 <div class="profile-section-title">
                     <div>
                         <span class="profile-kicker">Housing</span>
-                        <h2>Active listings</h2>
+                        <h2>@(isOwnProfile ? "Your listings" : "Active listings")</h2>
                     </div>
-                    @if (activeListings.Count > 0) {
-                        <span class="profile-section-count">@activeListings.Count active</span>
+                    @if (profileListings.Count > 0) {
+                        <span class="profile-section-count">
+                            @(isOwnProfile && pendingListingCount > 0
+                                ? $"{pendingListingCount} pending"
+                                : isOwnProfile
+                                    ? $"{profileListings.Count} total"
+                                    : $"{profileListings.Count} active")
+                        </span>
                     }
                 </div>
 
-                @if (activeListings.Count == 0) {
+                @if (profileListings.Count == 0) {
                     <div class="profile-content-card profile-empty-state">
-                        <h3>No active listings</h3>
+                        <h3>@(isOwnProfile ? "No listings yet" : "No active listings")</h3>
                         <p>
                             @(isOwnProfile
                                 ? "You have not posted any listings yet."
@@ -346,14 +366,29 @@
                 }
                 else {
                     <div class="profile-listing-grid">
-                        @foreach (var listing in activeListings) {
+                        @foreach (var listing in profileListings) {
                             var listingType = listing.Type.GetDisplayName();
+                            var listingStatusHelp = listing.ModerationStatus switch {
+                                ListingModerationStatus.Pending => "Waiting for admin approval.",
+                                ListingModerationStatus.Approved when listing.IsActive => "Visible in public search.",
+                                ListingModerationStatus.Approved => "Approved but not active.",
+                                ListingModerationStatus.Rejected => "Not visible because it was rejected.",
+                                ListingModerationStatus.Inactive => "Hidden from public search.",
+                                _ => "Status unavailable."
+                            };
 
                             <article class="profile-listing-card">
                                 <div>
-                                    <span class="profile-listing-type @(listing.Type == ListingType.PlaceForRent ? "is-place" : "is-roommate")">
-                                        @listingType
-                                    </span>
+                                    <div class="profile-listing-card-header">
+                                        <span class="profile-listing-type @(listing.Type == ListingType.PlaceForRent ? "is-place" : "is-roommate")">
+                                            @listingType
+                                        </span>
+                                        @if (isOwnProfile) {
+                                            <span class="admin-status is-@listing.ModerationStatus.ToString().ToLowerInvariant()">
+                                                @listing.ModerationStatus.GetDisplayName()
+                                            </span>
+                                        }
+                                    </div>
                                     <h3>@listing.Title</h3>
                                     <p>
                                         @listing.City · @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")
@@ -365,6 +400,9 @@
                                             </span>
                                         }
                                     </p>
+                                    @if (isOwnProfile) {
+                                        <p class="profile-listing-status-note">@listingStatusHelp</p>
+                                    }
                                 </div>
                                 <div class="profile-listing-footer">
                                     <strong>@listing.MonthlyRent.ToString("0") € <small>/ month</small></strong>

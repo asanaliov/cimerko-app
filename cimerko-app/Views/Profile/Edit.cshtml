@@ -72,6 +72,17 @@
                     <span asp-validation-for="Bio" class="text-danger"></span>
                 </div>
 
+                <div class="mb-4">
+                    <label asp-for="ContactEmail" class="form-label"></label>
+                    <input asp-for="ContactEmail"
+                           type="email"
+                           class="form-control"
+                           autocomplete="email"
+                           placeholder="name@example.com"/>
+                    <div class="form-text">Shown on your public profile so interested users can reach you.</div>
+                    <span asp-validation-for="ContactEmail" class="text-danger"></span>
+                </div>
+
                 <div class="row g-3 mb-4">
                     <div class="col-sm-4">
                         <label asp-for="DateOfBirth" class="form-label"></label>

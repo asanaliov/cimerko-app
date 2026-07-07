@@ -954,6 +954,13 @@
   padding: 1rem;
 }
 
+.profile-listing-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .profile-listing-type {
   display: inline-flex;
   padding: 0.4rem 0.55rem;
@@ -978,6 +985,10 @@
   margin: 0;
   color: var(--cm-muted);
   font-size: 0.7rem;
+}
+
+.profile-listing-status-note {
+  margin-top: 0.45rem !important;
 }
 
 .profile-listing-footer {

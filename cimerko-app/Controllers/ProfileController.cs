@@ -32,11 +32,15 @@ public class ProfileController : Controller {
             return NotFound();
         }
 
+        var visitorId = CurrentUserId();
+        var isOwnProfile = visitorId == id;
+
         var user = await _context.Users
             .Include(item => item.RoommateProfile)
             .Include(item => item.Listings.Where(listing =>
-                listing.IsActive &&
-                listing.ModerationStatus == ListingModerationStatus.Approved))
+                isOwnProfile ||
+                (listing.IsActive &&
+                 listing.ModerationStatus == ListingModerationStatus.Approved)))
             .Include(item => item.ReviewsReceived)
             .ThenInclude(review => review.Reviewer)
             .FirstOrDefaultAsync(item => item.Id == id);
@@ -45,10 +49,9 @@ public class ProfileController : Controller {
             return NotFound();
         }
 
-        var visitorId = CurrentUserId();
         var isAdmin = User.IsInRole(AppRoles.Admin);
         ViewBag.CurrentUserId = visitorId;
-        ViewBag.IsOwnProfile = visitorId == id;
+        ViewBag.IsOwnProfile = isOwnProfile;
         var canWriteReview = false;
         if (visitorId != null && visitorId != id) {
             var alreadyReviewed = await _context.Reviews.AnyAsync(review =>
@@ -80,7 +83,7 @@ public class ProfileController : Controller {
         }
 
         ViewBag.ProfileBadges = BuildProfileBadges(user, compatibilityScore);
-        if (visitorId == id) {
+        if (isOwnProfile) {
             ViewBag.ProfileCompletion = CalculateProfileCompletion(user);
         }
 
@@ -247,7 +250,7 @@ public class ProfileController : Controller {
         string fullName,
         IFormFile? profileImage,
         bool removeProfileImage,
-        [Bind("Bio,DateOfBirth,City,Gender,University,StudyProgram,SmokingPreference,PetsPreference,CleanlinessLevel,SleepSchedule,GuestPreference")]
+        [Bind("Bio,ContactEmail,DateOfBirth,City,Gender,University,StudyProgram,SmokingPreference,PetsPreference,CleanlinessLevel,SleepSchedule,GuestPreference")]
         RoommateProfile formProfile) {
         var userId = CurrentUserId();
         if (userId == null) {
@@ -300,6 +303,9 @@ public class ProfileController : Controller {
         }
 
         profile.Bio = formProfile.Bio;
+        profile.ContactEmail = string.IsNullOrWhiteSpace(formProfile.ContactEmail)
+            ? null
+            : formProfile.ContactEmail.Trim();
         profile.DateOfBirth = formProfile.DateOfBirth;
         profile.City = formProfile.City;
         profile.Gender = formProfile.Gender;

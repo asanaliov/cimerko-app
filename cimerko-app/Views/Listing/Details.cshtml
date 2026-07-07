@@ -14,6 +14,9 @@
     var ownerName = string.IsNullOrWhiteSpace(owner?.FullName)
         ? "Cimerko member"
         : owner.FullName;
+    var ownerContactEmail = string.IsNullOrWhiteSpace(ownerProfile?.ContactEmail)
+        ? owner?.Email
+        : ownerProfile.ContactEmail;
     var ownerInitial = ownerName.Trim()[..1].ToUpperInvariant();
     var listingImages = listing.Images
         .OrderByDescending(image => image.IsPrimary)
@@ -508,7 +511,12 @@
                         </div>
                         <div class="landlord-card-info">
                             <h4>@ownerName</h4>
-                            <p>@owner?.Email</p>
+                            @if (!string.IsNullOrWhiteSpace(ownerContactEmail)) {
+                                <p><a href="mailto:@ownerContactEmail">@ownerContactEmail</a></p>
+                            }
+                            else {
+                                <p>Email not provided</p>
+                            }
                             @if (!string.IsNullOrWhiteSpace(listing.ContactPhone)) {
                                 <p><a href="tel:@listing.ContactPhone">@listing.ContactPhone</a></p>
                             }

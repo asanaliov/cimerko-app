@@ -15,6 +15,11 @@ public class RoommateProfile {
     [MaxLength(1000)]
     public string? Bio { get; set; }
 
+    [EmailAddress]
+    [MaxLength(256)]
+    [Display(Name = "Contact email")]
+    public string? ContactEmail { get; set; }
+
     [DataType(DataType.Date)]
     [Display(Name = "Date of birth")]
     [ValidDateOfBirth]
