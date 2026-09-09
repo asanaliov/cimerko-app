@@ -229,6 +229,12 @@ body {
 }
 
 /* Home */
+/* Scoped to desktop: below this width listings.css already provides the
+   tablet/mobile layout (relatively-positioned featured card, shorter media,
+   hidden thumbnails). Applying these fixed sizes/offsets unconditionally
+   fought that responsive layout and made the featured card overflow with a
+   large blank gap above it between roughly 768-991px. */
+@media (min-width: 992px) {
 
 .home-marketplace {
   padding-top: 0;
@@ -364,6 +370,8 @@ body {
 
 .home-listing-body {
   padding: 0.8rem 0.9rem 0.9rem;
+}
+
 }
 
 /* Listings */
