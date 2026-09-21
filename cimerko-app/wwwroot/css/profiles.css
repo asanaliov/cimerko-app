@@ -112,8 +112,8 @@
 }
 
 .login-password-toggle:hover {
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 .login-password-toggle svg {
@@ -161,16 +161,16 @@
 
 .login-submit {
   width: 100%;
-  border: 1px solid var(--cm-violet);
+  border: 1px solid var(--cm-primary);
   color: #fff;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
 }
 
 .login-submit:hover,
 .login-submit:focus {
-  border-color: var(--cm-violet-dark);
+  border-color: var(--cm-primary-dark);
   color: #fff;
-  background: var(--cm-violet-dark);
+  background: var(--cm-primary-dark);
 }
 
 .login-register {
@@ -222,7 +222,7 @@
 .auth-eyebrow,
 .profile-kicker,
 .account-manage-eyebrow {
-  color: var(--cm-violet);
+  color: var(--cm-primary);
   font-size: 0.68rem;
   font-weight: 850;
   letter-spacing: 0.1em;
@@ -369,8 +369,8 @@
 .account-manage-link:hover,
 .account-manage-link:focus,
 .account-manage-link.is-active {
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 .account-manage-link svg {
@@ -511,13 +511,9 @@
 }
 
 .profile-badge-new,
-.profile-badge-match {
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
-}
-
+.profile-badge-match,
 .profile-badge-rated {
-  color: #8a5b21;
+  color: var(--cm-amber-ink);
   background: var(--cm-yellow);
 }
 
@@ -539,9 +535,9 @@
 }
 
 .profile-settings-button:hover {
-  border-color: var(--cm-violet);
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  border-color: var(--cm-primary);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 .profile-settings-button svg {
@@ -593,15 +589,15 @@
 }
 
 .profile-hero-star {
-  color: #d9a621;
+  color: var(--cm-amber-star);
 }
 
 .profile-completion {
   margin-top: 1rem;
   padding: 1.1rem 1.4rem;
-  border: 1px solid rgba(89, 66, 199, 0.18);
+  border: 1px solid rgba(27, 76, 61, 0.18);
   border-radius: var(--cm-radius-lg);
-  background: var(--cm-violet-soft);
+  background: var(--cm-primary-soft);
 }
 
 .profile-completion-heading {
@@ -626,14 +622,14 @@
   margin-top: 0.7rem;
   overflow: hidden;
   border-radius: var(--cm-radius-pill);
-  background: rgba(89, 66, 199, 0.16);
+  background: rgba(27, 76, 61, 0.16);
 }
 
 .profile-completion-track span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
 }
 
 .profile-missing-list {
@@ -649,7 +645,7 @@
   display: inline-flex;
   padding: 0.4rem 0.65rem;
   border-radius: var(--cm-radius-pill);
-  color: var(--cm-violet-dark);
+  color: var(--cm-primary-dark);
   background: var(--cm-surface);
   font-size: 0.7rem;
   font-weight: 750;
@@ -658,7 +654,7 @@
 
 .profile-missing-list a:hover {
   color: #fff;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
 }
 
 /* Profile content */
@@ -746,7 +742,7 @@
 }
 
 .profile-facts a {
-  color: var(--cm-violet-dark);
+  color: var(--cm-primary-dark);
   text-decoration: none;
 }
 
@@ -841,8 +837,8 @@
 .profile-section-count {
   padding: 0.45rem 0.65rem;
   border-radius: var(--cm-radius-pill);
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
   font-size: 0.68rem;
   font-weight: 800;
 }
@@ -920,7 +916,8 @@
 }
 
 .profile-listing-type.is-roommate {
-  background: rgba(71, 50, 174, 0.92);
+  color: var(--cm-ink);
+  background: rgba(246, 186, 57, 0.96);
 }
 
 .profile-listing-body {
@@ -942,7 +939,7 @@
 }
 
 .profile-listing-body h3 a:hover {
-  color: var(--cm-violet-dark);
+  color: var(--cm-primary-dark);
 }
 
 .profile-listing-body > p {
@@ -1033,7 +1030,7 @@
 
 .profile-review-stars .is-filled,
 .profile-review-summary-stars .is-filled {
-  color: #d9a621;
+  color: var(--cm-amber-star);
 }
 
 .profile-review-card > p {
@@ -1086,7 +1083,7 @@
   padding: 1.4rem;
   border-bottom: 1px solid var(--cm-border);
   background:
-    radial-gradient(circle at 100% 0, var(--cm-violet-soft), transparent 60%),
+    radial-gradient(circle at 100% 0, var(--cm-primary-soft), transparent 60%),
     var(--cm-surface);
 }
 
@@ -1111,7 +1108,7 @@
   border-radius: 50%;
   background:
     radial-gradient(closest-side, var(--cm-surface) 76%, transparent 78% 100%),
-    conic-gradient(var(--score-color, var(--cm-violet)) calc(var(--score) * 1%), var(--cm-border) 0);
+    conic-gradient(var(--score-color, var(--cm-primary)) calc(var(--score) * 1%), var(--cm-border) 0);
 }
 
 .profile-compatibility-score strong {
@@ -1121,6 +1118,10 @@
 
 .profile-compatibility-score.is-excellent {
   --score-color: var(--cm-success);
+}
+
+.profile-compatibility-score.is-good {
+  --score-color: #4f9a78;
 }
 
 .profile-compatibility-score.is-partial {
@@ -1168,7 +1169,7 @@
 }
 
 .profile-conflict-list li::before {
-  color: #9a6a22;
+  color: var(--cm-amber-ink);
   content: "!";
 }
 
@@ -1777,23 +1778,23 @@
 }
 
 .roommates-search-chips label:hover > span {
-  border-color: var(--cm-violet);
+  border-color: var(--cm-primary);
 }
 
 .roommates-search-chips input:checked + span {
-  border-color: var(--cm-violet);
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  border-color: var(--cm-primary);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 .roommates-search-chips input:checked + span::before {
-  border-color: var(--cm-violet);
-  background: var(--cm-violet);
-  box-shadow: inset 0 0 0 2.5px var(--cm-violet-soft);
+  border-color: var(--cm-primary);
+  background: var(--cm-primary);
+  box-shadow: inset 0 0 0 2.5px var(--cm-primary-soft);
 }
 
 .roommates-search-chips input:focus-visible + span {
-  outline: 3px solid rgba(89, 66, 199, 0.32);
+  outline: 3px solid rgba(27, 76, 61, 0.32);
   outline-offset: 2px;
 }
 
@@ -1806,7 +1807,7 @@
 }
 
 .roommates-search-clear:hover {
-  color: var(--cm-violet-dark);
+  color: var(--cm-primary-dark);
 }
 
 .roommates-results-heading {
@@ -1838,7 +1839,7 @@
 
 .roommate-card:hover,
 .roommate-card:focus-within {
-  border-color: rgba(89, 66, 199, 0.22);
+  border-color: rgba(27, 76, 61, 0.22);
   box-shadow: var(--cm-shadow-md);
   transform: translateY(-3px);
 }
@@ -1922,7 +1923,7 @@
   border-radius: 50%;
   background:
     radial-gradient(closest-side, var(--cm-surface) 78%, transparent 80% 100%),
-    conic-gradient(var(--score-color, var(--cm-violet)) calc(var(--score) * 1%), var(--cm-border) 0);
+    conic-gradient(var(--score-color, var(--cm-primary)) calc(var(--score) * 1%), var(--cm-border) 0);
   text-align: center;
   line-height: 1;
 }
@@ -1942,6 +1943,10 @@
 
 .roommate-card-score.is-excellent {
   --score-color: var(--cm-success);
+}
+
+.roommate-card-score.is-good {
+  --score-color: #4f9a78;
 }
 
 .roommate-card-score.is-partial {
@@ -1970,7 +1975,7 @@
 }
 
 .roommate-card-body h3 a:hover {
-  color: var(--cm-violet-dark);
+  color: var(--cm-primary-dark);
 }
 
 .roommate-card-body h3 span {
@@ -2080,7 +2085,7 @@
 }
 
 .roommate-card-compat .is-conflict {
-  color: #8a5b21;
+  color: var(--cm-amber-ink);
 }
 
 .roommate-card-footer {
@@ -2099,7 +2104,7 @@
   min-width: 0;
   align-items: center;
   gap: 0.35rem;
-  color: var(--cm-violet-dark);
+  color: var(--cm-primary-dark);
   font-size: 0.74rem;
   font-weight: 750;
   text-decoration: none;

@@ -6,18 +6,6 @@
  */
 
 :root {
-  --cm-bg: #fbfaf7;
-  --cm-bg-deep: #f5f2ec;
-  --cm-surface-soft: #f7f5f1;
-  --cm-ink: #17181d;
-  --cm-muted: #62636a;
-  --cm-border: #e8e1d6;
-  --cm-border-strong: #ddd3c5;
-  --cm-green: #204c3f;
-  --cm-green-dark: #153b31;
-  --cm-violet: #5940c5;
-  --cm-violet-dark: #4732ae;
-  --cm-yellow: #fff5c9;
   --cm-radius-sm: 10px;
   --cm-radius-md: 14px;
   --cm-radius-lg: 20px;
@@ -106,7 +94,7 @@ body {
   width: 13px;
   height: 9px;
   border-radius: 2px;
-  background: #d4a93c;
+  background: #f6ba39;
   content: "";
   transform: rotate(-38deg);
 }
@@ -187,9 +175,9 @@ body {
 
 .site-auth-primary {
   padding-inline: 1.35rem !important;
-  border-color: var(--cm-violet);
+  border-color: var(--cm-primary);
   color: #fff !important;
-  background: var(--cm-violet) !important;
+  background: var(--cm-primary) !important;
 }
 
 .site-user-link {
@@ -494,7 +482,7 @@ body {
 }
 
 .listing-category-tabs a.is-active {
-  color: var(--cm-violet);
+  color: var(--cm-primary);
 }
 
 .listing-category-tabs a.is-active::after {
@@ -503,7 +491,7 @@ body {
   bottom: 0;
   left: 12px;
   height: 2px;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
   content: "";
 }
 
@@ -632,7 +620,7 @@ body {
 
 .listing-card-reference-price .listing-card-rating {
   margin-left: auto;
-  color: #eeb722;
+  color: var(--cm-amber-star);
   font-weight: 800;
 }
 
@@ -817,7 +805,7 @@ body {
 }
 
 .login-tabs .is-active {
-  color: var(--cm-violet);
+  color: var(--cm-primary);
   background: #fff;
   border-radius: 25px 25px 0 0;
 }
@@ -828,7 +816,7 @@ body {
   bottom: 0;
   left: 18px;
   height: 2px;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
   content: "";
 }
 

@@ -11,8 +11,8 @@
 
 .notification-nav-link:hover,
 .notification-nav-link:focus {
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 .notification-nav-link svg {
@@ -37,7 +37,7 @@
   border: 2px solid var(--cm-surface);
   border-radius: var(--cm-radius-pill);
   color: #fff;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
   font-size: 0.55rem;
   font-weight: 850;
 }
@@ -56,7 +56,7 @@
 .requests-eyebrow,
 .notifications-eyebrow,
 .admin-dashboard-eyebrow {
-  color: var(--cm-violet);
+  color: var(--cm-primary);
   font-size: 0.68rem;
   font-weight: 850;
   letter-spacing: 0.1em;
@@ -86,8 +86,8 @@
   flex: 0 0 auto;
   padding: 0.6rem 0.85rem;
   border-radius: var(--cm-radius-pill);
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
   font-size: 0.72rem;
   font-weight: 800;
 }
@@ -121,7 +121,7 @@
 .requests-tab:focus,
 .requests-tab.is-active {
   color: #fff;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
 }
 
 .requests-tab svg {
@@ -276,7 +276,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: var(--cm-violet-dark);
+  color: var(--cm-primary-dark);
   font-size: 0.72rem;
   font-weight: 800;
   text-decoration: none;
@@ -314,16 +314,16 @@
 }
 
 .request-accept-action {
-  border: 1px solid var(--cm-violet);
+  border: 1px solid var(--cm-primary);
   color: #fff;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
 }
 
 .requests-empty-action {
   margin-top: 1rem;
-  border: 1px solid var(--cm-violet);
+  border: 1px solid var(--cm-primary);
   color: #fff;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
 }
 
 /* Notifications */
@@ -366,8 +366,8 @@
 }
 
 .notification-item.is-unread .notification-item-icon {
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 .notification-item-icon svg {
@@ -398,8 +398,8 @@
 .notification-item-heading span {
   padding: 0.35rem 0.5rem;
   border-radius: var(--cm-radius-pill);
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
   font-size: 0.58rem;
   font-weight: 850;
 }
@@ -451,14 +451,14 @@
 }
 
 .notification-listing-link {
-  border: 1px solid var(--cm-violet);
+  border: 1px solid var(--cm-primary);
   color: #fff;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
 }
 
 .notification-listing-link:hover {
   color: #fff;
-  background: var(--cm-violet-dark);
+  background: var(--cm-primary-dark);
 }
 
 .notification-read-button {
@@ -494,7 +494,7 @@
 .admin-nav-link:hover,
 .admin-nav-link.is-active {
   color: #fff;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
 }
 
 .admin-stats {
@@ -570,7 +570,7 @@
 }
 
 .admin-panel-heading span {
-  color: var(--cm-violet);
+  color: var(--cm-primary);
   font-size: 0.62rem;
   font-weight: 850;
   letter-spacing: 0.08em;
@@ -583,7 +583,7 @@
 }
 
 .admin-panel-heading > a {
-  color: var(--cm-violet);
+  color: var(--cm-primary);
   font-size: 0.7rem;
   font-weight: 800;
   text-decoration: none;
@@ -860,7 +860,7 @@
 }
 
 .error-card-eyebrow {
-  color: var(--cm-violet);
+  color: var(--cm-primary);
   font-size: 0.68rem;
   font-weight: 850;
   letter-spacing: 0.1em;

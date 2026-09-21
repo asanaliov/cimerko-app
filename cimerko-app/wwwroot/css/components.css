@@ -36,10 +36,10 @@
 .btn-primary,
 .btn-cimerko-primary,
 .cimerko-primary-button {
- border: 1px solid var(--cm-violet);
+ border: 1px solid var(--cm-primary);
  color: #fff;
- background: var(--cm-violet);
- box-shadow: 0 14px 36px rgba(89, 66, 199, 0.20);
+ background: var(--cm-primary);
+ box-shadow: 0 14px 36px rgba(27, 76, 61, 0.20);
  padding: 0.75rem 1.25rem;
  border-radius: var(--cm-radius-pill);
 }
@@ -50,10 +50,10 @@
 .btn-cimerko-primary:focus,
 .cimerko-primary-button:hover,
 .cimerko-primary-button:focus {
-  border-color: var(--cm-violet-dark);
+  border-color: var(--cm-primary-dark);
   color: #fff;
-  background: var(--cm-violet-dark);
-  box-shadow: 0 10px 23px rgba(89, 66, 199, 0.24);
+  background: var(--cm-primary-dark);
+  box-shadow: 0 10px 23px rgba(27, 76, 61, 0.24);
 }
 
 .btn-outline-secondary,
@@ -70,9 +70,9 @@
 .btn-cimerko-light:focus,
 .cimerko-light-pill:hover,
 .cimerko-light-pill:focus {
-  border-color: var(--cm-violet);
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  border-color: var(--cm-primary);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 .btn-cimerko-danger {
@@ -122,10 +122,10 @@ textarea.form-control {
 
 .form-control:focus,
 .form-select:focus {
-  border-color: var(--cm-violet);
+  border-color: var(--cm-primary);
   color: var(--cm-ink);
   background-color: var(--cm-surface);
-  box-shadow: 0 0 0 0.22rem rgba(89, 66, 199, 0.12);
+  box-shadow: 0 0 0 0.22rem rgba(27, 76, 61, 0.12);
 }
 
 .form-check-input {
@@ -133,13 +133,13 @@ textarea.form-control {
 }
 
 .form-check-input:checked {
-  border-color: var(--cm-violet);
-  background-color: var(--cm-violet);
+  border-color: var(--cm-primary);
+  background-color: var(--cm-primary);
 }
 
 .form-check-input:focus {
-  border-color: var(--cm-violet);
-  box-shadow: 0 0 0 0.2rem rgba(89, 66, 199, 0.13);
+  border-color: var(--cm-primary);
+  box-shadow: 0 0 0 0.2rem rgba(27, 76, 61, 0.13);
 }
 
 .text-danger,
@@ -171,8 +171,8 @@ textarea.form-control {
 
 .alert-info {
   border-color: #d9d2fa;
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 /* Shared surfaces and pills */

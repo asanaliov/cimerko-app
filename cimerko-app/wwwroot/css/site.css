@@ -1,24 +1,27 @@
 :root {
-  --cm-bg: #f7f4ee;
-  --cm-bg-deep: #f0ece4;
+  --cm-bg: #faf6ef;
+  --cm-bg-deep: #f2ece1;
   --cm-surface: #ffffff;
-  --cm-surface-soft: #f4f2ed;
-  --cm-ink: #24231f;
-  --cm-muted: #6f6b63;
-  --cm-border: #e5dfd4;
-  --cm-border-strong: #d7cfc2;
-  --cm-green: #1d493e;
-  --cm-green-dark: #12352d;
-  --cm-green-soft: #e8f1ed;
-  --cm-violet: #5942c7;
-  --cm-violet-dark: #4732b2;
-  --cm-violet-soft: #eeeafd;
-  --cm-yellow: #fff4c7;
-  --cm-yellow-strong: #f4c84a;
+  --cm-surface-soft: #f7f3eb;
+  --cm-ink: #1c2420;
+  --cm-muted: #66706b;
+  --cm-border: #e6dfd2;
+  --cm-border-strong: #d8cfbf;
+  --cm-green: #1b4c3d;
+  --cm-green-dark: #143a2e;
+  --cm-green-soft: #e6efea;
+  --cm-primary: #1b4c3d;
+  --cm-primary-dark: #143a2e;
+  --cm-primary-soft: #e6efea;
+  --cm-amber: #f6ba39;
+  --cm-amber-star: #e9a92c;
+  --cm-amber-ink: #7a5410;
+  --cm-yellow: #fdf0cf;
+  --cm-yellow-strong: #f6ba39;
   --cm-danger: #b43f48;
   --cm-danger-soft: #fbeaec;
-  --cm-success: #287157;
-  --cm-success-soft: #e7f4ed;
+  --cm-success: #2f7d5c;
+  --cm-success-soft: #e4f2ea;
   --cm-font: Inter, Aptos, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --cm-space-1: 0.25rem;
   --cm-space-2: 0.5rem;
@@ -48,8 +51,8 @@
   --cimerko-border: var(--cm-border);
   --cimerko-green: var(--cm-green);
   --cimerko-green-light: var(--cm-green-soft);
-  --cimerko-purple: var(--cm-violet);
-  --cimerko-purple-dark: var(--cm-violet-dark);
+  --cimerko-purple: var(--cm-primary);
+  --cimerko-purple-dark: var(--cm-primary-dark);
   --cimerko-yellow: var(--cm-yellow);
   --cimerko-yellow-strong: var(--cm-yellow-strong);
   --cimerko-danger: var(--cm-danger);
@@ -89,12 +92,12 @@ body {
 }
 
 a {
-  color: var(--cm-violet);
+  color: var(--cm-primary);
   text-underline-offset: 0.18em;
 }
 
 a:hover {
-  color: var(--cm-violet-dark);
+  color: var(--cm-primary-dark);
 }
 
 img {
@@ -125,7 +128,7 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid rgba(89, 66, 199, 0.32);
+  outline: 3px solid rgba(27, 76, 61, 0.32);
   outline-offset: 3px;
 }
 
@@ -254,8 +257,8 @@ a {
 
 .site-user-link:hover,
 .site-user-link:focus {
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 .site-user-avatar {
@@ -288,20 +291,20 @@ a {
 
 .site-auth-link:hover,
 .site-auth-link:focus {
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 .site-auth-primary {
   color: #fff !important;
-  background: var(--cm-violet);
-  box-shadow: 0 7px 18px rgba(89, 66, 199, 0.22);
+  background: var(--cm-primary);
+  box-shadow: 0 7px 18px rgba(27, 76, 61, 0.22);
 }
 
 .site-auth-primary:hover,
 .site-auth-primary:focus {
   color: #fff !important;
-  background: var(--cm-violet-dark);
+  background: var(--cm-primary-dark);
 }
 
 .site-navbar-toggler {
@@ -312,7 +315,7 @@ a {
 }
 
 .site-navbar-toggler:focus {
-  box-shadow: 0 0 0 0.22rem rgba(89, 66, 199, 0.16);
+  box-shadow: 0 0 0 0.22rem rgba(27, 76, 61, 0.16);
 }
 
 .site-user-menu {
@@ -343,8 +346,8 @@ a {
 
 .site-user-menu .dropdown-item:hover,
 .site-user-menu .dropdown-item:focus {
-  color: var(--cm-violet-dark);
-  background: var(--cm-violet-soft);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
 }
 
 .site-logout-form {
@@ -396,7 +399,7 @@ a {
 }
 
 .site-footer-content nav a:hover {
-  color: var(--cm-violet-dark);
+  color: var(--cm-primary-dark);
 }
 
 .site-footer-copy {
