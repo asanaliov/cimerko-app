@@ -711,73 +711,6 @@ body {
   padding: 0.75rem 0.8rem;
 }
 
-/* Roommates */
-
-.roommates-shell {
-  padding-top: 0;
-}
-
-.roommates-shell .listing-page-header {
-  min-height: 140px;
-  align-items: flex-start !important;
-  padding: 1.6rem 1.5rem;
-  border-radius: 18px;
-  background:
-    linear-gradient(90deg, rgba(251, 250, 247, 1) 0%, rgba(251, 250, 247, 0.92) 48%, rgba(238, 229, 214, 0.74) 100%);
-}
-
-.roommates-shell .listing-eyebrow {
-  display: none;
-}
-
-.roommates-shell .listing-page-title {
-  font-size: 2rem;
-}
-
-.roommate-filters {
-  margin-top: -2rem;
-  padding: 1rem;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: var(--cm-shadow-md);
-}
-
-.roommate-filters .pill-tabs {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
-  gap: 0.75rem;
-}
-
-.roommate-filters .pill-tab {
-  display: grid;
-  padding: 0.72rem 0.85rem;
-  border: 1px solid var(--cm-border);
-  border-radius: 12px;
-  color: var(--cm-ink);
-  font-size: 0.72rem;
-  text-decoration: none;
-}
-
-.roommate-card {
-  min-height: 330px;
-  align-items: center;
-  padding-top: 1rem;
-  text-align: center;
-}
-
-.roommates-grid {
-  grid-template-columns: minmax(0, 1fr) 410px;
-}
-
-.roommate-card .listing-card-content {
-  display: flex;
-  text-align: center;
-}
-
-.roommate-card .listing-card-footer {
-  display: none;
-}
-
 /* Login */
 
 .login-shell {
@@ -803,7 +736,7 @@ body {
   color: #fff;
   background:
     linear-gradient(90deg, rgba(23, 27, 25, 0.68), rgba(23, 27, 25, 0.12)),
-    url("/uploads/listing-images/8c56b0617b394b05a4475c212063ec00.jpg") center / cover;
+    url("/images/demo/listings/debar-maalo-room-1.jpg") center / cover;
 }
 
 .login-visual-copy {
@@ -950,10 +883,6 @@ body {
   .listing-discovery {
     grid-template-columns: 1.35fr 1fr;
   }
-
-  .roommate-filters .pill-tabs {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 991.98px) {
@@ -963,9 +892,47 @@ body {
 
   .site-nav-links {
     position: static;
+    min-width: auto;
     align-items: stretch;
-    margin: 1rem 0;
+    margin: 0.75rem 0;
+    padding: 0.3rem;
+    border-radius: 16px;
+    background: var(--cm-surface-soft);
+    box-shadow: none;
     transform: none;
+  }
+
+  .site-nav-link {
+    border-radius: 12px;
+  }
+
+  .site-nav-link.is-active {
+    background: #fff;
+  }
+
+  .site-account-nav {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .site-account-nav > .nav-item {
+    flex: 1;
+  }
+
+  .site-account-nav > .nav-item:has(.notification-nav-link) {
+    flex: 0 0 auto;
+  }
+
+  .site-user-link {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .site-auth-link {
+    display: flex;
+    justify-content: center;
+    text-align: center;
   }
 
   .listing-discovery {
@@ -1043,12 +1010,21 @@ body {
     width: auto;
   }
 
-  .home-marketplace .home-latest {
-    padding-inline: 0.5rem;
+  .home-page {
+    padding-inline: 0.65rem;
   }
 
-  .roommate-filters .pill-tabs {
-    grid-template-columns: 1fr 1fr;
+  .home-marketplace .home-latest {
+    padding-inline: 0;
+  }
+
+  .home-featured-card {
+    margin: 0.75rem 0 0.5rem;
+  }
+
+  .home-category-tabs {
+    width: 100%;
+    margin-left: 0;
   }
 
   .login-shell {
