@@ -7,6 +7,7 @@
     var isOwnProfile = ViewBag.IsOwnProfile is bool ownProfile && ownProfile;
     var profile = Model.RoommateProfile;
     var displayName = string.IsNullOrWhiteSpace(Model.FullName) ? Model.Email ?? "Cimerko member" : Model.FullName;
+    var firstName = displayName.Trim().Split(' ')[0];
     var initial = displayName.Trim()[..1].ToUpperInvariant();
     var reviews = Model.ReviewsReceived.OrderByDescending(review => review.CreatedAt).ToList();
     var averageRating = reviews.Count == 0 ? 0 : reviews.Average(review => review.Rating);
@@ -32,28 +33,37 @@
         ViewBag.CompatibilityPossibleConflicts as IReadOnlyList<string> ?? Array.Empty<string>();
     var profileBadges =
         ViewBag.ProfileBadges as IReadOnlyList<ProfileBadgeViewModel> ?? Array.Empty<ProfileBadgeViewModel>();
-    var newUserBadge = profileBadges.FirstOrDefault(badge => badge.CssClass == "profile-badge-new");
-    var identityBadges = profileBadges
-        .Where(badge => badge.CssClass != "profile-badge-new")
-        .ToList();
     var profileCompletion = ViewBag.ProfileCompletion as ProfileCompletionViewModel;
     var showSidebar = showCompatibility || reviews.Count > 0 || canWriteReview;
     var profileListings = Model.Listings
         .OrderByDescending(listing => listing.CreatedAt)
         .ToList();
+    var activeListingCount = profileListings.Count(listing =>
+        listing.IsActive && listing.ModerationStatus == ListingModerationStatus.Approved);
     var pendingListingCount = profileListings.Count(listing =>
         listing.ModerationStatus == ListingModerationStatus.Pending);
-    var bioPreview = profile?.Bio;
-    if (bioPreview?.Length > 180) {
-        bioPreview = $"{bioPreview[..180].TrimEnd()}…";
-    }
+    var education = string.Join(" · ", new[] { profile?.StudyProgram, profile?.University }
+        .Where(value => !string.IsNullOrWhiteSpace(value)));
 
-    var hasLivingPreferences =
-        !string.IsNullOrWhiteSpace(profile?.SmokingPreference) ||
-        !string.IsNullOrWhiteSpace(profile?.PetsPreference) ||
-        !string.IsNullOrWhiteSpace(profile?.CleanlinessLevel) ||
-        !string.IsNullOrWhiteSpace(profile?.SleepSchedule) ||
-        !string.IsNullOrWhiteSpace(profile?.GuestPreference);
+    var preferences = new (string Icon, string Label, string? Value)[] {
+        ("smoke", "Smoking", profile?.SmokingPreference),
+        ("pet", "Pets", profile?.PetsPreference),
+        ("sparkle", "Cleanliness", profile?.CleanlinessLevel),
+        ("moon", "Sleep", profile?.SleepSchedule),
+        ("guests", "Guests", profile?.GuestPreference)
+    };
+    var hasLivingPreferences = preferences.Any(preference => !string.IsNullOrWhiteSpace(preference.Value));
+}
+
+@functions {
+    private static string Icon(string name) => name switch {
+        "smoke" => "<path d=\"M4 14h13v4H4zM19 14h1v4h-1M8 11c0-2 2-2 2-4M12 11c0-2 2-2 2-4\"/>",
+        "pet" => "<circle cx=\"8\" cy=\"8\" r=\"1.6\"/><circle cx=\"16\" cy=\"8\" r=\"1.6\"/><circle cx=\"5.5\" cy=\"12.5\" r=\"1.5\"/><circle cx=\"18.5\" cy=\"12.5\" r=\"1.5\"/><path d=\"M8.5 18.5c0-2.6 1.6-4.5 3.5-4.5s3.5 1.9 3.5 4.5c0 1.2-1.6 1.5-3.5 1.5s-3.5-.3-3.5-1.5Z\"/>",
+        "sparkle" => "<path d=\"m14 4 1.2 3.3L18.5 8l-3.3 1.2L14 12.5l-1.2-3.3L9.5 8l3.3-.7L14 4ZM6 12l.8 2.2L9 15l-2.2.8L6 18l-.8-2.2L3 15l2.2-.8L6 12Z\"/>",
+        "moon" => "<path d=\"M19 15.5A8 8 0 0 1 8.5 5 8 8 0 1 0 19 15.5Z\"/>",
+        "guests" => "<circle cx=\"9\" cy=\"8\" r=\"3\"/><circle cx=\"17\" cy=\"10\" r=\"2\"/><path d=\"M3 19c.4-4 2.4-6 6-6s5.6 2 6 6M15 15c3 0 4.7 1.3 5 4\"/>",
+        _ => ""
+    };
 }
 
 <div class="profile-details-shell">
@@ -65,86 +75,45 @@
     }
 
     <section class="profile-hero">
-        <div class="profile-hero-accent"></div>
+        <div class="profile-hero-accent" aria-hidden="true"></div>
         <div class="profile-hero-content">
-            <div class="profile-hero-avatar-column">
-                <div class="profile-hero-avatar" aria-label="@displayName profile picture">
-                    @if (!string.IsNullOrWhiteSpace(Model.ProfileImageUrl)) {
-                        <img src="@Model.ProfileImageUrl" alt="@displayName"/>
-                    }
-                    else {
-                        <span aria-hidden="true">@initial</span>
-                    }
-                </div>
-                @if (newUserBadge != null) {
-                    <span class="profile-badge @newUserBadge.CssClass profile-avatar-new-badge">
-                        @newUserBadge.Text
-                    </span>
+            <div class="profile-hero-avatar" aria-label="@displayName profile picture">
+                @if (!string.IsNullOrWhiteSpace(Model.ProfileImageUrl)) {
+                    <img src="@Model.ProfileImageUrl" alt="@displayName"/>
+                }
+                else {
+                    <span aria-hidden="true">@initial</span>
                 }
             </div>
 
             <div class="profile-hero-identity">
                 <h1>@displayName</h1>
-                <div class="profile-hero-meta">
+                <p class="profile-hero-meta">
                     @if (!string.IsNullOrWhiteSpace(profile?.City)) {
-                        <span>@profile.City</span>
+                        <span>
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5.5-8 11-8 11S4 15.5 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                            @profile.City
+                        </span>
                     }
                     @if (profile?.Age > 0) {
                         <span>@profile.Age years old</span>
                     }
-                    <span>Member since @Model.CreatedAt.ToString("MMM yyyy")</span>
-                </div>
-                @if (identityBadges.Count > 0) {
+                    @if (!string.IsNullOrWhiteSpace(education)) {
+                        <span>@education</span>
+                    }
+                </p>
+                @if (profileBadges.Count > 0) {
                     <div class="profile-badges" aria-label="Profile badges">
-                        @foreach (var badge in identityBadges) {
+                        @foreach (var badge in profileBadges) {
                             <span class="profile-badge @badge.CssClass">@badge.Text</span>
-                        }
-                    </div>
-                }
-                @if (!string.IsNullOrWhiteSpace(bioPreview)) {
-                    <p class="profile-hero-bio">@bioPreview</p>
-                }
-                @if (isOwnProfile && profileCompletion != null) {
-                    <div class="profile-completion">
-                        <div class="profile-completion-heading">
-                            <strong>Profile completion</strong>
-                            <span>@profileCompletion.ProfileCompletionPercentage%</span>
-                        </div>
-                        <div class="profile-completion-track"
-                             role="progressbar"
-                             aria-label="Profile completion"
-                             aria-valuemin="0"
-                             aria-valuemax="100"
-                             aria-valuenow="@profileCompletion.ProfileCompletionPercentage">
-                            <span style="width: @(profileCompletion.ProfileCompletionPercentage)%"></span>
-                        </div>
-                        @if (profileCompletion.IsProfileComplete) {
-                            <p class="profile-completion-success">Your profile is complete.</p>
-                        }
-                        else {
-                            <p>Complete your profile to get better roommate matches.</p>
-                            <details class="profile-missing-details">
-                                <summary>Complete missing fields</summary>
-                                <div class="profile-missing-panel">
-                                    <strong class="profile-missing-heading">Missing information</strong>
-                                    <ul>
-                                        @foreach (var field in profileCompletion.MissingProfileFields) {
-                                            <li>
-                                                <a asp-action="Edit" asp-fragment="@field.EditAnchor">@field.Name</a>
-                                            </li>
-                                        }
-                                    </ul>
-                                    <a asp-action="Edit" class="profile-missing-edit-all">Complete your profile</a>
-                                </div>
-                            </details>
                         }
                     </div>
                 }
             </div>
 
-            @if (isOwnProfile) {
-                <div class="profile-hero-actions">
-                    <a asp-action="Edit" class="btn profile-edit-button">Edit profile</a>
+            <div class="profile-hero-actions">
+                @if (isOwnProfile) {
+                    <a asp-action="Edit" class="btn-cimerko-primary">Edit profile</a>
                     <a asp-area="Identity"
                        asp-page="/Account/Manage/Index"
                        class="profile-settings-button"
@@ -155,54 +124,84 @@
                             <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/>
                         </svg>
                     </a>
-                </div>
-            }
-            else if (User.Identity?.IsAuthenticated == true) {
-                <div class="profile-hero-actions">
+                }
+                else if (User.Identity?.IsAuthenticated == true) {
+                    @if (activeListingCount > 0) {
+                        <a href="#profile-listings" class="btn-cimerko-primary">See @(activeListingCount == 1 ? "listing" : "listings")</a>
+                    }
                     <a asp-controller="Report"
                        asp-action="UserProfile"
                        asp-route-id="@Model.Id"
-                       class="btn profile-edit-button">Report profile</a>
-                </div>
-            }
+                       class="btn-cimerko-light">Report</a>
+                }
+            </div>
         </div>
 
-        <div class="profile-hero-stats">
+        <dl class="profile-hero-stats">
             <div>
-                <strong>@(string.IsNullOrWhiteSpace(profile?.University) ? "-" : profile.University)</strong>
-                <span>University</span>
+                <dt>Rating</dt>
+                <dd>
+                    @if (reviews.Count > 0) {
+                        <span class="profile-hero-star" aria-hidden="true">★</span>@averageRating.ToString("0.0")
+                        <small>@(reviews.Count == 1 ? "1 review" : $"{reviews.Count} reviews")</small>
+                    } else {
+                        <span>No reviews yet</span>
+                    }
+                </dd>
             </div>
             <div>
-                <strong>@(string.IsNullOrWhiteSpace(profile?.StudyProgram) ? "-" : profile.StudyProgram)</strong>
-                <span>Faculty</span>
+                <dt>Listings</dt>
+                <dd>
+                    @activeListingCount active
+                    @if (isOwnProfile && pendingListingCount > 0) {
+                        <small>@pendingListingCount pending</small>
+                    }
+                </dd>
             </div>
             <div>
-                <strong>@(reviews.Count == 0 ? "New" : $"{averageRating:0.0} / 5")</strong>
-                <span>@(reviews.Count == 1 ? "1 review" : $"{reviews.Count} reviews")</span>
+                <dt>Member since</dt>
+                <dd>@Model.CreatedAt.ToString("MMMM yyyy")</dd>
             </div>
-        </div>
+        </dl>
     </section>
+
+    @if (isOwnProfile && profileCompletion != null && !profileCompletion.IsProfileComplete) {
+        <section class="profile-completion">
+            <div class="profile-completion-heading">
+                <strong>Your profile is @profileCompletion.ProfileCompletionPercentage% complete</strong>
+                <span>Complete profiles get better roommate matches.</span>
+            </div>
+            <div class="profile-completion-track"
+                 role="progressbar"
+                 aria-label="Profile completion"
+                 aria-valuemin="0"
+                 aria-valuemax="100"
+                 aria-valuenow="@profileCompletion.ProfileCompletionPercentage">
+                <span style="width: @(profileCompletion.ProfileCompletionPercentage)%"></span>
+            </div>
+            <ul class="profile-missing-list">
+                @foreach (var field in profileCompletion.MissingProfileFields) {
+                    <li><a asp-action="Edit" asp-fragment="@field.EditAnchor">+ @field.Name</a></li>
+                }
+            </ul>
+        </section>
+    }
 
     <div class="profile-details-grid @(!showSidebar ? "profile-details-grid-single" : "")">
         <main class="profile-details-main">
             <section class="profile-content-card">
-                <div class="profile-card-heading">
-                    <span class="profile-kicker">Introduction</span>
-                    <h2>About</h2>
-                </div>
+                <h2>About @firstName</h2>
 
                 @if (profile == null) {
                     <div class="profile-empty-state">
-                        <h3>@(isOwnProfile ? "Complete your profile" : "Profile details are not available yet")</h3>
+                        <h3>@(isOwnProfile ? "Complete your profile" : "No profile details yet")</h3>
                         <p>
                             @(isOwnProfile
-                                ? "Complete your profile to get better roommate matches."
-                                : "This user has not completed their roommate profile yet.")
+                                ? "Add a short introduction and your living habits so roommates can find you."
+                                : "This member has not filled in their roommate profile yet.")
                         </p>
                         @if (isOwnProfile) {
-                            <a asp-action="Edit" class="btn btn-sm btn-outline-primary profile-empty-action">
-                                Complete profile
-                            </a>
+                            <a asp-action="Edit" class="btn-cimerko-light">Complete profile</a>
                         }
                     </div>
                 }
@@ -211,188 +210,136 @@
                         @(string.IsNullOrWhiteSpace(profile.Bio)
                             ? isOwnProfile
                                 ? "Add an introduction to help potential roommates get to know you."
-                                : "This user has not added an introduction yet."
+                                : $"{firstName} has not written an introduction yet."
                             : profile.Bio)
                     </p>
 
-                    <div class="profile-facts">
-                        <div class="profile-fact">
-                            <span>City</span>
-                            <strong>@profile.City</strong>
+                    <dl class="profile-facts">
+                        <div>
+                            <dt>City</dt>
+                            <dd>@profile.City</dd>
                         </div>
-                        <div class="profile-fact">
-                            <span>Age</span>
-                            <strong>@profile.Age</strong>
+                        <div>
+                            <dt>Age</dt>
+                            <dd>@(profile.Age?.ToString() ?? "Not specified")</dd>
                         </div>
-                        <div class="profile-fact">
-                            <span>Gender</span>
-                            <strong>@(profile.Gender ?? "Not specified")</strong>
+                        <div>
+                            <dt>Gender</dt>
+                            <dd>@(profile.Gender ?? "Not specified")</dd>
                         </div>
-                        <div class="profile-fact">
-                            <span>University</span>
-                            <strong>@(profile.University ?? "Not specified")</strong>
+                        <div>
+                            <dt>University</dt>
+                            <dd>@(profile.University ?? "Not specified")</dd>
                         </div>
-                        <div class="profile-fact profile-fact-wide">
-                            <span>Faculty</span>
-                            <strong>@(profile.StudyProgram ?? "Not specified")</strong>
+                        <div>
+                            <dt>Faculty</dt>
+                            <dd>@(profile.StudyProgram ?? "Not specified")</dd>
                         </div>
                         @if (!string.IsNullOrWhiteSpace(profile.ContactEmail) || isOwnProfile) {
-                            <div class="profile-fact profile-fact-wide">
-                                <span>Contact email</span>
-                                <strong>
+                            <div>
+                                <dt>Contact email</dt>
+                                <dd>
                                     @if (!string.IsNullOrWhiteSpace(profile.ContactEmail)) {
                                         <a href="mailto:@profile.ContactEmail">@profile.ContactEmail</a>
                                     }
                                     else {
                                         <span>Not specified</span>
                                     }
-                                </strong>
+                                </dd>
                             </div>
                         }
-                    </div>
+                    </dl>
                 }
             </section>
 
             <section class="profile-content-card">
-                <div class="profile-card-heading">
-                    <span class="profile-kicker">At home</span>
-                    <h2>Living preferences</h2>
-                </div>
+                <h2>Living habits</h2>
 
                 @if (profile == null || !hasLivingPreferences) {
                     <div class="profile-empty-state">
-                        <h3>@(isOwnProfile ? "Add your living preferences" : "No living preferences yet")</h3>
+                        <h3>@(isOwnProfile ? "Add your living habits" : "No living habits shared yet")</h3>
                         <p>
                             @(isOwnProfile
-                                ? "Complete your preferences to get better roommate matches."
-                                : "This user has not shared their household preferences yet.")
+                                ? "Smoking, pets, cleanliness, sleep and guests are what compatibility scores are based on."
+                                : $"{firstName} has not shared household preferences yet.")
                         </p>
                         @if (isOwnProfile) {
-                            <a asp-action="Edit" class="btn btn-sm btn-outline-primary profile-empty-action">
-                                Add preferences
-                            </a>
+                            <a asp-action="Edit" asp-fragment="SmokingPreference" class="btn-cimerko-light">Add habits</a>
                         }
                     </div>
                 }
                 else {
-                    <div class="profile-preference-grid">
-                        <div class="profile-preference-item">
-                            <span>
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M4 13h14v4H4zM18 13h2v4h-2zM7 10h8M15 10c2 0 2-3 0-3"/>
-                                </svg>
-                                Smoking
-                            </span>
-                            <strong>@(profile.SmokingPreference ?? "Not specified")</strong>
-                        </div>
-                        <div class="profile-preference-item">
-                            <span>
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <circle cx="7" cy="8" r="2"/>
-                                    <circle cx="17" cy="8" r="2"/>
-                                    <circle cx="5" cy="13" r="2"/>
-                                    <circle cx="19" cy="13" r="2"/>
-                                    <path d="M8 18c0-3 1.8-5 4-5s4 2 4 5c0 1.6-1.8 2-4 2s-4-.4-4-2Z"/>
-                                </svg>
-                                Pets
-                            </span>
-                            <strong>@(profile.PetsPreference ?? "Not specified")</strong>
-                        </div>
-                        <div class="profile-preference-item">
-                            <span>
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="m14 4 1.2 3.3L18.5 8l-3.3 1.2L14 12.5l-1.2-3.3L9.5 8l3.3-.7L14 4ZM6 12l.8 2.2L9 15l-2.2.8L6 18l-.8-2.2L3 15l2.2-.8L6 12ZM18 14l.7 1.8 1.8.7-1.8.7L18 19l-.7-1.8-1.8-.7 1.8-.7L18 14Z"/>
-                                </svg>
-                                Cleanliness
-                            </span>
-                            <strong>@(profile.CleanlinessLevel ?? "Not specified")</strong>
-                        </div>
-                        <div class="profile-preference-item">
-                            <span>
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M19 15.5A8 8 0 0 1 8.5 5 8 8 0 1 0 19 15.5Z"/>
-                                </svg>
-                                Sleep schedule
-                            </span>
-                            <strong>@(profile.SleepSchedule ?? "Not specified")</strong>
-                        </div>
-                        <div class="profile-preference-item">
-                            <span>
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <circle cx="9" cy="8" r="3"/>
-                                    <circle cx="17" cy="10" r="2"/>
-                                    <path d="M3 19c.4-4 2.4-6 6-6s5.6 2 6 6M15 15c3 0 4.7 1.3 5 4"/>
-                                </svg>
-                                Guests
-                            </span>
-                            <strong>@(profile.GuestPreference ?? "Not specified")</strong>
-                        </div>
-                    </div>
+                    <ul class="profile-preference-grid">
+                        @foreach (var preference in preferences) {
+                            <li class="@(string.IsNullOrWhiteSpace(preference.Value) ? "is-empty" : "")">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">@Html.Raw(Icon(preference.Icon))</svg>
+                                <small>@preference.Label</small>
+                                <strong>@(preference.Value ?? "Not specified")</strong>
+                            </li>
+                        }
+                    </ul>
                 }
             </section>
 
-            <section class="profile-listings-section">
+            <section class="profile-listings-section" id="profile-listings">
                 <div class="profile-section-title">
-                    <div>
-                        <span class="profile-kicker">Housing</span>
-                        <h2>@(isOwnProfile ? "Your listings" : "Active listings")</h2>
-                    </div>
+                    <h2>@(isOwnProfile ? "Your listings" : $"{firstName}'s listings")</h2>
                     @if (profileListings.Count > 0) {
                         <span class="profile-section-count">
                             @(isOwnProfile && pendingListingCount > 0
                                 ? $"{pendingListingCount} pending"
-                                : isOwnProfile
-                                    ? $"{profileListings.Count} total"
-                                    : $"{profileListings.Count} active")
+                                : $"{profileListings.Count} {(isOwnProfile ? "total" : "active")}")
                         </span>
                     }
                 </div>
 
                 @if (profileListings.Count == 0) {
-                    <div class="profile-content-card profile-empty-state">
+                    <div class="profile-empty-state">
                         <h3>@(isOwnProfile ? "No listings yet" : "No active listings")</h3>
                         <p>
                             @(isOwnProfile
-                                ? "You have not posted any listings yet."
-                                : "This user has not posted any active listings yet.")
+                                ? "Post a place for rent or a roommate request and it will show up here."
+                                : $"{firstName} has no active listings right now.")
                         </p>
                         @if (isOwnProfile) {
-                            <a asp-controller="Listing" asp-action="Create"
-                               class="btn btn-sm btn-outline-primary profile-empty-action">
-                                Post a listing
-                            </a>
+                            <a asp-controller="Listing" asp-action="Create" class="btn-cimerko-light">Post a listing</a>
                         }
                     </div>
                 }
                 else {
                     <div class="profile-listing-grid">
                         @foreach (var listing in profileListings) {
-                            var listingType = listing.Type.GetDisplayName();
+                            var cover = listing.Images
+                                .OrderByDescending(image => image.IsPrimary)
+                                .ThenBy(image => image.CreatedAt)
+                                .FirstOrDefault();
                             var listingStatusHelp = listing.ModerationStatus switch {
                                 ListingModerationStatus.Pending => "Waiting for admin approval.",
                                 ListingModerationStatus.Approved when listing.IsActive => "Visible in public search.",
                                 ListingModerationStatus.Approved => "Approved but not active.",
-                                ListingModerationStatus.Rejected => "Not visible because it was rejected.",
+                                ListingModerationStatus.Rejected => "Rejected, not visible.",
                                 ListingModerationStatus.Inactive => "Hidden from public search.",
                                 _ => "Status unavailable."
                             };
 
                             <article class="profile-listing-card">
-                                <div>
-                                    <div class="profile-listing-card-header">
-                                        <span class="profile-listing-type @(listing.Type == ListingType.PlaceForRent ? "is-place" : "is-roommate")">
-                                            @listingType
+                                <a asp-controller="Listing" asp-action="Details" asp-route-id="@listing.Id" class="profile-listing-cover" aria-label="View @listing.Title">
+                                    @if (cover != null) {
+                                        <img src="@cover.ImageUrl" alt="" loading="lazy"/>
+                                    } else {
+                                        <span class="profile-listing-cover-empty">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V20H4z"/><path d="M9 20v-6h6v6"/></svg>
                                         </span>
-                                        @if (isOwnProfile) {
-                                            <span class="admin-status is-@listing.ModerationStatus.ToString().ToLowerInvariant()">
-                                                @listing.ModerationStatus.GetDisplayName()
-                                            </span>
-                                        }
-                                    </div>
-                                    <h3>@listing.Title</h3>
+                                    }
+                                    <span class="profile-listing-type @(listing.Type == ListingType.PlaceForRent ? "is-place" : "is-roommate")">
+                                        @listing.Type.GetDisplayName()
+                                    </span>
+                                </a>
+                                <div class="profile-listing-body">
+                                    <h3><a asp-controller="Listing" asp-action="Details" asp-route-id="@listing.Id">@listing.Title</a></h3>
                                     <p>
                                         @listing.City · @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")
-                                        @if (listing.Type == ListingType.PlaceForRent && listing.BedroomCount.HasValue) {
+                                        @if (listing.BedroomCount.HasValue) {
                                             <span>
                                                 · @(listing.BedroomCount.Value == 0
                                                     ? "studio"
@@ -400,15 +347,14 @@
                                             </span>
                                         }
                                     </p>
-                                    @if (isOwnProfile) {
-                                        <p class="profile-listing-status-note">@listingStatusHelp</p>
-                                    }
-                                </div>
-                                <div class="profile-listing-footer">
-                                    <strong>@listing.MonthlyRent.ToString("0") € <small>/ month</small></strong>
-                                    <a asp-controller="Listing" asp-action="Details" asp-route-id="@listing.Id">
-                                        View listing
-                                    </a>
+                                    <div class="profile-listing-footer">
+                                        <strong>@listing.MonthlyRent.ToString("0") € <small>/ month</small></strong>
+                                        @if (isOwnProfile) {
+                                            <span class="admin-status is-@listing.ModerationStatus.ToString().ToLowerInvariant()" title="@listingStatusHelp">
+                                                @listing.ModerationStatus.GetDisplayName()
+                                            </span>
+                                        }
+                                    </div>
                                 </div>
                             </article>
                         }
@@ -418,22 +364,19 @@
 
             <section class="profile-reviews-section">
                 <div class="profile-section-title">
-                    <div>
-                        <span class="profile-kicker">Community feedback</span>
-                        <h2>Reviews</h2>
-                    </div>
+                    <h2>Reviews</h2>
                     @if (reviews.Count > 0) {
-                        <span class="profile-section-count">@averageRating.ToString("0.0") / 5</span>
+                        <span class="profile-section-count">★ @averageRating.ToString("0.0") · @reviews.Count</span>
                     }
                 </div>
 
                 @if (reviews.Count == 0) {
-                    <div class="profile-content-card profile-empty-state">
+                    <div class="profile-empty-state">
                         <h3>No reviews yet</h3>
                         <p>
                             @(isOwnProfile
-                                ? "You have not received any reviews yet."
-                                : "This user has not received any reviews yet.")
+                                ? "Reviews appear after someone you connected with through a request writes one."
+                                : $"Nobody has reviewed {firstName} yet. Reviews come from people connected through an accepted request.")
                         </p>
                     </div>
                 }
@@ -444,12 +387,13 @@
                                 ? review.Reviewer?.Email ?? "Cimerko member"
                                 : review.Reviewer.FullName;
                             var reviewerInitial = reviewerName.Trim()[..1].ToUpperInvariant();
-                            var hasDetailedRatings =
-                                review.SmokingRating.HasValue ||
-                                review.PetsRating.HasValue ||
-                                review.CleanlinessRating.HasValue ||
-                                review.SleepScheduleRating.HasValue ||
-                                review.GuestPreferenceRating.HasValue;
+                            var breakdown = new (string Label, int? Value)[] {
+                                ("Smoking", review.SmokingRating),
+                                ("Pets", review.PetsRating),
+                                ("Cleanliness", review.CleanlinessRating),
+                                ("Sleep", review.SleepScheduleRating),
+                                ("Guests", review.GuestPreferenceRating)
+                            };
 
                             <article class="profile-review-card">
                                 <header class="profile-review-header">
@@ -465,7 +409,7 @@
                                         </span>
                                         <span>
                                             <strong>@reviewerName</strong>
-                                            <small>@review.CreatedAt.ToString("dd MMM yyyy")</small>
+                                            <small>@review.CreatedAt.ToString("d MMM yyyy")</small>
                                         </span>
                                     </a>
                                     <div class="profile-review-stars" aria-label="@review.Rating out of 5 stars">
@@ -479,31 +423,19 @@
                                     <p>@review.Comment</p>
                                 }
 
-                                @if (hasDetailedRatings) {
-                                    <div class="profile-review-breakdown">
-                                        @if (review.SmokingRating.HasValue) {
-                                            <div><span>Smoking</span><strong>@review.SmokingRating / 5</strong></div>
+                                @if (breakdown.Any(item => item.Value.HasValue)) {
+                                    <ul class="profile-review-breakdown">
+                                        @foreach (var item in breakdown.Where(item => item.Value.HasValue)) {
+                                            <li><span>@item.Label</span><strong>@item.Value/5</strong></li>
                                         }
-                                        @if (review.PetsRating.HasValue) {
-                                            <div><span>Pets</span><strong>@review.PetsRating / 5</strong></div>
-                                        }
-                                        @if (review.CleanlinessRating.HasValue) {
-                                            <div><span>Cleanliness</span><strong>@review.CleanlinessRating / 5</strong></div>
-                                        }
-                                        @if (review.SleepScheduleRating.HasValue) {
-                                            <div><span>Sleep schedule</span><strong>@review.SleepScheduleRating / 5</strong></div>
-                                        }
-                                        @if (review.GuestPreferenceRating.HasValue) {
-                                            <div><span>Guests</span><strong>@review.GuestPreferenceRating / 5</strong></div>
-                                        }
-                                    </div>
+                                    </ul>
                                 }
 
                                 @if (currentUserId == review.ReviewerId) {
                                     <form asp-controller="Review" asp-action="Delete" method="post"
                                           class="profile-review-delete">
                                         <input type="hidden" name="id" value="@review.Id"/>
-                                        <button type="submit" class="btn btn-link text-danger">Delete review</button>
+                                        <button type="submit">Delete my review</button>
                                     </form>
                                 }
                             </article>
@@ -513,43 +445,27 @@
             </section>
         </main>
 
-        <aside class="profile-details-sidebar @(!showSidebar ? "d-none" : "")">
-            @if (showCompatibility) {
-                <section class="profile-compatibility-card">
-                    @if (compatibilityScore.HasValue) {
-                        <header class="profile-compatibility-header">
-                            <span class="profile-kicker">Your compatibility</span>
-                            <div class="profile-compatibility-summary">
-                                <div class="profile-compatibility-score @compatibilityClass">
+        @if (showSidebar) {
+            <aside class="profile-details-sidebar">
+                @if (showCompatibility) {
+                    <section class="profile-compatibility-card">
+                        @if (compatibilityScore.HasValue) {
+                            <header class="profile-compatibility-header">
+                                <div class="profile-compatibility-score @compatibilityClass" style="--score: @compatibilityScore">
                                     <strong>@compatibilityScore%</strong>
-                                    <span>match</span>
                                 </div>
                                 <div>
-                                    <span class="profile-compatibility-badge @compatibilityClass">
-                                        @compatibilityLabel
-                                    </span>
+                                    <h2>@compatibilityLabel</h2>
                                     <p>
                                         Based on @comparedPreferences shared
-                                        @(comparedPreferences == 1 ? "preference" : "preferences").
+                                        @(comparedPreferences == 1 ? "preference" : "preferences") between you and @firstName.
                                     </p>
                                 </div>
-                            </div>
-                        </header>
-                        <div class="profile-compatibility-body">
-                            <div class="progress profile-compatibility-progress"
-                                 role="progressbar"
-                                 aria-label="@compatibilityLabel"
-                                 aria-valuenow="@compatibilityScore"
-                                 aria-valuemin="0"
-                                 aria-valuemax="100">
-                                <div class="progress-bar @compatibilityClass"
-                                     style="width: @compatibilityScore%">
-                                </div>
-                            </div>
-                            <div class="profile-compatibility-breakdown">
+                            </header>
+                            <div class="profile-compatibility-body">
                                 @if (compatibilityStrongMatches.Count > 0) {
                                     <div>
-                                        <h3>Strong matches</h3>
+                                        <h3>You agree on</h3>
                                         <ul class="profile-match-list">
                                             @foreach (var match in compatibilityStrongMatches) {
                                                 <li>@match</li>
@@ -559,7 +475,7 @@
                                 }
                                 @if (compatibilityPossibleConflicts.Count > 0) {
                                     <div>
-                                        <h3>Possible conflicts</h3>
+                                        <h3>Worth talking about</h3>
                                         <ul class="profile-conflict-list">
                                             @foreach (var conflict in compatibilityPossibleConflicts) {
                                                 <li>@conflict</li>
@@ -567,51 +483,42 @@
                                         </ul>
                                     </div>
                                 }
+                                <small>Smoking and cleanliness weigh the most.</small>
                             </div>
-                            <small>Smoking and cleanliness have the greatest influence.</small>
-                        </div>
-                    }
-                    else {
-                        <div class="profile-compatibility-empty">
-                            <span class="profile-kicker">Your compatibility</span>
-                            <strong>Compatibility unavailable</strong>
-                            <p>Not enough preference information to calculate compatibility.</p>
-                        </div>
-                    }
-                </section>
-            }
-
-            @if (reviews.Count > 0) {
-                <section class="profile-review-summary-card">
-                    <span class="profile-kicker">Reviews</span>
-                    <div class="profile-review-score">
-                        <strong>@averageRating.ToString("0.0")</strong>
-                        <span>out of 5</span>
-                    </div>
-                    <div class="profile-review-summary-stars" aria-label="Average rating">
-                        @for (var star = 1; star <= 5; star++) {
-                            <span class="@(star <= Math.Round(averageRating) ? "is-filled" : "")">★</span>
                         }
-                    </div>
-                    <p>Based on @reviews.Count @(reviews.Count == 1 ? "review" : "reviews").</p>
-                    <div class="profile-review-policy">
-                        Reviews are limited to people connected through an accepted housing request.
-                    </div>
-                </section>
-            }
+                        else {
+                            <div class="profile-compatibility-empty">
+                                <h2>Compatibility unavailable</h2>
+                                <p>Fill in your own living habits and @firstName's to see a match score.</p>
+                                <a asp-action="Edit" asp-fragment="SmokingPreference">Update my habits</a>
+                            </div>
+                        }
+                    </section>
+                }
 
-            @if (canWriteReview) {
-                <section class="profile-review-form-card">
-                    <div class="profile-card-heading">
-                        <span class="profile-kicker">Share feedback</span>
-                        <h2>Write a review</h2>
-                    </div>
+                @if (reviews.Count > 0) {
+                    <section class="profile-review-summary-card">
+                        <div class="profile-review-score">
+                            <strong>@averageRating.ToString("0.0")</strong>
+                            <div class="profile-review-summary-stars" aria-label="Average rating">
+                                @for (var star = 1; star <= 5; star++) {
+                                    <span class="@(star <= Math.Round(averageRating) ? "is-filled" : "")">★</span>
+                                }
+                            </div>
+                        </div>
+                        <p>@reviews.Count @(reviews.Count == 1 ? "review" : "reviews") from people who connected with @firstName through Cimerko.</p>
+                    </section>
+                }
 
-                    <form asp-controller="Review" asp-action="Create" method="post">
-                        <input type="hidden" name="reviewedUserId" value="@Model.Id"/>
+                @if (canWriteReview) {
+                    <section class="profile-review-form-card">
+                        <h2>Review @firstName</h2>
+                        <p>You connected through an accepted request, so you can leave one review.</p>
 
-                        <div class="mb-3">
-                            <label for="rating" class="form-label">Overall rating</label>
+                        <form asp-controller="Review" asp-action="Create" method="post">
+                            <input type="hidden" name="reviewedUserId" value="@Model.Id"/>
+
+                            <label for="rating">Overall</label>
                             <select id="rating" name="rating" class="form-select">
                                 <option value="5">5 - Excellent</option>
                                 <option value="4">4 - Very good</option>
@@ -619,83 +526,34 @@
                                 <option value="2">2 - Fair</option>
                                 <option value="1">1 - Poor</option>
                             </select>
-                        </div>
 
-                        <div class="profile-review-details-heading">
-                            <strong>Living compatibility</strong>
-                            <span>Rate each area from 1 to 5.</span>
-                        </div>
+                            @foreach (var (id, label) in new[] {
+                                ("smokingRating", "Smoking habits"),
+                                ("petsRating", "Pet responsibility"),
+                                ("cleanlinessRating", "Cleanliness"),
+                                ("sleepScheduleRating", "Sleep schedule"),
+                                ("guestPreferenceRating", "Guest habits")
+                            }) {
+                                <label for="@id">@label</label>
+                                <select id="@id" name="@id" class="form-select" required>
+                                    <option value="">Choose a rating</option>
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Very good</option>
+                                    <option value="3">3 - Good</option>
+                                    <option value="2">2 - Fair</option>
+                                    <option value="1">1 - Poor</option>
+                                </select>
+                            }
 
-                        <div class="mb-3">
-                            <label for="smokingRating" class="form-label">Smoking habits</label>
-                            <select id="smokingRating" name="smokingRating" class="form-select" required>
-                                <option value="">Choose a rating</option>
-                                <option value="5">5 - Excellent</option>
-                                <option value="4">4 - Very good</option>
-                                <option value="3">3 - Good</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="1">1 - Poor</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="petsRating" class="form-label">Pet responsibility</label>
-                            <select id="petsRating" name="petsRating" class="form-select" required>
-                                <option value="">Choose a rating</option>
-                                <option value="5">5 - Excellent</option>
-                                <option value="4">4 - Very good</option>
-                                <option value="3">3 - Good</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="1">1 - Poor</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="cleanlinessRating" class="form-label">Cleanliness</label>
-                            <select id="cleanlinessRating" name="cleanlinessRating" class="form-select" required>
-                                <option value="">Choose a rating</option>
-                                <option value="5">5 - Excellent</option>
-                                <option value="4">4 - Very good</option>
-                                <option value="3">3 - Good</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="1">1 - Poor</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="sleepScheduleRating" class="form-label">Sleep schedule</label>
-                            <select id="sleepScheduleRating" name="sleepScheduleRating" class="form-select" required>
-                                <option value="">Choose a rating</option>
-                                <option value="5">5 - Excellent</option>
-                                <option value="4">4 - Very good</option>
-                                <option value="3">3 - Good</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="1">1 - Poor</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="guestPreferenceRating" class="form-label">Guest habits</label>
-                            <select id="guestPreferenceRating" name="guestPreferenceRating" class="form-select" required>
-                                <option value="">Choose a rating</option>
-                                <option value="5">5 - Excellent</option>
-                                <option value="4">4 - Very good</option>
-                                <option value="3">3 - Good</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="1">1 - Poor</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="comment" class="form-label">Comment</label>
+                            <label for="comment">Comment</label>
                             <textarea id="comment" name="comment" class="form-control" rows="4" maxlength="1000"
-                                      placeholder="Share your experience with this member."></textarea>
-                        </div>
+                                      placeholder="What was it like living or dealing with @firstName?"></textarea>
 
-                        <button type="submit" class="btn btn-primary w-100">Publish review</button>
-                    </form>
-                </section>
-            }
-        </aside>
+                            <button type="submit" class="btn-cimerko-primary w-100">Publish review</button>
+                        </form>
+                    </section>
+                }
+            </aside>
+        }
     </div>
 </div>
