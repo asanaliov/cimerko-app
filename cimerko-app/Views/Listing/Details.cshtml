@@ -1,12 +1,7 @@
 @model cimerko_app.Models.ViewModels.ListingDetailsViewModel
-@using Microsoft.AspNetCore.Identity
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = Model.Listing.Title;
-    ViewData["HideGlobalHeader"] = true;
-    ViewData["NoContainer"] = true;
 
     var listing = Model.Listing;
     var owner = listing.Owner;
@@ -18,602 +13,378 @@
         ? owner?.Email
         : ownerProfile.ContactEmail;
     var ownerInitial = ownerName.Trim()[..1].ToUpperInvariant();
+    var isRental = listing.Type == ListingType.PlaceForRent;
     var listingImages = listing.Images
         .OrderByDescending(image => image.IsPrimary)
         .ThenBy(image => image.CreatedAt)
         .ToList();
-    var primaryImage = listingImages.FirstOrDefault();
+    var photoCount = Math.Min(listingImages.Count, 5);
     var typeLabel = listing.Type.GetDisplayName();
-    var availableLabel = listing.AvailableFrom.HasValue
-        ? listing.AvailableFrom.Value.ToString("dd MMM yyyy")
-        : "Available now";
+    var isAvailableNow = listing.AvailableFrom == null || listing.AvailableFrom.Value.Date <= DateTime.UtcNow.Date;
+    var availableLabel = isAvailableNow
+        ? "Available now"
+        : $"From {listing.AvailableFrom!.Value:d MMM yyyy}";
     var hasExactLocation = !string.IsNullOrWhiteSpace(listing.Address);
     var locationLabel = hasExactLocation
         ? $"{listing.Address}, {listing.City}"
         : listing.City;
     var mapQuery = Uri.EscapeDataString(locationLabel);
     var googleMapsUrl = $"https://www.google.com/maps/search/?api=1&query={mapQuery}";
-    var contactRole = listing.Type == ListingType.PlaceForRent ? "landlord" : "listing owner";
+    var googleMapsEmbedUrl = $"https://www.google.com/maps?q={mapQuery}&z={(hasExactLocation ? 15 : 12)}&output=embed";
+    var contactRole = isRental ? "landlord" : "owner";
+    var bedroomLabel = listing.BedroomCount == 0
+        ? "Studio"
+        : $"{listing.BedroomCount} {(listing.BedroomCount == 1 ? "bedroom" : "bedrooms")}";
+    var returnUrl = Url.Action("Details", "Listing", new { id = listing.Id });
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
     var photoGallery = new cimerko_app.Models.ViewModels.ListingPhotoGalleryViewModel {
         DialogId = "listingPhotoViewer",
         Title = listing.Title,
         Images = listingImages
     };
+
+    var rentalRules = new List<(string Icon, string Label, string Value)>();
+    if (isRental) {
+        rentalRules.Add(("tenant", "Preferred tenant", listing.TenantTypePreference.GetDisplayName()));
+        rentalRules.Add(("smoke", "Smoking", listing.RentalSmokingPolicy.GetDisplayName()));
+        rentalRules.Add(("pet", "Pets", listing.RentalPetPolicy.GetDisplayName()));
+    }
+
+    var roommateTraits = new List<(string Icon, string Label)>();
+    if (!isRental) {
+        if (listing.RoommateHousingPlan.HasValue) { roommateTraits.Add(("home", listing.RoommateHousingPlan.Value.GetDisplayName())); }
+        if (listing.RoommateGenderPreference != RoommateGenderPreference.NoPreference) { roommateTraits.Add(("tenant", $"{listing.RoommateGenderPreference.GetDisplayName()} flatmate preferred")); }
+        if (listing.RoommateSmokeFree) { roommateTraits.Add(("smoke", "Smoke-free home")); }
+        if (listing.RoommatePetFriendly) { roommateTraits.Add(("pet", "Pet-friendly")); }
+        if (listing.RoommateTidy) { roommateTraits.Add(("sparkle", "Tidy shared spaces")); }
+        if (listing.RoommateEarlyBird) { roommateTraits.Add(("sun", "Early-bird routine")); }
+        if (listing.RoommateNightOwl) { roommateTraits.Add(("moon", "Night-owl routine")); }
+        if (listing.RoommateGuestsWelcome) { roommateTraits.Add(("guests", "Guests welcome")); }
+    }
+
+    var ownerHabits = new List<(string Label, string Value)>();
+    if (!isRental && ownerProfile != null) {
+        if (!string.IsNullOrWhiteSpace(ownerProfile.SmokingPreference)) { ownerHabits.Add(("Smoking", ownerProfile.SmokingPreference)); }
+        if (!string.IsNullOrWhiteSpace(ownerProfile.PetsPreference)) { ownerHabits.Add(("Pets", ownerProfile.PetsPreference)); }
+        if (!string.IsNullOrWhiteSpace(ownerProfile.CleanlinessLevel)) { ownerHabits.Add(("Cleanliness", ownerProfile.CleanlinessLevel)); }
+        if (!string.IsNullOrWhiteSpace(ownerProfile.SleepSchedule)) { ownerHabits.Add(("Sleep schedule", ownerProfile.SleepSchedule)); }
+        if (!string.IsNullOrWhiteSpace(ownerProfile.GuestPreference)) { ownerHabits.Add(("Guests", ownerProfile.GuestPreference)); }
+    }
 }
 
-<div class="listing-showcase">
-    <div class="mb-4 d-flex align-items-center justify-content-between">
-        <a asp-action="Index" class="text-decoration-none text-muted fw-bold">
-            &larr; Back to listings
-        </a>
-    </div>
+@functions {
+    private static string Icon(string name) => name switch {
+        "tenant" => "<circle cx=\"12\" cy=\"8\" r=\"3.5\"/><path d=\"M5 20c.5-4 3.2-6 7-6s6.5 2 7 6\"/>",
+        "smoke" => "<path d=\"M4 14h13v4H4zM19 14h1v4h-1M8 11c0-2 2-2 2-4M12 11c0-2 2-2 2-4\"/>",
+        "pet" => "<circle cx=\"8\" cy=\"8\" r=\"1.6\"/><circle cx=\"16\" cy=\"8\" r=\"1.6\"/><circle cx=\"5.5\" cy=\"12.5\" r=\"1.5\"/><circle cx=\"18.5\" cy=\"12.5\" r=\"1.5\"/><path d=\"M8.5 18.5c0-2.6 1.6-4.5 3.5-4.5s3.5 1.9 3.5 4.5c0 1.2-1.6 1.5-3.5 1.5s-3.5-.3-3.5-1.5Z\"/>",
+        "home" => "<path d=\"M4 11.5 12 5l8 6.5V20H4z\"/><path d=\"M9 20v-6h6v6\"/>",
+        "sparkle" => "<path d=\"m14 4 1.2 3.3L18.5 8l-3.3 1.2L14 12.5l-1.2-3.3L9.5 8l3.3-.7L14 4ZM6 12l.8 2.2L9 15l-2.2.8L6 18l-.8-2.2L3 15l2.2-.8L6 12Z\"/>",
+        "sun" => "<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4\"/>",
+        "moon" => "<path d=\"M19 15.5A8 8 0 0 1 8.5 5 8 8 0 1 0 19 15.5Z\"/>",
+        "guests" => "<circle cx=\"9\" cy=\"8\" r=\"3\"/><circle cx=\"17\" cy=\"10\" r=\"2\"/><path d=\"M3 19c.4-4 2.4-6 6-6s5.6 2 6 6M15 15c3 0 4.7 1.3 5 4\"/>",
+        "rooms" => "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M12 4v16M3 12h9\"/>",
+        "bed" => "<path d=\"M3 18v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7M3 15h18M6 9V6h5v3M13 9V6h5v3\"/>",
+        "calendar" => "<rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M8 3v4M16 3v4M3 10h18\"/>",
+        "people" => "<circle cx=\"9\" cy=\"8\" r=\"3\"/><circle cx=\"17\" cy=\"10\" r=\"2\"/><path d=\"M3 19c.4-4 2.4-6 6-6s5.6 2 6 6M15 15c3 0 4.7 1.3 5 4\"/>",
+        "pin" => "<path d=\"M20 10c0 5.5-8 11-8 11S4 15.5 4 10a8 8 0 1 1 16 0Z\"/><circle cx=\"12\" cy=\"10\" r=\"2.5\"/>",
+        _ => ""
+    };
+}
+
+<div class="page-shell listing-detail-page">
+    <a asp-action="Index" class="listing-detail-back">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        Listings
+    </a>
 
     @if (TempData["RequestMessage"] != null) {
-        <div class="alert alert-success rounded-3 mb-4">
-            @TempData["RequestMessage"]
-        </div>
+        <div class="alert alert-success" role="status">@TempData["RequestMessage"]</div>
     }
     @if (TempData["ListingMessage"] != null) {
-        <div class="alert alert-info rounded-3 mb-4">
-            @TempData["ListingMessage"]
-        </div>
+        <div class="alert alert-info" role="status">@TempData["ListingMessage"]</div>
     }
     @if (TempData["ReportMessage"] != null) {
-        <div class="alert alert-info rounded-3 mb-4">
-            @TempData["ReportMessage"]
-        </div>
+        <div class="alert alert-info" role="status">@TempData["ReportMessage"]</div>
     }
     @if (Model.IsOwner && listing.ModerationStatus != ListingModerationStatus.Approved) {
-        <div class="alert alert-warning rounded-3 mb-4">
-            Moderation status: @listing.ModerationStatus.GetDisplayName().
-            This listing is not visible in public search.
+        <div class="alert alert-warning" role="status">
+            Moderation status: @listing.ModerationStatus.GetDisplayName(). This listing is not visible in public search.
         </div>
     }
 
-    <div class="property-shell">
-        <!-- Hero Area -->
-        <div class="property-hero hero-image-section">
-            @if (primaryImage != null) {
-                <img src="@primaryImage.ImageUrl" class="property-hero-img" alt="@listing.Title" />
-            } else {
-                <div class="property-hero-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                    <span>No photos added yet</span>
-                </div>
-            }
-
-
-            <div class="thumbnail-stack d-none d-md-flex">
-                @for (int i = 0; i < 3; i++) {
-                    if (i < listingImages.Count) {
-                        <button type="button"
-                                data-gallery-open="listingPhotoViewer"
-                                data-gallery-index="@i"
-                                aria-label="View listing photo @(i + 1)">
-                            <img src="@listingImages[i].ImageUrl"
-                                 class="hero-thumb"
-                                 alt="@listing.Title photo @(i + 1)" />
+    <header class="listing-detail-header">
+        <div>
+            <span class="listing-detail-type @(isRental ? "is-rental" : "is-roommate")">@typeLabel</span>
+            <h1>@listing.Title</h1>
+            <p class="listing-detail-meta">
+                <a href="@googleMapsUrl" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">@Html.Raw(Icon("pin"))</svg>
+                    @locationLabel
+                </a>
+                <span>@availableLabel</span>
+            </p>
+        </div>
+        <div class="listing-detail-tools">
+            @if (!Model.IsOwner) {
+                if (isAuthenticated) {
+                    <form asp-controller="SavedListing" asp-action="@(Model.IsSaved ? "Remove" : "Save")" method="post">
+                        <input type="hidden" name="listingId" value="@listing.Id"/>
+                        <input type="hidden" name="returnTo" value="details"/>
+                        <button type="submit" class="listing-detail-tool @(Model.IsSaved ? "is-saved" : "")">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8 1.1-1.1a5.5 5.5 0 0 0-.1-7.7z"/></svg>
+                            @(Model.IsSaved ? "Saved" : "Save")
                         </button>
-                    } else {
-                        <div class="hero-thumb placeholder-thumb d-flex align-items-center justify-content-center">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                        </div>
-                    }
-                }
-            </div>
-
-            <div class="hero-actions">
-                @if (primaryImage != null) {
-                    <button type="button"
-                            class="hero-action-btn"
-                            data-gallery-open="listingPhotoViewer"
-                            data-gallery-index="0">
-                        View @listingImages.Count @(listingImages.Count == 1 ? "photo" : "photos")
-                    </button>
-                }
-                @if (!Model.IsOwner) {
-                    <a href="#contact" class="hero-action-btn">Contact</a>
-                }
-                @if (!Model.IsOwner && User.Identity?.IsAuthenticated == true) {
-                    @if (Model.IsSaved) {
-                        <form asp-controller="SavedListing" asp-action="Remove" method="post" class="d-inline">
-                            <input type="hidden" name="listingId" value="@listing.Id"/>
-                            <input type="hidden" name="returnTo" value="details"/>
-                            <button type="submit" class="hero-action-btn">
-                                Saved
-                            </button>
-                        </form>
-                    } else {
-                        <form asp-controller="SavedListing" asp-action="Save" method="post" class="d-inline">
-                            <input type="hidden" name="listingId" value="@listing.Id"/>
-                            <button type="submit" class="hero-action-btn">
-                                Save
-                            </button>
-                        </form>
-                    }
-                } else if (!Model.IsOwner) {
-                    <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Listing", new { id = listing.Id })" class="hero-action-btn text-decoration-none">
+                    </form>
+                } else {
+                    <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@returnUrl" class="listing-detail-tool">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8 1.1-1.1a5.5 5.5 0 0 0-.1-7.7z"/></svg>
                         Save
                     </a>
                 }
+            }
+            <button type="button" class="listing-detail-tool" data-share-listing>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/></svg>
+                <span data-share-label>Share</span>
+            </button>
+            @if (!Model.IsOwner && isAuthenticated) {
+                <a asp-controller="Report" asp-action="Listing" asp-route-id="@listing.Id" class="listing-detail-tool">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4h11l-1 4 1 4H5"/></svg>
+                    Report
+                </a>
+            }
+        </div>
+    </header>
+
+    @if (photoCount == 0) {
+        <div class="listing-detail-photos is-empty">
+            <svg viewBox="0 0 24 24" aria-hidden="true">@Html.Raw(Icon("home"))</svg>
+            <span>No photos added yet</span>
+        </div>
+    } else {
+        <div class="listing-detail-photos has-@photoCount">
+            @for (var index = 0; index < photoCount; index++) {
+                var isLast = index == photoCount - 1;
                 <button type="button"
-                        class="hero-action-btn"
-                        onclick="copyShareUrl(this)"
-                        aria-label="Copy listing link"
-                        title="Copy listing link">
-                    Share
+                        class="listing-detail-photo"
+                        data-gallery-open="listingPhotoViewer"
+                        data-gallery-index="@index"
+                        aria-label="View photo @(index + 1) of @listingImages.Count">
+                    <img src="@listingImages[index].ImageUrl" alt="@listing.Title photo @(index + 1)" loading="@(index == 0 ? "eager" : "lazy")"/>
+                    @if ((isLast || index == 0) && listingImages.Count > 1) {
+                        <span class="listing-detail-photo-count @(index == 0 ? "is-first" : "")">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5L5 21"/></svg>
+                            All @listingImages.Count photos
+                        </span>
+                    }
                 </button>
-                @if (!Model.IsOwner && User.Identity?.IsAuthenticated == true) {
-                    <a asp-controller="Report"
-                       asp-action="Listing"
-                       asp-route-id="@listing.Id"
-                       class="hero-action-btn">Report</a>
+            }
+        </div>
+    }
+
+    <div class="listing-detail-layout">
+        <div class="listing-detail-main">
+            <ul class="listing-detail-facts">
+                <li>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">@Html.Raw(Icon("rooms"))</svg>
+                    <span><strong>@listing.RoomCount</strong> @(listing.RoomCount == 1 ? "room" : "rooms")</span>
+                </li>
+                @if (listing.BedroomCount.HasValue) {
+                    <li>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">@Html.Raw(Icon("bed"))</svg>
+                        <span>@bedroomLabel</span>
+                    </li>
                 }
-            </div>
+                @if (!isRental && listing.RoommatesNeeded.HasValue) {
+                    <li>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">@Html.Raw(Icon("people"))</svg>
+                        <span><strong>@listing.RoommatesNeeded</strong> @(listing.RoommatesNeeded == 1 ? "roommate" : "roommates") needed</span>
+                    </li>
+                }
+                <li>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">@Html.Raw(Icon("calendar"))</svg>
+                    <span>@availableLabel</span>
+                </li>
+            </ul>
+
+            <section class="listing-detail-section">
+                <h2>@(isRental ? "About this place" : "About the room and the flat")</h2>
+                <p class="listing-detail-description">@(string.IsNullOrWhiteSpace(listing.Description) ? "No description provided." : listing.Description)</p>
+            </section>
+
+            <section class="listing-detail-section">
+                <h2>@(isRental ? "House rules" : "Living together")</h2>
+                @if (isRental) {
+                    <ul class="listing-detail-rules">
+                        @foreach (var rule in rentalRules) {
+                            <li>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">@Html.Raw(Icon(rule.Icon))</svg>
+                                <span>
+                                    <small>@rule.Label</small>
+                                    <strong>@rule.Value</strong>
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                } else if (roommateTraits.Count == 0 && ownerHabits.Count == 0) {
+                    <p class="listing-detail-empty">@ownerName has not shared household preferences for this listing yet.</p>
+                } else {
+                    @if (roommateTraits.Count > 0) {
+                        <ul class="listing-detail-traits">
+                            @foreach (var trait in roommateTraits) {
+                                <li>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">@Html.Raw(Icon(trait.Icon))</svg>
+                                    @trait.Label
+                                </li>
+                            }
+                        </ul>
+                    }
+                    @if (ownerHabits.Count > 0) {
+                        <p class="listing-detail-subheading">How @ownerName lives</p>
+                        <dl class="listing-detail-habits">
+                            @foreach (var habit in ownerHabits) {
+                                <div>
+                                    <dt>@habit.Label</dt>
+                                    <dd>@habit.Value</dd>
+                                </div>
+                            }
+                        </dl>
+                    }
+                }
+            </section>
+
+            <section class="listing-detail-section">
+                <h2>Location</h2>
+                <div class="listing-detail-map">
+                    <iframe src="@googleMapsEmbedUrl"
+                            title="Map of @locationLabel"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <div class="listing-detail-address">
+                    <div>
+                        <strong>@locationLabel</strong>
+                        <p>@(hasExactLocation ? "Exact address shared by the owner." : "Only the city is shown until the owner shares the address.")</p>
+                    </div>
+                    <a href="@googleMapsUrl" target="_blank" rel="noopener" class="btn-cimerko-light">Open in Google Maps</a>
+                </div>
+            </section>
         </div>
 
-        <aside class="property-action-card detail-card">
-            <div class="action-card-strip">
-                <span>@(typeLabel.ToUpperInvariant())</span>
-                <span>LISTING DETAILS</span>
-            </div>
-            <div class="action-card-body">
-                <div class="action-card-heading">
-                    <h2 class="action-card-title">@listing.Title</h2>
-                    <div class="action-card-tools">
-                        @if (!Model.IsOwner && User.Identity?.IsAuthenticated == true) {
-                            @if (Model.IsSaved) {
-                                <form asp-controller="SavedListing" asp-action="Remove" method="post">
-                                    <input type="hidden" name="listingId" value="@listing.Id"/>
-                                    <input type="hidden" name="returnTo" value="details"/>
-                                    <button type="submit"
-                                            class="action-card-tool is-saved"
-                                            aria-label="Remove from saved listings"
-                                            title="Remove from saved listings">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8 1.1-1.1a5.5 5.5 0 0 0-.1-7.7z"/></svg>
-                                    </button>
-                                </form>
-                            } else {
-                                <form asp-controller="SavedListing" asp-action="Save" method="post">
-                                    <input type="hidden" name="listingId" value="@listing.Id"/>
-                                    <button type="submit"
-                                            class="action-card-tool"
-                                            aria-label="Save listing"
-                                            title="Save listing">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8 1.1-1.1a5.5 5.5 0 0 0-.1-7.7z"/></svg>
-                                    </button>
-                                </form>
-                            }
-                        } else if (!Model.IsOwner) {
-                            <a asp-area="Identity"
-                               asp-page="/Account/Login"
-                               asp-route-returnUrl="@Url.Action("Details", "Listing", new { id = listing.Id })"
-                               class="action-card-tool"
-                               aria-label="Sign in to save listing"
-                               title="Sign in to save listing">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8 1.1-1.1a5.5 5.5 0 0 0-.1-7.7z"/></svg>
-                            </a>
-                        }
-                        <button type="button"
-                                class="action-card-tool"
-                                onclick="copyShareUrl(this)"
-                                aria-label="Copy listing link"
-                                title="Copy listing link">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/></svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="price-panel info-price-box">
-                    <div class="d-flex align-items-end justify-content-between gap-2">
-                        <div>
-                            <span class="price-from">monthly rent</span>
-                            <span class="price-val">@listing.MonthlyRent.ToString("0") €</span>
-                            <span class="price-unit">/ month</span>
-                        </div>
-                        @if (Model.OwnerReviewCount > 0 && Model.OwnerAverageRating.HasValue) {
-                            <div class="action-card-rating" aria-label="@Model.OwnerAverageRating.Value.ToString("0.0") out of 5 from @Model.OwnerReviewCount reviews">
-                                <span aria-hidden="true">★</span>
-                                <strong>@Model.OwnerAverageRating.Value.ToString("0.0")</strong>
-                            </div>
-                        }
-                    </div>
-                </div>
+        <aside class="listing-detail-aside" id="contact">
+            <div class="listing-detail-card">
+                <p class="listing-detail-price">
+                    <strong>@listing.MonthlyRent.ToString("0") €</strong>
+                    <span>/ month</span>
+                </p>
 
                 @if (Model.IsOwner) {
-                    <a asp-action="Edit" asp-route-id="@listing.Id" class="btn-cimerko-primary text-center d-flex mb-2 w-100">Edit listing</a>
-                    <a asp-action="Delete" asp-route-id="@listing.Id" class="btn-cimerko-danger text-center d-flex mb-3 w-100">Delete listing</a>
+                    <div class="listing-detail-owner-actions">
+                        <a asp-action="Edit" asp-route-id="@listing.Id" class="btn-cimerko-primary">Edit listing</a>
+                        <a asp-action="Delete" asp-route-id="@listing.Id" class="btn-cimerko-light listing-detail-delete">Delete listing</a>
+                    </div>
                 } else if (!listing.IsActive) {
-                    <div class="action-card-notice mb-3">This listing is inactive</div>
-                } else if (User.Identity?.IsAuthenticated == true) {
-                    @if (Model.ExistingRequest != null) {
-                        <div class="action-card-notice mb-2">
-                            Request @Model.ExistingRequest.Status.ToString().ToLowerInvariant()
+                    <div class="listing-detail-notice">This listing is no longer active.</div>
+                } else if (isAuthenticated) {
+                    if (Model.ExistingRequest != null) {
+                        <div class="listing-detail-notice is-@Model.ExistingRequest.Status.ToString().ToLowerInvariant()">
+                            Your request is @Model.ExistingRequest.Status.ToString().ToLowerInvariant()
                         </div>
-                        <a asp-controller="ListingRequest" asp-action="Index" class="btn-cimerko-light text-center d-flex mb-3 w-100">View requests</a>
+                        <a asp-controller="ListingRequest" asp-action="Index" class="btn-cimerko-light listing-detail-wide">View my requests</a>
                     } else {
-                        <form asp-controller="ListingRequest" asp-action="Create" method="post" class="action-card-request mb-3">
+                        <form asp-controller="ListingRequest" asp-action="Create" method="post" class="listing-detail-request">
                             <input type="hidden" name="listingId" value="@listing.Id"/>
-                            <label for="request-message-@listing.Id">Message to the @contactRole</label>
-                            <textarea id="request-message-@listing.Id"
+                            <label for="request-message">Message to the @contactRole</label>
+                            <textarea id="request-message"
                                       name="message"
-                                      class="form-control"
-                                      rows="3"
-                                      placeholder="Introduce yourself and ask about the listing"
+                                      rows="4"
+                                      maxlength="1000"
+                                      placeholder="Introduce yourself, say when you would like to move in and ask anything you want to know."
                                       required></textarea>
-                            <button type="submit" class="btn-cimerko-primary w-100">Contact @contactRole</button>
+                            <button type="submit" class="btn-cimerko-primary listing-detail-wide">Send request</button>
+                            <small>The @contactRole sees your profile with the request.</small>
                         </form>
                     }
                 } else {
-                    <a asp-area="Identity"
-                       asp-page="/Account/Login"
-                       asp-route-returnUrl="@Url.Action("Details", "Listing", new { id = listing.Id })"
-                       class="btn-cimerko-primary text-center d-flex mb-3 w-100">
-                        Sign in to contact
+                    <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@returnUrl" class="btn-cimerko-primary listing-detail-wide">
+                        Sign in to send a request
                     </a>
+                    <small class="listing-detail-hint">Free account, takes a minute.</small>
                 }
 
-                <div class="action-card-stats mb-3">
-                    <div>
-                        <small>Rooms</small>
-                        <strong>@listing.RoomCount</strong>
-                    </div>
-                    @if (listing.Type == ListingType.PlaceForRent && listing.BedroomCount.HasValue) {
-                        <div>
-                            <small>Bedrooms</small>
-                            <strong>@(listing.BedroomCount == 0 ? "Studio" : listing.BedroomCount)</strong>
-                        </div>
-                    }
-                    <div>
-                        <small>Available</small>
-                        <strong>@(listing.AvailableFrom?.ToString("dd MMM") ?? "Now")</strong>
-                    </div>
-                    @if (Model.OwnerReviewCount > 0) {
-                        <div>
-                            <small>Reviews</small>
-                            <strong>@Model.OwnerReviewCount</strong>
-                        </div>
-                    }
-                </div>
-
-                <div class="action-card-badges">
-                    @if (listing.AvailableFrom == null || listing.AvailableFrom.Value.Date <= DateTime.UtcNow.Date) {
-                        <span class="badge-soft">available now</span>
-                    }
-                    <span class="badge-soft">@typeLabel</span>
-                    @if (Model.IsSaved) {
-                        <span class="badge-soft">saved</span>
-                    }
-                    @if (Model.ExistingRequest != null) {
-                        <span class="badge-soft">request @Model.ExistingRequest.Status.ToString().ToLowerInvariant()</span>
-                    }
-                </div>
-
-                <div class="location-line">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    <a href="@googleMapsUrl"
-                       target="_blank"
-                       rel="noopener"
-                       class="location-link">
-                        @locationLabel
+                <div class="listing-detail-host">
+                    <a asp-controller="Profile" asp-action="Details" asp-route-id="@listing.OwnerId" class="listing-detail-host-avatar">
+                        @if (!string.IsNullOrWhiteSpace(owner?.ProfileImageUrl)) {
+                            <img src="@owner.ProfileImageUrl" alt=""/>
+                        } else {
+                            <span>@ownerInitial</span>
+                        }
                     </a>
+                    <div class="listing-detail-host-copy">
+                        <small>@(isRental ? "Landlord" : "Posted by")</small>
+                        <a asp-controller="Profile" asp-action="Details" asp-route-id="@listing.OwnerId">@ownerName</a>
+                        @if (Model.OwnerReviewCount > 0 && Model.OwnerAverageRating.HasValue) {
+                            <span class="listing-detail-rating">
+                                <span aria-hidden="true">★</span>
+                                @Model.OwnerAverageRating.Value.ToString("0.0")
+                                <em>· @Model.OwnerReviewCount @(Model.OwnerReviewCount == 1 ? "review" : "reviews")</em>
+                            </span>
+                        } else if (owner != null) {
+                            <span class="listing-detail-rating"><em>Member since @owner.CreatedAt.ToString("MMM yyyy")</em></span>
+                        }
+                    </div>
                 </div>
+
+                @if (!Model.IsOwner) {
+                    <dl class="listing-detail-contact">
+                        @if (!string.IsNullOrWhiteSpace(ownerContactEmail)) {
+                            <div>
+                                <dt>Email</dt>
+                                <dd><a href="mailto:@ownerContactEmail">@ownerContactEmail</a></dd>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(listing.ContactPhone)) {
+                            <div>
+                                <dt>Phone</dt>
+                                <dd><a href="tel:@listing.ContactPhone">@listing.ContactPhone</a></dd>
+                            </div>
+                        }
+                    </dl>
+                }
             </div>
         </aside>
-
-        <div class="property-content-wrapper">
-            <div class="property-content">
-                <div class="property-tabs pill-tabs">
-                    <a href="#overview" class="property-tab pill-tab active is-active">Overview</a>
-                    <a href="#details" class="property-tab pill-tab">Details</a>
-                    <a href="#preferences" class="property-tab pill-tab">Preferences</a>
-                    <a href="#amenities" class="property-tab pill-tab">Amenities</a>
-                    <a href="#location" class="property-tab pill-tab">Location</a>
-                    <a href="#contact" class="property-tab pill-tab">Contact</a>
-                </div>
-
-                <section id="overview" class="content-section-block">
-                    <h2>Listing overview</h2>
-
-                    <div class="segmented-control">
-                        <span class="segment @(listing.Type == ListingType.PlaceForRent ? "active" : "")">Entire Place</span>
-                        <span class="segment @(listing.Type == ListingType.LookingForRoommate ? "active" : "")">Roommate Option</span>
-                    </div>
-
-                    <p class="listing-description">
-                        @(string.IsNullOrWhiteSpace(listing.Description) ? "No description provided." : listing.Description)
-                    </p>
-                </section>
-
-                <section id="details" class="content-section-block">
-                    <h3>Listing details</h3>
-                    <div class="fact-grid">
-                        <div class="fact-item">
-                            <small>Monthly rent</small>
-                            <strong>@listing.MonthlyRent.ToString("0") €</strong>
-                        </div>
-                        <div class="fact-item">
-                            <small>Location</small>
-                            <strong>@listing.City</strong>
-                        </div>
-                        <div class="fact-item">
-                            <small>Available from</small>
-                            <strong>@availableLabel</strong>
-                        </div>
-                        <div class="fact-item">
-                            <small>Listing type</small>
-                            <strong>@typeLabel</strong>
-                        </div>
-                        <div class="fact-item">
-                            <small>Rooms</small>
-                            <strong>@listing.RoomCount</strong>
-                        </div>
-                        @if (listing.BedroomCount.HasValue) {
-                            <div class="fact-item">
-                                <small>Bedrooms</small>
-                                <strong>
-                                    @(listing.BedroomCount.Value == 0
-                                        ? "Studio"
-                                        : listing.BedroomCount.Value)
-                                </strong>
-                            </div>
-                        }
-                        @if (listing.Type == ListingType.LookingForRoommate && listing.RoommatesNeeded.HasValue) {
-                            <div class="fact-item">
-                                <small>Roommates needed</small>
-                                <strong>@listing.RoommatesNeeded</strong>
-                            </div>
-                        }
-                    </div>
-                </section>
-
-                <section id="preferences" class="content-section-block">
-                    <h3>Preferences</h3>
-                    @if (listing.Type == ListingType.PlaceForRent) {
-                        <p class="text-muted-soft">These are property and tenant criteria set for this rental.</p>
-                        <div class="d-flex flex-wrap gap-2">
-                            @if (listing.TenantTypePreference != TenantTypePreference.NoPreference) {
-                                <span class="badge-soft">@listing.TenantTypePreference.GetDisplayName()</span>
-                            }
-                            @if (listing.RentalSmokingPolicy != RentalSmokingPolicy.NotSpecified) {
-                                <span class="badge-soft">@listing.RentalSmokingPolicy.GetDisplayName()</span>
-                            }
-                            @if (listing.RentalPetPolicy != RentalPetPolicy.NotSpecified) {
-                                <span class="badge-soft">@listing.RentalPetPolicy.GetDisplayName()</span>
-                            }
-                            @if (listing.TenantTypePreference == TenantTypePreference.NoPreference &&
-                                 listing.RentalSmokingPolicy == RentalSmokingPolicy.NotSpecified &&
-                                 listing.RentalPetPolicy == RentalPetPolicy.NotSpecified) {
-                                <span class="text-muted-soft">No rental preferences have been specified.</span>
-                            }
-                        </div>
-                    } else {
-                        <p class="text-muted-soft">These preferences describe the roommate and household fit.</p>
-                        <div class="d-flex flex-wrap gap-2">
-                            @if (listing.RoommateHousingPlan.HasValue) {
-                                <span class="badge-soft">@listing.RoommateHousingPlan.Value.GetDisplayName()</span>
-                            }
-                            @if (listing.RoommateGenderPreference != RoommateGenderPreference.NoPreference) {
-                                <span class="badge-soft">@listing.RoommateGenderPreference.GetDisplayName() preferred</span>
-                            }
-                            @if (listing.RoommatePetFriendly) { <span class="badge-soft">Pet-friendly</span> }
-                            @if (listing.RoommateSmokeFree) { <span class="badge-soft">Smoke-free</span> }
-                            @if (listing.RoommateEarlyBird) { <span class="badge-soft">Early-bird routine</span> }
-                            @if (listing.RoommateNightOwl) { <span class="badge-soft">Night-owl routine</span> }
-                            @if (listing.RoommateTidy) { <span class="badge-soft">Tidy shared spaces</span> }
-                            @if (listing.RoommateGuestsWelcome) { <span class="badge-soft">Guests welcome</span> }
-                            @if (!string.IsNullOrWhiteSpace(ownerProfile?.SmokingPreference)) { <span class="badge-soft">@ownerProfile.SmokingPreference</span> }
-                            @if (!string.IsNullOrWhiteSpace(ownerProfile?.PetsPreference)) { <span class="badge-soft">@ownerProfile.PetsPreference</span> }
-                            @if (!string.IsNullOrWhiteSpace(ownerProfile?.CleanlinessLevel)) { <span class="badge-soft">@ownerProfile.CleanlinessLevel</span> }
-                            @if (!string.IsNullOrWhiteSpace(ownerProfile?.SleepSchedule)) { <span class="badge-soft">@ownerProfile.SleepSchedule</span> }
-                            @if (!string.IsNullOrWhiteSpace(ownerProfile?.GuestPreference)) { <span class="badge-soft">@ownerProfile.GuestPreference</span> }
-                            @if (listing.RoommateGenderPreference == RoommateGenderPreference.NoPreference &&
-                                 ownerProfile == null) {
-                                <span class="text-muted-soft">No roommate preferences have been shared yet.</span>
-                            }
-                        </div>
-                    }
-                </section>
-
-                <section id="amenities" class="content-section-block">
-                    <h3>Amenities and features</h3>
-                    <div class="amenity-grid">
-                        <div class="amenity-item">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M3 11h18v9H3zM7 11V7h4a3 3 0 0 1 3 3v1M3 15h18"/>
-                            </svg>
-                            <span>
-                                <small>Home layout</small>
-                                <strong>
-                                    @listing.RoomCount @(listing.RoomCount == 1 ? "room" : "rooms")
-                                    @if (listing.BedroomCount.HasValue) {
-                                        <span>
-                                            , @(listing.BedroomCount.Value == 0
-                                                ? "studio"
-                                                : $"{listing.BedroomCount} {(listing.BedroomCount == 1 ? "bedroom" : "bedrooms")}")
-                                        </span>
-                                    }
-                                </strong>
-                            </span>
-                        </div>
-                        <div class="amenity-item">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <rect x="3" y="5" width="18" height="16" rx="2"/>
-                                <path d="M8 3v4M16 3v4M3 10h18"/>
-                            </svg>
-                            <span>
-                                <small>Availability</small>
-                                <strong>@availableLabel</strong>
-                            </span>
-                        </div>
-                        <div class="amenity-item">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <rect x="3" y="5" width="18" height="16" rx="2"/>
-                                <circle cx="9" cy="10" r="2"/>
-                                <path d="m21 16-5-5L5 21"/>
-                            </svg>
-                            <span>
-                                <small>Listing photos</small>
-                                <strong>
-                                    @(listingImages.Count == 0
-                                        ? "Photos coming soon"
-                                        : $"{listingImages.Count} {(listingImages.Count == 1 ? "photo" : "photos")}")
-                                </strong>
-                            </span>
-                        </div>
-                        <div class="amenity-item">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
-                            </svg>
-                            <span>
-                                <small>Contact</small>
-                                <strong>Direct owner request</strong>
-                            </span>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="location" class="content-section-block">
-                    <h3>Location</h3>
-                    <div class="listing-location-card">
-                        <span class="listing-location-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M20 10c0 5.5-8 11-8 11S4 15.5 4 10a8 8 0 1 1 16 0Z"/>
-                                <circle cx="12" cy="10" r="2.5"/>
-                            </svg>
-                        </span>
-                        <div>
-                            <strong>@locationLabel</strong>
-                            <p>
-                                @(hasExactLocation
-                                    ? "The listing owner shared the full address."
-                                    : "Only the city is shown until the owner shares more details.")
-                            </p>
-                        </div>
-                        <a href="@googleMapsUrl"
-                           target="_blank"
-                           rel="noopener"
-                           class="cimerko-light-pill">
-                            Open map
-                        </a>
-                    </div>
-                </section>
-
-                <section id="contact" class="content-section-block">
-                    <h3>Owner and contact</h3>
-                    <div class="landlord-card-new">
-                        <div class="avatar-circle">
-                            @if (!string.IsNullOrWhiteSpace(owner?.ProfileImageUrl)) {
-                                <img src="@owner.ProfileImageUrl" alt="Avatar"/>
-                            } else {
-                                <span>@ownerInitial</span>
-                            }
-                        </div>
-                        <div class="landlord-card-info">
-                            <h4>@ownerName</h4>
-                            @if (!string.IsNullOrWhiteSpace(ownerContactEmail)) {
-                                <p><a href="mailto:@ownerContactEmail">@ownerContactEmail</a></p>
-                            }
-                            else {
-                                <p>Email not provided</p>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(listing.ContactPhone)) {
-                                <p><a href="tel:@listing.ContactPhone">@listing.ContactPhone</a></p>
-                            }
-                            else {
-                                <p>Phone number not provided</p>
-                            }
-                        </div>
-                        <div class="ms-auto">
-                            <a asp-controller="Profile" asp-action="Details" asp-route-id="@listing.OwnerId" class="btn-cimerko-light">View Profile</a>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="content-section-block">
-                    <h3>Reviews</h3>
-                    @if (Model.OwnerReviewCount > 0) {
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="fs-4 fw-bold">@(Model.OwnerAverageRating.HasValue ? Model.OwnerAverageRating.Value.ToString("0.0") : "Not rated")</span>
-                            <div class="text-warning fs-5">★</div>
-                            <span class="text-muted-soft ms-2">(@Model.OwnerReviewCount reviews)</span>
-                        </div>
-                    } else {
-                        <div class="text-center py-4 text-muted-soft">
-                            No reviews yet.
-                        </div>
-                    }
-                </section>
-            </div>
-
-        </div>
     </div>
 </div>
 
-@if (primaryImage != null) {
-    <partial name="_ListingPhotoGallery"
-             model="photoGallery"/>
+@if (!Model.IsOwner && listing.IsActive) {
+    <div class="listing-detail-mobile-bar">
+        <p>
+            <strong>@listing.MonthlyRent.ToString("0") €</strong>
+            <span>/ month</span>
+        </p>
+        <a href="#contact" class="btn-cimerko-primary">@(isAuthenticated ? "Send request" : "Contact")</a>
+    </div>
+}
+
+@if (photoCount > 0) {
+    <partial name="_ListingPhotoGallery" model="photoGallery"/>
 }
 
 @section Scripts {
     <script>
-        function copyShareUrl(button) {
-            const originalLabel = button.getAttribute("aria-label");
-            const originalText = button.textContent.trim();
-            const showCopiedState = () => {
-                button.setAttribute("aria-label", "Link copied");
-                if (originalText.length > 0) {
-                    button.textContent = "Copied";
-                }
-                setTimeout(() => {
-                    button.setAttribute("aria-label", originalLabel);
-                    if (originalText.length > 0) {
-                        button.textContent = originalText;
+        document.querySelectorAll("[data-share-listing]").forEach(button => {
+            const label = button.querySelector("[data-share-label]");
+            button.addEventListener("click", async () => {
+                const url = window.location.href;
+                try {
+                    if (navigator.share) {
+                        await navigator.share({ title: document.title, url });
+                        return;
                     }
-                }, 2000);
-            };
-
-            if (navigator.clipboard?.writeText) {
-                navigator.clipboard.writeText(window.location.href)
-                    .then(showCopiedState)
-                    .catch(() => window.prompt("Copy this listing link:", window.location.href));
-                return;
-            }
-
-            window.prompt("Copy this listing link:", window.location.href);
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const tabs = document.querySelectorAll(".property-tab");
-            const sections = document.querySelectorAll(".content-section-block");
-
-            tabs.forEach(tab => {
-                tab.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    const targetId = tab.getAttribute("href");
-                    const targetSection = document.querySelector(targetId);
-                    if (targetSection) {
-                        targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }
-                });
-            });
-
-            window.addEventListener("scroll", () => {
-                let current = "";
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    if (window.scrollY >= (sectionTop - 120)) {
-                        current = "#" + section.getAttribute("id");
-                    }
-                });
-
-                if (current) {
-                    tabs.forEach(tab => {
-                        tab.classList.remove("active");
-                        if (tab.getAttribute("href") === current) {
-                            tab.classList.add("active");
-                        }
-                    });
+                    await navigator.clipboard.writeText(url);
+                    label.textContent = "Link copied";
+                    setTimeout(() => label.textContent = "Share", 2000);
+                } catch {
+                    window.prompt("Copy this listing link:", url);
                 }
             });
         });
