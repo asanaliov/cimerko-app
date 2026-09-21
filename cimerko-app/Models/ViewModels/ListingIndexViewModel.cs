@@ -111,27 +111,22 @@ public class ListingIndexViewModel {
         AvailableNow ||
         HasImages;
 
-    public bool ShouldExpandFilters =>
-        MinimumBudget.HasValue ||
-        MaximumBudget.HasValue ||
-        (BedroomCount.HasValue &&
-         !(Type == ListingType.PlaceForRent && BedroomCount == 0)) ||
-        TenantTypePreference.HasValue ||
-        RentalSmokingPolicy.HasValue ||
-        RentalPetPolicy.HasValue ||
-        RoommateGenderPreference.HasValue ||
-        RoommateHousingPlan.HasValue ||
-        RoommatePetFriendly ||
-        RoommateSmokeFree ||
-        RoommateEarlyBird ||
-        RoommateNightOwl ||
-        RoommateTidy ||
-        RoommateGuestsWelcome ||
-        !string.IsNullOrWhiteSpace(SmokingPreference) ||
-        !string.IsNullOrWhiteSpace(PetsPreference) ||
-        !string.IsNullOrWhiteSpace(CleanlinessLevel) ||
-        !string.IsNullOrWhiteSpace(SleepSchedule) ||
-        !string.IsNullOrWhiteSpace(GuestPreference) ||
-        AvailableNow ||
-        HasImages;
+    public int AdvancedFilterCount =>
+        new[] {
+            MinimumBudget.HasValue || MaximumBudget.HasValue,
+            BedroomCount.HasValue && !(Type == ListingType.PlaceForRent && BedroomCount == 0),
+            TenantTypePreference.HasValue,
+            RentalSmokingPolicy.HasValue,
+            RentalPetPolicy.HasValue,
+            RoommateGenderPreference.HasValue,
+            RoommateHousingPlan.HasValue,
+            RoommatePetFriendly,
+            RoommateSmokeFree,
+            RoommateEarlyBird,
+            RoommateNightOwl,
+            RoommateTidy,
+            RoommateGuestsWelcome,
+            AvailableNow,
+            HasImages
+        }.Count(isActive => isActive);
 }

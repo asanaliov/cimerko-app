@@ -437,27 +437,6 @@ body {
   min-height: 44px;
 }
 
-.listing-discovery-form details {
-  display: inline-block;
-  margin: 0.85rem 0 0 !important;
-}
-
-.listing-discovery-form details[open] {
-  display: block;
-}
-
-.filters-toggle-summary {
-  margin-top: 0;
-  background: rgba(255, 255, 255, 0.78);
-}
-
-.filters-grid-custom {
-  position: absolute;
-  z-index: 100;
-  right: 30px;
-  left: 30px;
-}
-
 .listing-category-tabs {
   display: flex;
   width: min(100%, 610px);
@@ -983,11 +962,6 @@ body {
 
   .listing-category-tabs a {
     min-width: 115px;
-  }
-
-  .filters-grid-custom {
-    right: 1rem;
-    left: 1rem;
   }
 
   .home-showcase-thumbnails {

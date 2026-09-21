@@ -1740,64 +1740,6 @@
   font-weight: 700;
 }
 
-.roommates-search-chips label {
-  position: relative;
-  display: inline-flex;
-  margin: 0;
-  cursor: pointer;
-}
-
-.roommates-search-chips input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
-
-.roommates-search-chips label > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.5rem 0.8rem;
-  border: 1px solid var(--cm-border);
-  border-radius: var(--cm-radius-pill);
-  color: var(--cm-ink);
-  background: var(--cm-surface);
-  font-size: 0.74rem;
-  font-weight: 700;
-  transition: color var(--cm-ease), background-color var(--cm-ease), border-color var(--cm-ease);
-}
-
-.roommates-search-chips label > span::before {
-  width: 14px;
-  height: 14px;
-  border: 1.5px solid var(--cm-border-strong);
-  border-radius: 50%;
-  content: "";
-  transition: background-color var(--cm-ease), border-color var(--cm-ease);
-}
-
-.roommates-search-chips label:hover > span {
-  border-color: var(--cm-primary);
-}
-
-.roommates-search-chips input:checked + span {
-  border-color: var(--cm-primary);
-  color: var(--cm-primary-dark);
-  background: var(--cm-primary-soft);
-}
-
-.roommates-search-chips input:checked + span::before {
-  border-color: var(--cm-primary);
-  background: var(--cm-primary);
-  box-shadow: inset 0 0 0 2.5px var(--cm-primary-soft);
-}
-
-.roommates-search-chips input:focus-visible + span {
-  outline: 3px solid rgba(27, 76, 61, 0.32);
-  outline-offset: 2px;
-}
-
 .roommates-search-clear {
   margin-left: auto;
   color: var(--cm-muted);
