@@ -1,0 +1,394 @@
+/* Login / register page (one card with two tabs) and the single-card auth pages like Forgot password. */
+
+.login-shell {
+  display: grid;
+  min-height: 842px;
+  grid-template-columns: 1.02fr 0.98fr;
+  gap: 20px;
+  padding: 0 0 7rem;
+}
+
+/* Photo panel with the benefit list */
+
+.login-visual {
+  position: relative;
+  display: flex;
+  min-height: 842px;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5rem 3rem;
+  border-radius: 25px;
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(23, 27, 25, 0.68), rgba(23, 27, 25, 0.12)),
+    url("/images/demo/listings/debar-maalo-room-1.jpg") center / cover;
+}
+
+.login-visual-copy {
+  max-width: 320px;
+  margin-bottom: 2.5rem;
+}
+
+.login-visual-copy h1 {
+  margin: 0 0 1rem;
+  color: #fff;
+  font-size: 2.35rem;
+  line-height: 1.08;
+}
+
+.login-visual-copy p {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.login-benefits {
+  display: grid;
+  width: 210px;
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.login-benefits li {
+  display: grid;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  color: var(--cm-ink);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--cm-shadow-sm);
+}
+
+.login-benefits strong {
+  font-size: 0.8rem;
+}
+
+.login-benefits span {
+  color: var(--cm-muted);
+  font-size: 0.7rem;
+}
+
+/* Form card */
+
+.login-card {
+  width: 100%;
+  min-height: 842px;
+  margin: 0;
+  padding: 52px 38px 38px;
+  border: 1px solid var(--cm-border);
+  border-radius: 25px;
+  color: var(--cm-ink);
+  background: #fff;
+  box-shadow: var(--cm-shadow-md);
+}
+
+/* The tabs sit flush with the card edges, so they cancel the card padding. */
+.login-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: -52px -38px 3.25rem;
+  border-radius: 25px 25px 0 0;
+  background: var(--cm-surface-soft);
+}
+
+.login-tabs button {
+  position: relative;
+  padding: 1.2rem;
+  border: 0;
+  color: var(--cm-muted);
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 650;
+  text-align: center;
+}
+
+.login-tabs button.is-active {
+  border-radius: 25px 25px 0 0;
+  color: var(--cm-primary);
+  background: #fff;
+}
+
+.login-tabs button.is-active::after {
+  position: absolute;
+  right: 18px;
+  bottom: 0;
+  left: 18px;
+  height: 2px;
+  background: var(--cm-primary);
+  content: "";
+}
+
+.login-heading {
+  margin: 2.2rem 0 2.4rem;
+}
+
+.login-heading-register {
+  margin-bottom: 1.5rem;
+}
+
+.login-heading h1 {
+  margin: 0 0 0.45rem;
+  font-size: 1.6rem;
+}
+
+.login-heading p {
+  color: var(--cm-muted);
+  font-size: 0.84rem;
+}
+
+.login-field {
+  margin-bottom: 1.6rem;
+}
+
+.login-card .form-control {
+  min-height: 50px;
+  border-radius: 12px;
+}
+
+.login-card .text-danger {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+}
+
+.login-password-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.login-password-label a {
+  font-size: 0.7rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+/* Show/hide password button inside the input */
+
+.login-password-input {
+  position: relative;
+}
+
+.login-password-input .form-control {
+  padding-right: 3rem;
+}
+
+.login-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: var(--cm-muted);
+  background: transparent;
+  transform: translateY(-50%);
+}
+
+.login-password-toggle:hover {
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
+}
+
+.login-password-toggle svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.login-password-hide-icon,
+.login-password-toggle.is-visible .login-password-show-icon {
+  display: none;
+}
+
+.login-password-toggle.is-visible .login-password-hide-icon {
+  display: block;
+}
+
+.login-validation-summary {
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  border-radius: var(--cm-radius-sm);
+  color: var(--cm-danger);
+  background: var(--cm-danger-soft);
+  font-size: 0.74rem;
+}
+
+.login-validation-summary:empty {
+  display: none;
+}
+
+.login-validation-summary ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.login-remember {
+  margin: 0.35rem 0 1.2rem;
+  color: var(--cm-muted);
+  font-size: 0.76rem;
+}
+
+.login-submit {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 1.4rem;
+  border: 1px solid var(--cm-primary);
+  color: #fff;
+  background: var(--cm-primary);
+}
+
+.login-submit:hover,
+.login-submit:focus {
+  border-color: var(--cm-primary-dark);
+  color: #fff;
+  background: var(--cm-primary-dark);
+}
+
+.login-register {
+  margin: 2.8rem 0 0;
+  color: var(--cm-muted);
+  font-size: 0.84rem;
+  text-align: center;
+}
+
+.login-register-compact {
+  margin-top: 1.25rem;
+}
+
+.login-register a {
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.auth-text-button {
+  padding: 0;
+  border: 0;
+  color: var(--cm-primary);
+  background: transparent;
+  font-weight: 800;
+}
+
+.auth-text-button:hover,
+.auth-text-button:focus {
+  color: var(--cm-primary-dark);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+/* Student / landlord choice when registering */
+
+.account-type-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.account-type-fieldset legend {
+  margin-bottom: 0.5rem;
+}
+
+.account-type-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.account-type-option {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border: 1px solid var(--cm-border-strong);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.account-type-option:has(input:checked) {
+  border-color: var(--cm-primary);
+  background: var(--cm-primary-soft);
+}
+
+.account-type-option input {
+  margin-top: 0.2rem;
+  accent-color: var(--cm-primary);
+}
+
+.account-type-option span {
+  display: grid;
+  min-width: 0;
+}
+
+.account-type-option strong {
+  font-size: 0.82rem;
+}
+
+.account-type-option small {
+  color: var(--cm-muted);
+  font-size: 0.68rem;
+}
+
+/* Single centred card (Forgot password) */
+
+.auth-single {
+  display: grid;
+  min-height: 60vh;
+  place-items: center;
+  padding: 2rem 0;
+}
+
+.auth-single .login-card {
+  width: min(460px, 100%);
+}
+
+@media (max-width: 991.98px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .login-visual {
+    min-height: 480px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .login-shell {
+    padding-inline: 1rem;
+  }
+
+  .login-visual {
+    display: none;
+  }
+
+  .login-card {
+    min-height: 0;
+    margin: 1rem auto 4rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .login-card {
+    padding-inline: 1.25rem;
+  }
+
+  .login-tabs {
+    margin-right: -1.25rem;
+    margin-left: -1.25rem;
+  }
+
+  .account-type-options {
+    grid-template-columns: 1fr;
+  }
+}

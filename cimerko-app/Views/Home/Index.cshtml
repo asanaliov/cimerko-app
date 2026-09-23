@@ -5,13 +5,14 @@
     ViewData["Title"] = "Student housing and roommates";
 
     var featuredListings = Model.LatestListings
+        .Take(3)
         .Where(listing => listing.Type == ListingType.PlaceForRent)
         .OrderByDescending(listing => listing.Images.Count > 0)
         .ThenByDescending(listing => listing.CreatedAt)
         .ToList();
 }
 
-<div class="home-page home-marketplace">
+<div class="home-page">
     @if (featuredListings.Count > 0) {
         <div class="home-featured-rotator" data-home-featured-rotator>
             @for (var listingIndex = 0; listingIndex < featuredListings.Count; listingIndex++) {
@@ -178,39 +179,47 @@
         </section>
     }
 
-    <nav class="home-category-tabs" aria-label="Browse housing categories">
-        <a asp-controller="Listing" asp-action="Index" class="is-active">
+    <nav class="home-category-tabs" role="tablist" aria-label="Filter the latest listings" data-home-tabs>
+        <button type="button" role="tab" aria-selected="true" aria-controls="homeListingGrid" class="is-active"
+                data-filter="all" data-href="@Url.Action("Index", "Listing")" data-label="View all listings">
             <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/>
+                <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>
             </svg>
-            Recommended
-        </a>
-        <a asp-controller="Listing"
-           asp-action="Index"
-           asp-route-Type="@ListingType.PlaceForRent">
+            All listings
+        </button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="homeListingGrid"
+                data-filter="rent" data-href="@Url.Action("Index", "Listing", new { Type = ListingType.PlaceForRent })" data-label="View all places for rent">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M3 10 12 3l9 7v10H3z"/>
                 <path d="M9 20v-6h6v6"/>
             </svg>
             Places for rent
-        </a>
-        <a asp-controller="Profile" asp-action="Roommates">
+        </button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="homeListingGrid"
+                data-filter="roommate" data-href="@Url.Action("Index", "Listing", new { Type = ListingType.LookingForRoommate })" data-label="View all roommate listings">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="9" cy="8" r="3"/>
                 <circle cx="17" cy="10" r="2"/>
                 <path d="M3 19c.4-4 2.4-6 6-6s5.6 2 6 6M15 15c3 0 4.7 1.3 5 4"/>
             </svg>
-            Roommates
-        </a>
-        <a asp-controller="Listing"
-           asp-action="Index"
-           asp-route-AvailableNow="true">
+            Roommate listings
+        </button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="homeListingGrid"
+                data-filter="studio" data-href="@Url.Action("Index", "Listing", new { Type = ListingType.PlaceForRent, BedroomCount = 0 })" data-label="View all studios">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 20V9l8-5 8 5v11z"/>
+                <path d="M4 14h16"/>
+            </svg>
+            Studios
+        </button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="homeListingGrid"
+                data-filter="available" data-href="@Url.Action("Index", "Listing", new { AvailableNow = true })" data-label="View all available now">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <rect x="3" y="5" width="18" height="16" rx="2"/>
                 <path d="M8 3v4M16 3v4M3 10h18"/>
             </svg>
             Available now
-        </a>
+        </button>
     </nav>
 
     <section class="home-latest" aria-labelledby="latestListingsTitle">
@@ -219,8 +228,8 @@
                 <h2 id="latestListingsTitle">Top places for students</h2>
                 <p>Recently added homes and roommate opportunities.</p>
             </div>
-            <a asp-controller="Listing" asp-action="Index">
-                View all listings
+            <a asp-controller="Listing" asp-action="Index" data-home-view-all>
+                <span>View all listings</span>
                 <span aria-hidden="true">→</span>
             </a>
         </div>
@@ -233,14 +242,20 @@
             </div>
         }
         else {
-            <div class="home-listing-grid">
-                @foreach (var listing in Model.LatestListings) {
+            <div class="home-listing-grid" id="homeListingGrid" role="tabpanel" data-home-grid>
+                @for (var listingIndex = 0; listingIndex < Model.LatestListings.Count; listingIndex++) {
+                    var listing = Model.LatestListings[listingIndex];
                     var primaryImage = listing.Images
                         .OrderByDescending(image => image.IsPrimary)
                         .ThenBy(image => image.CreatedAt)
                         .FirstOrDefault();
+                    var isAvailableNow = listing.AvailableFrom == null || listing.AvailableFrom.Value.Date <= DateTime.UtcNow.Date;
 
-                    <article class="home-listing-card">
+                    <article class="home-listing-card"
+                             data-type="@(listing.Type == ListingType.PlaceForRent ? "rent" : "roommate")"
+                             data-studio="@(listing.Type == ListingType.PlaceForRent && listing.BedroomCount == 0 ? "true" : "false")"
+                             data-available="@(isAvailableNow ? "true" : "false")"
+                             hidden="@(listingIndex >= 6)">
                         <a asp-controller="Listing"
                            asp-action="Details"
                            asp-route-id="@listing.Id"
@@ -297,6 +312,10 @@
                     </article>
                 }
             </div>
+            <p class="home-latest-filter-empty" data-home-filter-empty hidden>
+                Nothing new in this category right now.
+                <a asp-controller="Listing" asp-action="Index">Browse all listings</a>
+            </p>
         }
     </section>
 

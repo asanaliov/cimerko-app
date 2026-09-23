@@ -1,0 +1,153 @@
+/* Design tokens, element defaults and shared animations. Loaded first, right after Bootstrap. */
+
+:root {
+  --cm-bg: #faf6ef;
+  --cm-bg-deep: #f2ece1;
+  --cm-surface: #ffffff;
+  --cm-surface-soft: #f7f3eb;
+  --cm-ink: #1c2420;
+  --cm-muted: #66706b;
+  --cm-border: #e6dfd2;
+  --cm-border-strong: #d8cfbf;
+
+  --cm-primary: #1b4c3d;
+  --cm-primary-dark: #143a2e;
+  --cm-primary-soft: #e6efea;
+  --cm-amber: #f6ba39;
+  --cm-amber-star: #e9a92c;
+  --cm-amber-ink: #7a5410;
+  --cm-yellow: #fdf0cf;
+  --cm-danger: #b43f48;
+  --cm-danger-soft: #fbeaec;
+  --cm-success: #2f7d5c;
+  --cm-success-soft: #e4f2ea;
+
+  --cm-font: Inter, Aptos, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --cm-radius-sm: 10px;
+  --cm-radius-md: 14px;
+  --cm-radius-lg: 20px;
+  --cm-radius-xl: 28px;
+  --cm-radius-pill: 999px;
+
+  --cm-shadow-xs: 0 3px 10px rgba(48, 40, 31, 0.05);
+  --cm-shadow-sm: 0 9px 22px rgba(48, 40, 31, 0.08);
+  --cm-shadow-md: 0 14px 34px rgba(48, 40, 31, 0.1);
+  --cm-shadow-lg: 0 22px 58px rgba(48, 40, 31, 0.14);
+
+  --cm-ease: 180ms ease;
+
+  /* Height of the sticky header plus a small gap; other sticky elements and anchors sit below it. */
+  --cm-sticky-top: 8rem;
+}
+
+html {
+  min-height: 100%;
+  scroll-padding-top: var(--cm-sticky-top);
+  background: var(--cm-bg);
+  font-size: 14px;
+  scroll-behavior: smooth;
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  overflow-x: hidden;
+  color: var(--cm-ink);
+  background:
+    radial-gradient(circle at 15% 4%, rgba(255, 255, 255, 0.9), transparent 27rem),
+    radial-gradient(circle at 88% 28%, rgba(255, 246, 221, 0.24), transparent 31rem),
+    var(--cm-bg);
+  font-family: var(--cm-font);
+  line-height: 1.55;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  color: var(--cm-ink);
+  background: var(--cm-yellow);
+}
+
+a {
+  color: var(--cm-primary);
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  color: var(--cm-primary-dark);
+}
+
+img {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--cm-ink);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(27, 76, 61, 0.32);
+  outline-offset: 3px;
+}
+
+@keyframes cm-reveal-up {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+    scale: 0.98;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+@keyframes cm-parallax {
+  to {
+    translate: 0 8%;
+    scale: 1.18;
+  }
+}
+
+@keyframes cm-image-settle {
+  from {
+    scale: 1.12;
+  }
+
+  to {
+    scale: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

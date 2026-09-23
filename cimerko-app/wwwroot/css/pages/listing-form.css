@@ -1,0 +1,805 @@
+/* Create and edit listing forms: numbered sections, choice cards, photo upload and the tips sidebar. */
+
+.listing-form-page {
+  width: min(100%, 1140px);
+  margin-inline: auto;
+  padding: 0.5rem 0 4.5rem;
+}
+
+.listing-form-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.listing-form-header h1 {
+  margin: 0.55rem 0 0.65rem;
+  font-size: clamp(2.35rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.listing-form-header p {
+  margin: 0;
+  color: var(--cm-muted);
+}
+
+.listing-form-back {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-pill);
+  color: var(--cm-ink);
+  background: var(--cm-surface);
+  font-size: 0.74rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.listing-form-back svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.listing-form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  align-items: start;
+  gap: 1.5rem;
+}
+
+.listing-form-card,
+.listing-form-aside {
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-lg);
+  background: var(--cm-surface);
+  box-shadow: var(--cm-shadow-sm);
+}
+
+.listing-form-card {
+  overflow: hidden;
+}
+
+.listing-form-validation:empty {
+  display: none;
+}
+
+.listing-form-validation {
+  margin: 1.5rem 1.5rem 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid #efc6ca;
+  border-radius: var(--cm-radius-sm);
+  color: var(--cm-danger);
+  background: var(--cm-danger-soft);
+  font-size: 0.76rem;
+}
+
+.listing-form-validation ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+/* Numbered form sections */
+
+.listing-form-section {
+  padding: 2rem;
+}
+
+.listing-form-section + .listing-form-section {
+  border-top: 1px solid var(--cm-border);
+}
+
+.listing-form-section-heading {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+  margin-bottom: 1.4rem;
+}
+
+.listing-form-section-heading > span {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--cm-ink);
+  background: var(--cm-yellow);
+  font-size: 0.65rem;
+  font-weight: 850;
+}
+
+.listing-form-section-heading h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1rem;
+}
+
+.listing-form-section-heading p {
+  margin: 0;
+  color: var(--cm-muted);
+  font-size: 0.72rem;
+}
+
+.listing-form-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.05rem;
+}
+
+.listing-form-fields-four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.listing-form-fields-four.is-place-for-rent {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.listing-form-field-wide {
+  grid-column: 1 / -1;
+}
+
+.listing-form-field {
+  min-width: 0;
+}
+
+.listing-form-static-copy {
+  margin: 0 0 0.6rem;
+  color: var(--cm-muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+/* Radio cards and checkbox grids */
+
+.listing-choice-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.listing-choice-fieldset legend {
+  margin-bottom: 0.55rem;
+  color: var(--cm-ink);
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.listing-choice-grid,
+.listing-check-grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.listing-choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.listing-choice-card,
+.listing-check-grid label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid var(--cm-border-strong);
+  border-radius: 12px;
+  background: var(--cm-surface);
+  cursor: pointer;
+}
+
+.listing-choice-card:has(input:checked),
+.listing-check-grid label:has(input:checked) {
+  border-color: var(--cm-primary);
+  background: var(--cm-primary-soft);
+}
+
+.listing-choice-card input,
+.listing-check-grid input,
+.listing-studio-toggle input {
+  width: 1rem;
+  height: 1rem;
+  min-height: auto;
+  flex: 0 0 auto;
+  margin-top: 0.2rem;
+  padding: 0;
+  accent-color: var(--cm-primary);
+}
+
+.listing-choice-card span {
+  display: grid;
+}
+
+.listing-choice-card strong {
+  font-size: 0.8rem;
+}
+
+.listing-choice-card small {
+  color: var(--cm-muted);
+  font-size: 0.68rem;
+}
+
+.listing-check-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.listing-check-grid label {
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* Text inputs */
+
+.listing-form-field > label,
+.listing-form-label-row label {
+  margin-bottom: 0.42rem;
+  color: var(--cm-ink);
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.listing-form-field > .listing-studio-toggle {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.55rem;
+  color: var(--cm-primary-dark);
+  cursor: pointer;
+}
+
+.listing-form-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.listing-form-label-row span,
+.listing-form-field-hint {
+  color: var(--cm-muted);
+  font-size: 0.66rem;
+}
+
+.listing-form-field input:not([type="checkbox"]):not([type="radio"]),
+.listing-form-field select,
+.listing-form-field textarea {
+  width: 100%;
+  min-height: 49px;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--cm-border);
+  border-radius: 14px;
+  outline: 0;
+  color: var(--cm-ink);
+  background: var(--cm-surface-soft);
+  font-size: 0.82rem;
+  transition: border-color var(--cm-ease), background-color var(--cm-ease), box-shadow var(--cm-ease);
+}
+
+.listing-form-field textarea {
+  min-height: 145px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.listing-form-field input:not([type="checkbox"]):not([type="radio"]):focus,
+.listing-form-field select:focus,
+.listing-form-field textarea:focus {
+  border-color: var(--cm-primary);
+  background: var(--cm-surface);
+  box-shadow: 0 0 0 0.22rem rgba(27, 76, 61, 0.11);
+}
+
+.listing-form-field input:not([type="checkbox"]):not([type="radio"]).input-validation-error,
+.listing-form-field select.input-validation-error,
+.listing-form-field textarea.input-validation-error {
+  border-color: var(--cm-danger);
+}
+
+.listing-form-input-suffix {
+  position: relative;
+}
+
+.listing-form-input-suffix input {
+  padding-right: 2.2rem;
+}
+
+.listing-form-input-suffix > span {
+  position: absolute;
+  top: 50%;
+  right: 0.9rem;
+  color: var(--cm-muted);
+  font-size: 0.74rem;
+  font-weight: 750;
+  transform: translateY(-50%);
+}
+
+.listing-form-error {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--cm-danger);
+  font-size: 0.68rem;
+}
+
+.listing-form-error:empty {
+  display: none;
+}
+
+.listing-form-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-sm);
+  background: var(--cm-surface-soft);
+  cursor: pointer;
+}
+
+.listing-form-status input {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.1rem;
+  accent-color: var(--cm-primary);
+}
+
+.listing-form-status span,
+.listing-form-status strong,
+.listing-form-status small {
+  display: block;
+}
+
+.listing-form-status strong {
+  font-size: 0.76rem;
+}
+
+.listing-form-status small {
+  color: var(--cm-muted);
+  font-size: 0.66rem;
+}
+
+/* Photo upload and the photo grid on the edit page */
+
+.listing-image-upload {
+  position: relative;
+}
+
+.listing-image-upload label {
+  display: flex;
+  min-height: 135px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 1.25rem;
+  border: 1px dashed var(--cm-border-strong);
+  border-radius: var(--cm-radius-md);
+  color: var(--cm-ink);
+  background: var(--cm-surface-soft);
+  cursor: pointer;
+  transition: border-color var(--cm-ease), background-color var(--cm-ease);
+}
+
+.listing-image-upload label:hover,
+.listing-image-upload:focus-within label {
+  border-color: var(--cm-primary);
+  background: var(--cm-primary-soft);
+}
+
+.listing-image-upload-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 13px;
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
+}
+
+.listing-image-upload-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.listing-image-upload label > span:last-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.listing-image-upload strong {
+  font-size: 0.78rem;
+}
+
+.listing-image-upload small {
+  color: var(--cm-muted);
+  font-size: 0.68rem;
+}
+
+.listing-image-upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.listing-image-selection {
+  margin-top: 0.75rem;
+}
+
+.listing-image-selection[hidden] {
+  display: none;
+}
+
+.listing-image-selection p {
+  color: var(--cm-muted);
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+
+.listing-image-preview-grid,
+.listing-edit-image-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.listing-image-preview-grid img,
+.listing-edit-image-preview {
+  width: 100%;
+  height: 85px;
+  overflow: hidden;
+  object-fit: cover;
+  border: 1px solid var(--cm-border);
+  border-radius: 11px;
+  background: var(--cm-bg-deep);
+}
+
+.listing-edit-image {
+  overflow: hidden;
+  border: 1px solid var(--cm-border);
+  border-radius: 13px;
+  background: var(--cm-surface-soft);
+  cursor: pointer;
+}
+
+.listing-edit-image-preview {
+  position: relative;
+  display: grid;
+  height: 95px;
+  place-items: center;
+}
+
+.listing-edit-image-preview img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.listing-edit-image-preview svg {
+  width: 26px;
+  fill: none;
+  stroke: var(--cm-muted);
+}
+
+.listing-edit-image-remove {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem;
+  color: var(--cm-danger);
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.listing-edit-image-upload {
+  margin-top: 1rem;
+}
+
+.listing-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding: 1.2rem 2rem;
+  border-top: 1px solid var(--cm-border);
+  background: var(--cm-surface-soft);
+}
+
+.listing-form-submit {
+  min-width: 155px;
+}
+
+.listing-form-submit svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+/* Tips sidebar */
+
+.listing-form-aside {
+  position: sticky;
+  top: var(--cm-sticky-top);
+  overflow: hidden;
+  padding: 2rem 1.5rem 1.5rem;
+}
+
+.listing-form-aside::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 8px;
+  background: var(--cm-primary);
+  content: "";
+}
+
+.listing-form-aside-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 1rem;
+  place-items: center;
+  border-radius: 13px;
+  color: var(--cm-primary);
+  background: var(--cm-primary-soft);
+}
+
+.listing-form-aside-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.listing-form-aside h2 {
+  margin-bottom: 0.35rem;
+  font-size: 1rem;
+}
+
+.listing-form-aside > p {
+  margin: 0;
+  color: var(--cm-muted);
+  font-size: 0.74rem;
+}
+
+.listing-form-aside ul {
+  display: grid;
+  gap: 0.9rem;
+  margin: 1.2rem 0 0;
+  padding: 1.2rem 0 0;
+  border-top: 1px solid var(--cm-border);
+  list-style: none;
+}
+
+.listing-form-aside li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 0.6rem;
+}
+
+.listing-form-aside li > span {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
+  font-size: 0.6rem;
+  font-weight: 850;
+}
+
+.listing-form-aside li strong,
+.listing-form-aside li small {
+  display: block;
+}
+
+.listing-form-aside li strong {
+  font-size: 0.72rem;
+}
+
+.listing-form-aside li small {
+  margin-top: 0.1rem;
+  color: var(--cm-muted);
+  font-size: 0.64rem;
+}
+
+/* Delete confirmation */
+
+.listing-delete-page {
+  width: min(100%, 720px);
+  margin-inline: auto;
+  padding: 1.5rem 0 4rem;
+}
+
+.listing-delete-card {
+  padding: clamp(1.75rem, 5vw, 3rem);
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-lg);
+  background: var(--cm-surface);
+  box-shadow: var(--cm-shadow-md);
+  text-align: center;
+}
+
+.listing-delete-icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 1.1rem;
+  place-items: center;
+  border-radius: 18px;
+  color: var(--cm-danger);
+  background: var(--cm-danger-soft);
+}
+
+.listing-delete-icon svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.listing-delete-card h1 {
+  margin: 0.55rem 0 0.8rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.listing-delete-card > p {
+  max-width: 480px;
+  margin: 0 auto;
+  color: var(--cm-muted);
+}
+
+.listing-delete-card > p strong {
+  color: var(--cm-ink);
+}
+
+.listing-delete-card dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 1.5rem 0;
+}
+
+.listing-delete-card dl div {
+  padding: 0.9rem;
+  border-radius: var(--cm-radius-sm);
+  background: var(--cm-surface-soft);
+}
+
+.listing-delete-card dt {
+  color: var(--cm-muted);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+.listing-delete-card dd {
+  margin: 0.2rem 0 0;
+  font-weight: 800;
+}
+
+.listing-delete-card form {
+  display: flex;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.listing-delete-confirm {
+  border: 1px solid var(--cm-danger);
+  color: #fff;
+  background: var(--cm-danger);
+}
+
+.listing-delete-confirm:hover,
+.listing-delete-confirm:focus {
+  border-color: #96343c;
+  color: #fff;
+  background: #96343c;
+}
+
+.listing-delete-cancel {
+  border: 1px solid var(--cm-border-strong);
+  color: var(--cm-ink);
+  background: var(--cm-surface);
+}
+
+.listing-delete-cancel:hover,
+.listing-delete-cancel:focus {
+  border-color: var(--cm-primary);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
+}
+
+@media (max-width: 991.98px) {
+  .listing-form-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* relative, not static: the accent bar (::before) is positioned against the card. */
+  .listing-form-aside {
+    position: relative;
+    top: auto;
+    order: -1;
+  }
+
+  .listing-form-aside ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767.98px) {
+  .listing-form-page,
+  .listing-delete-page {
+    padding-inline: 1rem;
+  }
+
+  .listing-form-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .listing-form-fields,
+  .listing-form-fields-four,
+  .listing-form-fields-four.is-place-for-rent,
+  .listing-form-aside ul {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-form-field-wide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .listing-delete-card dl {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-delete-card form {
+    flex-direction: column-reverse;
+  }
+
+  .listing-form-section {
+    padding: 1.3rem 1.1rem;
+  }
+
+  .listing-form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+    padding: 1rem 1.1rem;
+  }
+
+  .listing-form-actions .btn {
+    width: 100%;
+  }
+
+  .listing-image-preview-grid,
+  .listing-edit-image-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

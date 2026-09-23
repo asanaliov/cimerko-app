@@ -49,10 +49,7 @@ public enum RoommateGenderPreference {
     Women = 1,
 
     [Display(Name = "Male")]
-    Men = 2,
-
-    [Display(Name = "Non-binary people")]
-    NonBinary = 3
+    Men = 2
 }
 
 public enum RoommateHousingPlan {
@@ -94,7 +91,6 @@ public static class ListingPreferenceExtensions {
         return preference switch {
             RoommateGenderPreference.Women => "Female",
             RoommateGenderPreference.Men => "Male",
-            RoommateGenderPreference.NonBinary => "Non-binary people",
             _ => "No preference"
         };
     }

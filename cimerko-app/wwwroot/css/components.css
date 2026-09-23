@@ -1,8 +1,11 @@
-/* Shared buttons */
+/* Reusable pieces shared by several pages: buttons, forms, alerts, pills, chips, empty states,
+   the listing card, the pager and scroll animations. */
+
+/* Buttons */
+
 .btn,
 .btn-cimerko-primary,
 .btn-cimerko-light,
-.btn-cimerko-danger,
 .cimerko-primary-button,
 .cimerko-light-pill {
   display: inline-flex;
@@ -27,7 +30,6 @@
 .btn:hover,
 .btn-cimerko-primary:hover,
 .btn-cimerko-light:hover,
-.btn-cimerko-danger:hover,
 .cimerko-primary-button:hover,
 .cimerko-light-pill:hover {
   transform: translateY(-1px);
@@ -36,12 +38,11 @@
 .btn-primary,
 .btn-cimerko-primary,
 .cimerko-primary-button {
- border: 1px solid var(--cm-primary);
- color: #fff;
- background: var(--cm-primary);
- box-shadow: 0 14px 36px rgba(27, 76, 61, 0.20);
- padding: 0.75rem 1.25rem;
- border-radius: var(--cm-radius-pill);
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--cm-primary);
+  color: #fff;
+  background: var(--cm-primary);
+  box-shadow: 0 14px 36px rgba(27, 76, 61, 0.2);
 }
 
 .btn-primary:hover,
@@ -75,19 +76,8 @@
   background: var(--cm-primary-soft);
 }
 
-.btn-cimerko-danger {
-  border: 1px solid var(--cm-danger);
-  color: #fff;
-  background: var(--cm-danger);
-}
-
-.btn-cimerko-danger:hover,
-.btn-cimerko-danger:focus {
-  color: #fff;
-  background: #96343c;
-}
-
 /* Forms */
+
 .form-label {
   margin-bottom: 0.42rem;
   color: var(--cm-ink);
@@ -142,6 +132,7 @@ textarea.form-control {
   box-shadow: 0 0 0 0.2rem rgba(27, 76, 61, 0.13);
 }
 
+/* !important: Bootstrap's .text-danger is itself !important, and errors must beat page-level field borders. */
 .text-danger,
 .field-validation-error {
   color: var(--cm-danger) !important;
@@ -151,6 +142,8 @@ textarea.form-control {
 .input-validation-error {
   border-color: var(--cm-danger) !important;
 }
+
+/* Alerts */
 
 .alert {
   border-radius: var(--cm-radius-sm);
@@ -165,26 +158,78 @@ textarea.form-control {
 
 .alert-success {
   border-color: #b9dbc9;
-  color: var(--cm-green);
+  color: var(--cm-primary);
   background: var(--cm-success-soft);
 }
 
 .alert-info {
-  border-color: #d9d2fa;
+  border-color: rgba(27, 76, 61, 0.18);
   color: var(--cm-primary-dark);
   background: var(--cm-primary-soft);
 }
 
-/* Shared surfaces and pills */
-.detail-card,
-.surface-card {
+.detail-card {
   border: 1px solid var(--cm-border);
   border-radius: var(--cm-radius-lg);
   background: var(--cm-surface);
   box-shadow: var(--cm-shadow-sm);
 }
 
-.pill,
+/* Page header: eyebrow, large title and intro (requests, notifications, admin dashboard, privacy) */
+
+.requests-header,
+.notifications-header,
+.admin-dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.requests-eyebrow,
+.notifications-eyebrow,
+.admin-dashboard-eyebrow {
+  color: var(--cm-primary);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.requests-header h1,
+.notifications-header h1,
+.admin-dashboard-header h1,
+.privacy-page h1 {
+  margin: 0.5rem 0 0.45rem;
+  font-size: clamp(2.25rem, 5vw, 3.7rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.requests-header p,
+.notifications-header p,
+.admin-dashboard-header p,
+.privacy-page header p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--cm-muted);
+}
+
+/* Small uppercase label above a heading */
+
+.home-eyebrow,
+.listing-eyebrow,
+.listing-form-eyebrow {
+  color: var(--cm-primary);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+/* Pills: the shared shape for badges and status labels. Colours live with each page. */
+
 .badge-soft,
 .profile-badge,
 .request-status,
@@ -198,19 +243,14 @@ textarea.form-control {
   line-height: 1;
 }
 
-.pill,
 .badge-soft {
   padding: 0.48rem 0.7rem;
   color: #514d46;
   background: var(--cm-surface-soft);
 }
 
-.text-muted-soft {
-  color: var(--cm-muted);
-  font-size: 0.84rem;
-}
+/* Filter chips: visually hidden checkboxes styled as toggle pills. */
 
-/* Toggle chips (checkbox pills) */
 .filter-chips {
   display: flex;
   flex-wrap: wrap;
@@ -275,7 +315,8 @@ textarea.form-control {
   outline-offset: 2px;
 }
 
-/* Reusable empty states */
+/* Empty states */
+
 .empty-state,
 .listing-empty-state,
 .saved-listings-empty,
@@ -312,8 +353,8 @@ textarea.form-control {
   margin-inline: auto;
   place-items: center;
   border-radius: 18px;
-  color: var(--cm-green);
-  background: var(--cm-green-soft);
+  color: var(--cm-primary);
+  background: var(--cm-primary-soft);
 }
 
 .empty-state-icon,
@@ -329,38 +370,528 @@ textarea.form-control {
   stroke-width: 1.8;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
+/* Listing card (listings page and saved listings) */
+
+.listing-card-grid {
+  --bs-gutter-x: 1.4rem;
+  --bs-gutter-y: 1.4rem;
 }
 
-/* Scroll reveal: elements start hidden only once site.js has marked the page as ready. */
+.listing-card-grid > [class*="col-"] {
+  display: flex;
+}
+
+.listing-card {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  flex-direction: column;
+  border: 1px solid var(--cm-border);
+  border-radius: 17px;
+  background: var(--cm-surface);
+  box-shadow: var(--cm-shadow-xs);
+  transition:
+    border-color var(--cm-ease),
+    box-shadow var(--cm-ease),
+    transform var(--cm-ease);
+}
+
+.listing-card:hover,
+.listing-card:focus-within {
+  border-color: rgba(27, 76, 61, 0.2);
+  box-shadow: var(--cm-shadow-md);
+  transform: translateY(-2px);
+}
+
+.listing-card-img-wrap,
+.listing-card-accent {
+  position: relative;
+  overflow: hidden;
+  background: var(--cm-bg-deep);
+}
+
+.listing-card-img-wrap {
+  height: 179px;
+}
+
+.listing-card-image-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.listing-card-img,
+.listing-card-accent > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 380ms ease;
+}
+
+.listing-card-img {
+  border-radius: 14px 14px 0 0;
+}
+
+.listing-card-accent > img {
+  border-radius: var(--cm-radius-lg);
+}
+
+.listing-card:hover .listing-card-img,
+.listing-card:hover .listing-card-accent > img {
+  transform: scale(1.04);
+}
+
+.listing-card-placeholder {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: var(--cm-muted);
+  background: var(--cm-bg-deep);
+  font-size: 0.76rem;
+}
+
+.listing-card-placeholder svg {
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.listing-card-save-form {
+  margin: 0;
+}
+
+.listing-card-save-btn {
+  position: absolute;
+  z-index: 3;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  color: var(--cm-muted);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--cm-shadow-xs);
+  transition: color var(--cm-ease), transform var(--cm-ease);
+}
+
+.listing-card-save-btn:hover {
+  color: var(--cm-primary);
+  transform: scale(1.05);
+}
+
+.listing-card-save-btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.listing-card-save-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.9;
+}
+
+.listing-card-save-btn.is-saved {
+  color: var(--cm-primary);
+}
+
+.listing-card-save-btn.is-saved svg {
+  fill: currentColor;
+}
+
+.listing-card-content,
+.listing-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.listing-card-content {
+  padding: 0.82rem 0.9rem 0.9rem;
+}
+
+.listing-card-body {
+  padding: 1.3rem;
+}
+
+.listing-card-content h3 {
+  margin: 0 0 0.2rem;
+  font-size: 1rem;
+}
+
+.listing-card-body h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
+}
+
+.listing-card-content h3 a,
+.listing-card-body h3 a {
+  color: var(--cm-ink);
+  text-decoration: none;
+}
+
+.listing-card-content h3 a:hover,
+.listing-card-body h3 a:hover {
+  color: var(--cm-primary-dark);
+}
+
+.listing-card-location-new,
+.listing-card-location {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  overflow: hidden;
+  color: var(--cm-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listing-card-location-new {
+  margin: 0 0 0.45rem;
+  font-size: 0.72rem;
+}
+
+.listing-card-location {
+  margin: 0 0 0.8rem;
+  font-size: 0.78rem;
+}
+
+.listing-card-location-new svg,
+.listing-card-location svg,
+.listing-card-facts svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.listing-card-reference-price,
+.listing-card-price {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 0.65rem;
+}
+
+.listing-card-reference-price {
+  gap: 0.3rem;
+}
+
+.listing-card-price {
+  gap: 0.25rem;
+}
+
+.listing-card-reference-price strong,
+.listing-card-price strong {
+  font-size: 1.2rem;
+}
+
+.listing-card-reference-price > span {
+  color: var(--cm-muted);
+  font-size: 0.7rem;
+}
+
+.listing-card-price span {
+  color: var(--cm-muted);
+  font-size: 0.75rem;
+}
+
+.listing-card-badges,
+.listing-card-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.listing-card-badges .badge-soft {
+  padding: 0.38rem 0.55rem;
+  color: var(--cm-muted);
+  background: var(--cm-surface-soft);
+  font-size: 0.62rem;
+}
+
+.listing-card-badges .badge-soft:first-child {
+  color: var(--cm-primary);
+  background: var(--cm-primary-soft);
+}
+
+.listing-card-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: var(--cm-radius-pill);
+  color: var(--cm-muted);
+  background: var(--cm-surface-soft);
+  font-size: 0.68rem;
+}
+
+.listing-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding: 1rem 1.3rem;
+  border-top: 1px solid var(--cm-border);
+}
+
+/* Full-screen photo viewer (_ListingPhotoGallery), used on the home page and listing details */
+
+.photo-viewer {
+  width: min(1120px, calc(100% - 2rem));
+  max-width: none;
+  height: min(850px, calc(100dvh - 2rem));
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--cm-radius-lg);
+  color: #fff;
+  background: rgba(23, 23, 21, 0.32);
+  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(18px);
+}
+
+.photo-viewer::backdrop {
+  background: rgba(17, 16, 14, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+.photo-viewer-shell {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.photo-viewer-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.photo-viewer-header h2 {
+  margin: 0;
+  overflow: hidden;
+  color: #fff;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.photo-viewer-header p {
+  margin: 0.15rem 0 0;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.72rem;
+}
+
+.photo-viewer-close,
+.photo-viewer-arrow {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background var(--cm-ease), transform var(--cm-ease);
+}
+
+.photo-viewer-close {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+.photo-viewer-close:hover,
+.photo-viewer-close:focus-visible {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.photo-viewer-close svg,
+.photo-viewer-arrow svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.photo-viewer-stage {
+  position: relative;
+  display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
+  place-items: center;
+  overflow: hidden;
+  background: transparent;
+}
+
+.photo-viewer-stage > img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+
+.photo-viewer-arrow {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(20, 20, 18, 0.68);
+  transform: translateY(-50%);
+}
+
+.photo-viewer-arrow:hover,
+.photo-viewer-arrow:focus-visible {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.04);
+}
+
+.photo-viewer-arrow.is-previous {
+  left: 1rem;
+}
+
+.photo-viewer-arrow.is-next {
+  right: 1rem;
+}
+
+.photo-viewer-thumbnails {
+  display: flex;
+  min-height: 98px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding: 0.8rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+.photo-viewer-thumbnails button {
+  width: 82px;
+  height: 64px;
+  flex: 0 0 auto;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: #2a2a27;
+  opacity: 0.58;
+  transition: border-color var(--cm-ease), opacity var(--cm-ease), transform var(--cm-ease);
+}
+
+.photo-viewer-thumbnails button:hover,
+.photo-viewer-thumbnails button:focus-visible {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.photo-viewer-thumbnails button.is-active {
+  border-color: #fff;
+  opacity: 1;
+}
+
+.photo-viewer-thumbnails img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Pager */
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2.5rem;
+}
+
+.pager ol {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pager a,
+.pager span {
+  display: inline-flex;
+  min-width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0 0.85rem;
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-pill);
+  color: var(--cm-ink);
+  background: var(--cm-surface);
+  font-weight: 700;
+  text-decoration: none;
+  transition: border-color var(--cm-ease), background var(--cm-ease);
+}
+
+.pager a:hover {
+  border-color: var(--cm-primary);
+}
+
+.pager .is-current {
+  border-color: var(--cm-primary);
+  color: #fff;
+  background: var(--cm-primary);
+}
+
+.pager svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+/* Scroll animations. site.js adds .reveal-ready to <html>, so content stays visible without JS. */
+
 .reveal-ready [data-reveal]:not(.is-revealed) {
   opacity: 0;
 }
 
 .reveal-ready [data-reveal].is-revealed {
   animation: cm-reveal-up 700ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms) both;
-}
-
-@keyframes cm-reveal-up {
-  from {
-    opacity: 0;
-    translate: 0 28px;
-    scale: 0.98;
-  }
-
-  to {
-    opacity: 1;
-    translate: 0 0;
-    scale: 1;
-  }
 }
 
 @supports (animation-timeline: view()) {
@@ -380,19 +911,46 @@ textarea.form-control {
   }
 }
 
-@keyframes cm-parallax {
-  to {
-    translate: 0 8%;
-    scale: 1.18;
+@media (max-width: 767.98px) {
+  .requests-header,
+  .notifications-header,
+  .admin-dashboard-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 
-@keyframes cm-image-settle {
-  from {
-    scale: 1.12;
+@media (max-width: 575.98px) {
+  .photo-viewer {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
   }
 
-  to {
-    scale: 1;
+  .photo-viewer-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .photo-viewer-arrow {
+    width: 42px;
+    height: 42px;
+  }
+
+  .photo-viewer-arrow.is-previous {
+    left: 0.65rem;
+  }
+
+  .photo-viewer-arrow.is-next {
+    right: 0.65rem;
+  }
+
+  .photo-viewer-thumbnails {
+    min-height: 86px;
+    padding: 0.65rem 1rem;
+  }
+
+  .photo-viewer-thumbnails button {
+    width: 70px;
+    height: 54px;
   }
 }

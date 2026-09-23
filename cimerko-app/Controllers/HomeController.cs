@@ -24,7 +24,7 @@ public class HomeController : Controller {
             .Include(listing => listing.Owner)
             .Include(listing => listing.Images)
             .OrderByDescending(listing => listing.CreatedAt)
-            .Take(3)
+            .Take(12)
             .ToListAsync();
 
         return View(new HomeIndexViewModel {

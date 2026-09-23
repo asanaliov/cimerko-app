@@ -5,11 +5,11 @@
     var titleId = $"{Model.DialogId}Title";
 
     <dialog id="@Model.DialogId"
-            class="home-photo-viewer"
+            class="photo-viewer"
             data-photo-gallery
             aria-labelledby="@titleId">
-        <div class="home-photo-viewer-shell">
-            <header class="home-photo-viewer-header">
+        <div class="photo-viewer-shell">
+            <header class="photo-viewer-header">
                 <div>
                     <h2 id="@titleId">@Model.Title</h2>
                     <p>
@@ -18,7 +18,7 @@
                     </p>
                 </div>
                 <button type="button"
-                        class="home-photo-viewer-close"
+                        class="photo-viewer-close"
                         data-gallery-close
                         aria-label="Close photo viewer">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -27,10 +27,10 @@
                 </button>
             </header>
 
-            <div class="home-photo-viewer-stage">
+            <div class="photo-viewer-stage">
                 @if (Model.Images.Count > 1) {
                     <button type="button"
-                            class="home-photo-viewer-arrow is-previous"
+                            class="photo-viewer-arrow is-previous"
                             data-gallery-previous
                             aria-label="View previous photo">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -45,7 +45,7 @@
 
                 @if (Model.Images.Count > 1) {
                     <button type="button"
-                            class="home-photo-viewer-arrow is-next"
+                            class="photo-viewer-arrow is-next"
                             data-gallery-next
                             aria-label="View next photo">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -56,7 +56,7 @@
             </div>
 
             @if (Model.Images.Count > 1) {
-                <div class="home-photo-viewer-thumbnails"
+                <div class="photo-viewer-thumbnails"
                      aria-label="Choose a listing photo">
                     @for (var photoIndex = 0;
                           photoIndex < Model.Images.Count;

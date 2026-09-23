@@ -187,7 +187,7 @@ document.querySelectorAll("[data-photo-gallery]").forEach(gallery => {
 (() => {
     const revealTargets = [
         ".home-section-heading",
-        ".home-listing-card",
+        ".home-listing-grid",
         ".home-steps li",
         ".home-final-cta",
         ".listing-results-heading",
@@ -317,5 +317,113 @@ document.querySelectorAll("[data-share-listing]").forEach(button => {
                 window.prompt("Copy this listing link:", url);
             }
         }
+    });
+});
+
+document.querySelectorAll(".site-header").forEach(header => {
+    const update = () => header.classList.toggle("is-scrolled", window.scrollY > 8);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+});
+
+document.querySelectorAll("[data-home-tabs]").forEach(tabList => {
+    const tabs = [...tabList.querySelectorAll("[role='tab']")];
+    const grid = document.querySelector("[data-home-grid]");
+    const empty = document.querySelector("[data-home-filter-empty]");
+    const viewAll = document.querySelector("[data-home-view-all]");
+    const maxCards = 6;
+
+    if (!grid) {
+        return;
+    }
+
+    const cards = [...grid.querySelectorAll(".home-listing-card")];
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const matches = (card, filter) =>
+        filter === "all" ||
+        (filter === "rent" && card.dataset.type === "rent") ||
+        (filter === "roommate" && card.dataset.type === "roommate") ||
+        (filter === "studio" && card.dataset.studio === "true") ||
+        (filter === "available" && card.dataset.available === "true");
+    let switching = null;
+
+    const showCards = filter => {
+        const visible = cards.filter(card => matches(card, filter)).slice(0, maxCards);
+        cards.forEach(card => {
+            card.hidden = !visible.includes(card);
+            card.classList.remove("is-leaving", "is-entering");
+        });
+        visible.forEach((card, index) => {
+            card.style.setProperty("--i", index);
+            if (!reduceMotion) {
+                card.classList.add("is-entering");
+            }
+        });
+        grid.hidden = visible.length === 0;
+        if (empty) {
+            empty.hidden = visible.length > 0;
+        }
+    };
+
+    const select = tab => {
+        tabs.forEach(item => {
+            const isActive = item === tab;
+            item.classList.toggle("is-active", isActive);
+            item.setAttribute("aria-selected", String(isActive));
+            item.tabIndex = isActive ? 0 : -1;
+        });
+
+        tab.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+
+        if (viewAll) {
+            viewAll.href = tab.dataset.href;
+            viewAll.querySelector("span").textContent = tab.dataset.label;
+        }
+
+        clearTimeout(switching);
+        if (reduceMotion) {
+            showCards(tab.dataset.filter);
+            return;
+        }
+
+        // Fade the current cards out, swap them, then let the grid ease to its new height.
+        const startHeight = grid.hidden ? 0 : grid.offsetHeight;
+        cards.filter(card => !card.hidden).forEach(card => card.classList.add("is-leaving"));
+        switching = setTimeout(() => {
+            showCards(tab.dataset.filter);
+            if (grid.hidden) {
+                return;
+            }
+
+            const endHeight = grid.offsetHeight;
+            grid.style.height = `${startHeight}px`;
+            grid.classList.add("is-resizing");
+            requestAnimationFrame(() => {
+                grid.style.height = `${endHeight}px`;
+            });
+            switching = setTimeout(() => {
+                grid.classList.remove("is-resizing");
+                grid.style.height = "";
+            }, 280);
+        }, 150);
+    };
+
+    tabs.forEach((tab, index) => {
+        tab.tabIndex = tab.classList.contains("is-active") ? 0 : -1;
+        tab.addEventListener("click", () => {
+            if (!tab.classList.contains("is-active")) {
+                select(tab);
+            }
+        });
+        tab.addEventListener("keydown", event => {
+            if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") {
+                return;
+            }
+
+            event.preventDefault();
+            const next = tabs[(index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+            next.focus();
+            select(next);
+        });
     });
 });
