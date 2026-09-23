@@ -24,8 +24,8 @@
 }
 
 .notification-item.is-unread {
-  border-color: #d8d0fa;
-  background: linear-gradient(90deg, rgba(238, 234, 253, 0.8), var(--cm-surface) 42%);
+  border-color: rgba(27, 76, 61, 0.2);
+  background: linear-gradient(90deg, rgba(230, 239, 234, 0.8), var(--cm-surface) 42%);
 }
 
 .notification-item-icon {

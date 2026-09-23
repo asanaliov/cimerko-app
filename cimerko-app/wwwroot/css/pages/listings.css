@@ -95,7 +95,7 @@
 }
 
 /* Also used by the roommates search button. */
-.btn-search-purple {
+.btn-search {
   min-height: 46px;
   padding: 0.75rem 1.3rem;
   border: 0;
@@ -107,17 +107,17 @@
   transition: background-color var(--cm-ease), transform var(--cm-ease);
 }
 
-.listing-search-custom .btn-search-purple {
+.listing-search-custom .btn-search {
   min-height: 44px;
   padding: 1rem 1.5rem;
 }
 
-.listing-search-custom .btn-search-purple svg {
+.listing-search-custom .btn-search svg {
   margin-right: 0.25rem;
 }
 
-.btn-search-purple:hover,
-.btn-search-purple:focus {
+.btn-search:hover,
+.btn-search:focus {
   color: #fff;
   background: var(--cm-primary-dark);
   transform: translateY(-1px);
@@ -522,7 +522,7 @@
     align-items: stretch;
   }
 
-  .btn-search-purple {
+  .btn-search {
     width: 100%;
   }
 
