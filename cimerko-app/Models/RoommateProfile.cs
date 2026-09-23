@@ -41,8 +41,8 @@ public class RoommateProfile {
 
     [MaxLength(30)]
     [RegularExpression(
-        "^(Male|Female|Prefer not to say)$",
-        ErrorMessage = "Choose Male, Female, or Prefer not to say.")]
+        "^(Male|Female)$",
+        ErrorMessage = "Choose Male or Female.")]
     public string? Gender { get; set; }
 
     [MaxLength(100)]
