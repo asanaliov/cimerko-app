@@ -56,43 +56,43 @@ public static class DemoDataSeed {
         RentalPetPolicy PetPolicy = RentalPetPolicy.NotSpecified);
 
     private static readonly DemoUser[] Users = [
-        new("mila", "Mila Stojanova", "mila.stojanova@cimerko.local", AppRoles.Student, "Skopje", "Female",
+        new("mila", "Mia Thompson", "mia.thompson@cimerko.local", AppRoles.Student, "Skopje", "Female",
             new DateOnly(2004, 3, 14), "Ss. Cyril and Methodius University", "FINKI",
             "Second-year software engineering student. I spend most evenings at the library or cooking, and I like a calm flat where everyone respects quiet hours.",
             "No smoking", "Pets are welcome", "Very tidy", "Early bird", "Occasionally", 12),
-        new("nikola", "Nikola Trajkovski", "nikola.trajkovski@cimerko.local", AppRoles.Student, "Skopje", "Male",
+        new("nikola", "Lucas Martin", "lucas.martin@cimerko.local", AppRoles.Student, "Skopje", "Male",
             new DateOnly(2002, 9, 2), "Ss. Cyril and Methodius University", "Faculty of Economics",
             "Economics student and part-time barista. Easy-going, sociable, and always up for a shared dinner. I keep common spaces clean and expect the same.",
             "Outside only", "Ask first", "Balanced", "Night owl", "Often", 40),
-        new("ana", "Ana Petrovska", "ana.petrovska@cimerko.local", AppRoles.Student, "Štip", "Female",
+        new("ana", "Anna Schmidt", "anna.schmidt@cimerko.local", AppRoles.Student, "Štip", "Female",
             new DateOnly(2005, 1, 27), "Goce Delčev University", "Faculty of Medical Sciences",
             "Medical student with early lectures and a lot of studying. I am looking for a quiet, non-smoking flatmate who does not mind a very organised kitchen.",
             "No smoking", "No pets", "Very tidy", "Early bird", "Rarely", 6),
-        new("stefan", "Stefan Mitrevski", "stefan.mitrevski@cimerko.local", AppRoles.Student, "Bitola", "Male",
+        new("stefan", "Daniel Weber", "daniel.weber@cimerko.local", AppRoles.Student, "Bitola", "Male",
             new DateOnly(2003, 6, 8), "St. Kliment Ohridski University", "Faculty of Technical Sciences",
             "Engineering student who plays guitar (with headphones, mostly). Looking for someone to search for a flat together near the centre of Bitola.",
             "No smoking", "Pets are welcome", "Balanced", "Flexible", "Occasionally", 25),
-        new("elena", "Elena Ristova", "elena.ristova@cimerko.local", AppRoles.Student, "Skopje", "Female",
+        new("elena", "Sofia Rossi", "sofia.rossi@cimerko.local", AppRoles.Student, "Skopje", "Female",
             new DateOnly(2001, 11, 19), "Ss. Cyril and Methodius University", "Faculty of Architecture",
             "Final-year architecture student. I work late on models and drawings, so I value a tidy, calm home and a flatmate who is fine with a night owl.",
             "No smoking", "Ask first", "Very tidy", "Night owl", "Rarely", 90),
-        new("marko", "Marko Georgiev", "marko.georgiev@cimerko.local", AppRoles.Landlord, "Skopje", "Male",
+        new("marko", "Mark Johnson", "mark.johnson@cimerko.local", AppRoles.Landlord, "Skopje", "Male",
             new DateOnly(1991, 4, 3), null, null,
             "I rent out a few apartments in central Skopje, mostly to students and young professionals. Quick to answer and happy to help with paperwork.",
             "No smoking", "Ask first", "Balanced", "Flexible", "Occasionally", 200),
-        new("jana", "Jana Dimitrova", "jana.dimitrova@cimerko.local", AppRoles.Landlord, "Ohrid", "Female",
+        new("jana", "Laura Bennett", "laura.bennett@cimerko.local", AppRoles.Landlord, "Ohrid", "Female",
             new DateOnly(1984, 8, 22), null, null,
             "Family apartment in Ohrid that we rent to students during the academic year. Fully furnished, close to the lake and the old town.",
             "No smoking", "No pets", "Very tidy", "Early bird", "Rarely", 150),
-        new("bojan", "Bojan Nikolovski", "bojan.nikolovski@cimerko.local", AppRoles.Landlord, "Bitola", "Male",
+        new("bojan", "David Miller", "david.miller@cimerko.local", AppRoles.Landlord, "Bitola", "Male",
             new DateOnly(1980, 2, 11), null, null,
             "Long-time Bitola resident renting a renovated studio a short walk from the university. Bills are included so there are no surprises.",
             "Outside only", "Pets are welcome", "Balanced", "Flexible", "Often", 120),
-        new("teodora", "Teodora Angelovska", "teodora.angelovska@cimerko.local", AppRoles.Student, "Tetovo", "Female",
+        new("teodora", "Emma Laurent", "emma.laurent@cimerko.local", AppRoles.Student, "Tetovo", "Female",
             new DateOnly(2004, 7, 30), "South East European University", "Faculty of Contemporary Sciences and Technologies",
             "Computer science student who loves plants and board games. Our shared house has one room free from October and we would love a friendly, tidy housemate.",
             "No smoking", "Pets are welcome", "Balanced", "Flexible", "Often", 18),
-        new("dario", "Dario Kostov", "dario.kostov@cimerko.local", AppRoles.Landlord, "Skopje", "Male",
+        new("dario", "Oliver Hughes", "oliver.hughes@cimerko.local", AppRoles.Landlord, "Skopje", "Male",
             new DateOnly(1996, 12, 5), null, null,
             "Designer by day, landlord of two small flats in Skopje. I like renting to people who treat the place like their own home.",
             "No smoking", "Ask first", "Very tidy", "Night owl", "Occasionally", 60)
@@ -172,7 +172,7 @@ public static class DemoDataSeed {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        if (await context.Users.AnyAsync(user => user.Email == Users[0].Email)) {
+        if (await context.Users.AnyAsync(user => user.IsDemoUser)) {
             return;
         }
 
@@ -265,19 +265,19 @@ public static class DemoDataSeed {
         // Accepted requests unlock reviews, so a few demo members have already lived together.
         var reviewPairs = new (string Reviewer, string Reviewed, string ListingTitle, int Rating, string Comment)[] {
             ("mila", "marko", "Sunny studio in Centar, walking distance to everything", 5,
-                "Marko fixed the boiler the same day I reported it and always answered within an hour. The studio was exactly as described."),
+                "Mark fixed the boiler the same day I reported it and always answered within an hour. The studio was exactly as described."),
             ("nikola", "marko", "Renovated 2-bedroom apartment in Kapištec", 4,
-                "Clean apartment and a fair deposit process. The internet was slow the first week but Marko sorted it quickly."),
+                "Clean apartment and a fair deposit process. The internet was slow the first week but Mark sorted it quickly."),
             ("elena", "marko", "Family apartment with a big balcony in Karpoš 4", 5,
                 "Rented for a full academic year with two friends. No surprises with bills and the balcony was our favourite study spot."),
             ("stefan", "bojan", "Furnished studio near the university in Bitola, bills included", 5,
-                "Bills really are included, which made budgeting easy. Bojan is friendly and respects your privacy."),
+                "Bills really are included, which made budgeting easy. David is friendly and respects your privacy."),
             ("ana", "jana", "Lake-view apartment ten minutes from Ohrid old town", 4,
                 "Beautiful view and a very well equipped kitchen. A bit far from campus on rainy days, but the bus is frequent."),
             ("nikola", "mila", "Bright room in a 2-bedroom flat in Debar Maalo", 5,
-                "Shared a flat with Mila for a semester. Tidy, considerate and great at splitting chores fairly."),
+                "Shared a flat with Mia for a semester. Tidy, considerate and great at splitting chores fairly."),
             ("teodora", "elena", "Quiet room in Aerodrom for a tidy flatmate", 4,
-                "Elena keeps a very calm home. She works late but is quiet about it, and the kitchen was always spotless.")
+                "Sofia keeps a very calm home. She works late but is quiet about it, and the kitchen was always spotless.")
         };
 
         foreach (var pair in reviewPairs) {
