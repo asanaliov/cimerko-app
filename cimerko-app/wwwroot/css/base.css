@@ -37,8 +37,8 @@
 
   --cm-ease: 180ms ease;
 
-  /* Space the sticky header takes once scrolled; other sticky elements and anchors sit below it. */
-  --cm-sticky-top: 6.5rem;
+  /* Height of the sticky header plus a small gap; other sticky elements and anchors sit below it. */
+  --cm-sticky-top: 8rem;
 }
 
 html {

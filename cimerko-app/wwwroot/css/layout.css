@@ -31,20 +31,19 @@
 
 /* Header */
 
-/* Sticky header: site.js adds .is-scrolled once the page moves, which tightens it and adds a backdrop. */
+/* Sticky header: site.js adds .is-scrolled once the page moves, which adds a backdrop.
+   Only paint changes here: changing the height would shift the page and make the class flicker. */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 1030;
   padding: 22px 0 16px;
   transition:
-    padding var(--cm-ease),
     background-color var(--cm-ease),
     box-shadow var(--cm-ease);
 }
 
 .site-header.is-scrolled {
-  padding-block: 10px;
   background: rgba(250, 246, 239, 0.9);
   box-shadow: 0 1px 0 var(--cm-border), 0 10px 30px rgba(48, 40, 31, 0.06);
   backdrop-filter: blur(14px);
