@@ -10,7 +10,6 @@
 <div class="saved-listings-page">
     <header class="saved-listings-header">
         <div>
-            <span class="listing-eyebrow">Your shortlist</span>
             <h1>Saved listings</h1>
             <p>Keep track of places you are interested in.</p>
         </div>
@@ -60,13 +59,12 @@
         </div>
     }
     else {
-        <div class="listing-grid saved-listings-grid row">
+        <div class="saved-listings-grid row">
             @foreach (var savedListing in savedListings) {
                 if (savedListing.Listing is not { } listing) {
                     continue;
                 }
 
-                var typeLabel = listing.Type.GetDisplayName();
                 var location = string.IsNullOrWhiteSpace(listing.Address)
                     ? listing.City
                     : $"{listing.City} · {listing.Address}";
@@ -78,10 +76,6 @@
                 <div class="col-12 col-md-6 col-lg-4">
                 <article class="listing-card saved-listing-card">
                     <div class="listing-card-accent">
-                        <span class="listing-type-badge @(listing.Type == ListingType.PlaceForRent ? "is-place" : "is-roommate")">
-                            @typeLabel
-                        </span>
-                        <span class="listing-posted-date">Saved @savedListing.SavedAt.ToString("dd MMM")</span>
                         @if (primaryImage != null) {
                             <img src="@primaryImage.ImageUrl"
                                  alt="@listing.Title"

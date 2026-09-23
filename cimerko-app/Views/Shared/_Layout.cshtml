@@ -16,13 +16,21 @@
     <link rel="icon" type="image/png" href="~/favicon-cimerko.png" asp-append-version="true"/>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/css/listings.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/css/profiles.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/css/activity.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/css/reference.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/home.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/listings.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/listing-details.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/listing-form.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/saved.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/roommates.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/profile.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/auth.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/requests.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/notifications.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/admin.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/pages/misc.css" asp-append-version="true"/>
 </head>
 <body>
 @if (ViewData["HideGlobalHeader"] as bool? != true) {
@@ -31,12 +39,7 @@
         <nav class="navbar navbar-expand-lg site-navbar" aria-label="Main navigation">
             <div class="container-fluid px-0">
                 <a class="navbar-brand site-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <span class="site-brand-mark" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M4 11.5 12 5l8 6.5V20H4z"/>
-                            <path d="M9 20v-6h6v6"/>
-                        </svg>
-                    </span>
+                    <span class="site-brand-mark" aria-hidden="true"></span>
                     <span class="site-brand-copy">
                         <strong>Cimerko</strong>
                         <small>Good Living</small>
@@ -99,21 +102,6 @@
     </div>
 }
 
-<footer class="site-footer">
-    <div class="container">
-        <div class="site-footer-content">
-            <div>
-                <a class="site-footer-brand" asp-controller="Home" asp-action="Index">Cimerko</a>
-                <p>Student housing and roommate connections, kept simple.</p>
-            </div>
-            <nav aria-label="Footer navigation">
-                <a asp-controller="Listing" asp-action="Index">Browse listings</a>
-                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
-            </nav>
-        </div>
-        <p class="site-footer-copy">&copy; 2026 Cimerko. Built for student housing.</p>
-    </div>
-</footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>

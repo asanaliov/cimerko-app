@@ -1,0 +1,472 @@
+/* Page frame: containers, header, main navigation, account menu and the notification bell. */
+
+.container {
+  width: calc(100% - 90px);
+  max-width: 1358px;
+  padding-inline: 30px;
+}
+
+.site-content {
+  flex: 1 0 auto;
+  width: calc(100% - 90px);
+  max-width: 1358px;
+  margin-inline: auto;
+  padding-inline: 0;
+}
+
+.page-shell,
+.saved-listings-page,
+.requests-page,
+.notifications-page,
+.admin-dashboard,
+.privacy-page,
+.profile-details-shell,
+.profile-edit-shell,
+.account-manage-page {
+  width: 100%;
+  max-width: none;
+  margin-inline: auto;
+  padding: 1rem 30px 4.5rem;
+}
+
+/* Header */
+
+.site-header {
+  position: relative;
+  z-index: 1030;
+  padding: 22px 0 16px;
+}
+
+.site-header-container {
+  padding-inline: 34px;
+}
+
+.site-navbar {
+  min-height: 68px;
+  padding: 0;
+}
+
+.site-navbar > .container-fluid {
+  position: relative;
+}
+
+.site-navbar .navbar-collapse {
+  justify-content: flex-end;
+}
+
+/* Logo: a "C" ring drawn with a border plus an amber roof tile. */
+
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-right: 1rem;
+  color: var(--cm-ink);
+  font-size: 1rem;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.site-brand:hover,
+.site-brand:focus {
+  color: var(--cm-ink);
+}
+
+.site-brand-mark {
+  position: relative;
+  display: block;
+  width: 47px;
+  height: 47px;
+}
+
+.site-brand-mark::before {
+  position: absolute;
+  inset: 3px;
+  border: 9px solid var(--cm-primary-dark);
+  border-right-color: transparent;
+  border-radius: 50%;
+  content: "";
+  transform: rotate(-5deg);
+}
+
+.site-brand-mark::after {
+  position: absolute;
+  top: 5px;
+  right: 3px;
+  width: 13px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--cm-amber);
+  content: "";
+  transform: rotate(-38deg);
+}
+
+.site-brand-copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.site-brand-copy strong {
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.site-brand-copy small {
+  color: var(--cm-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* Main navigation, centred over the header on desktop. */
+
+.site-nav-links {
+  position: absolute;
+  left: 50%;
+  min-width: 550px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  border-radius: var(--cm-radius-pill);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--cm-shadow-md);
+  transform: translateX(-50%);
+}
+
+.site-nav-links > .nav-item {
+  flex: 0 0 auto;
+}
+
+/* Bootstrap sizes nav links through these variables, so set them instead of fighting its selectors. */
+.site-nav-link,
+.site-user-link,
+.site-auth-link {
+  border-radius: var(--cm-radius-pill);
+  font-size: 0.84rem;
+  font-weight: 750;
+  text-decoration: none;
+  transition:
+    color var(--cm-ease),
+    background-color var(--cm-ease),
+    box-shadow var(--cm-ease);
+}
+
+.site-nav-link {
+  --bs-nav-link-padding-y: 0.78rem;
+  --bs-nav-link-padding-x: 1.45rem;
+  --bs-navbar-nav-link-padding-x: 1.45rem;
+  color: #34353a;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.site-nav-link:hover,
+.site-nav-link:focus,
+.site-nav-link.is-active {
+  color: var(--cm-ink);
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(48, 40, 31, 0.07);
+}
+
+/* Account area on the right */
+
+.site-account-nav {
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.site-auth-link {
+  --bs-nav-link-padding-y: 0.75rem;
+  --bs-nav-link-padding-x: 1.2rem;
+  --bs-navbar-nav-link-padding-x: 1.2rem;
+  border: 1px solid var(--cm-border-strong);
+  color: var(--cm-ink);
+  background: rgba(255, 255, 255, 0.32);
+  font-size: 0.86rem;
+}
+
+.site-auth-link:hover,
+.site-auth-link:focus {
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
+}
+
+.site-auth-primary {
+  --bs-nav-link-padding-x: 1.35rem;
+  --bs-navbar-nav-link-padding-x: 1.35rem;
+  border-color: var(--cm-primary);
+  box-shadow: 0 7px 18px rgba(27, 76, 61, 0.22);
+}
+
+.site-auth-primary,
+.site-auth-primary:hover,
+.site-auth-primary:focus {
+  color: #fff;
+  background: var(--cm-primary);
+}
+
+.site-user-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--cm-border);
+  color: var(--cm-muted);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* Needs Bootstrap's navbar specificity because the padding is not symmetric. */
+.site-navbar .site-account-nav .site-user-link {
+  padding: 0.38rem 0.9rem 0.38rem 0.38rem;
+}
+
+.site-user-link:hover,
+.site-user-link:focus {
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
+}
+
+.site-user-avatar {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--cm-primary);
+  background: var(--cm-primary-soft);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.site-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.site-user-initial {
+  grid-area: 1 / 1;
+}
+
+.site-user-menu {
+  --bs-dropdown-spacer: 0.7rem;
+  min-width: 210px;
+  margin-top: 0.7rem;
+  padding: 0.5rem;
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-md);
+  background: var(--cm-surface);
+  box-shadow: var(--cm-shadow-md);
+}
+
+.site-user-menu .dropdown-header {
+  color: var(--cm-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.site-user-menu .dropdown-item {
+  padding: 0.62rem 0.75rem;
+  border-radius: 10px;
+  color: var(--cm-ink);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.site-user-menu .dropdown-item:hover,
+.site-user-menu .dropdown-item:focus {
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
+}
+
+.site-logout-form {
+  margin: 0;
+}
+
+.site-navbar-toggler {
+  padding: 0.45rem;
+  border: 1px solid var(--cm-border);
+  border-radius: 50%;
+  background: var(--cm-surface-soft);
+}
+
+.site-navbar-toggler:focus {
+  box-shadow: 0 0 0 0.22rem rgba(27, 76, 61, 0.16);
+}
+
+.notification-nav-link {
+  position: relative;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--cm-muted);
+}
+
+.notification-nav-link:hover,
+.notification-nav-link:focus {
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
+}
+
+.notification-nav-link svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.notification-nav-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 0.25rem;
+  place-items: center;
+  border: 2px solid var(--cm-surface);
+  border-radius: var(--cm-radius-pill);
+  color: #fff;
+  background: var(--cm-primary);
+  font-size: 0.55rem;
+  font-weight: 850;
+}
+
+@media (min-width: 992px) {
+  .site-navbar {
+    position: relative;
+  }
+
+  .site-navbar .navbar-collapse {
+    position: static;
+  }
+
+  .site-account-nav {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 1199.98px) {
+  .container,
+  .site-content {
+    width: calc(100% - 28px);
+  }
+
+  .site-nav-links {
+    min-width: auto;
+  }
+
+  .site-nav-link {
+    --bs-nav-link-padding-x: 0.95rem;
+    --bs-navbar-nav-link-padding-x: 0.95rem;
+  }
+}
+
+/* Collapsed (hamburger) navigation */
+@media (max-width: 991.98px) {
+  .site-navbar > .container-fluid {
+    position: static;
+  }
+
+  .site-navbar .navbar-collapse {
+    margin-top: 0.6rem;
+    padding: 0.75rem 0.15rem 0.15rem;
+    border-top: 1px solid var(--cm-border);
+  }
+
+  .site-nav-links {
+    position: static;
+    min-width: auto;
+    align-items: stretch;
+    margin: 0.75rem 0;
+    padding: 0.3rem;
+    border-radius: 16px;
+    background: var(--cm-surface-soft);
+    box-shadow: none;
+    transform: none;
+  }
+
+  .site-nav-link,
+  .site-user-link,
+  .site-auth-link {
+    width: 100%;
+    border-radius: var(--cm-radius-sm);
+  }
+
+  .site-nav-link {
+    justify-content: flex-start;
+    border-radius: 12px;
+    text-align: left;
+  }
+
+  .site-user-link {
+    justify-content: center;
+    text-align: left;
+  }
+
+  .site-auth-link {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .site-account-nav {
+    flex-direction: row;
+    gap: 0.5rem;
+    margin-top: 0.65rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--cm-border);
+  }
+
+  .site-account-nav > .nav-item {
+    flex: 1;
+  }
+
+  .site-account-nav > .nav-item:has(.notification-nav-link) {
+    flex: 0 0 auto;
+  }
+
+  .site-user-menu {
+    width: 100%;
+    margin-top: 0.25rem;
+    box-shadow: none;
+    --bs-dropdown-spacer: 0.25rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .container,
+  .site-content {
+    width: 100%;
+  }
+
+  .site-header {
+    padding-top: 0.75rem;
+  }
+
+  .site-header-container,
+  .page-shell,
+  .saved-listings-page,
+  .requests-page,
+  .notifications-page,
+  .admin-dashboard,
+  .privacy-page,
+  .profile-details-shell,
+  .profile-edit-shell,
+  .account-manage-page {
+    padding-inline: 1rem;
+  }
+
+  .site-brand-copy small {
+    display: none;
+  }
+}
