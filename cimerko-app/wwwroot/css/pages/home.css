@@ -360,18 +360,18 @@
   color: var(--cm-muted);
 }
 
-/* Category tabs under the showcase */
+/* Category tabs: filter the latest listings grid below without leaving the page (site.js) */
 
 .home-category-tabs {
   display: flex;
-  width: 820px;
-  max-width: calc(100% - 60px);
+  width: fit-content;
+  max-width: 100%;
   gap: 0.25rem;
-  margin: 14px 0 0 30px;
+  margin: 1.25rem auto 0;
   padding: 0.35rem;
   overflow-x: auto;
   border: 1px solid var(--cm-border);
-  border-radius: 16px;
+  border-radius: var(--cm-radius-pill);
   background: var(--cm-surface);
   box-shadow: var(--cm-shadow-sm);
   scrollbar-width: none;
@@ -381,36 +381,37 @@
   display: none;
 }
 
-.home-category-tabs a {
+.home-category-tabs button {
   display: inline-flex;
   min-height: 42px;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   align-items: center;
-  justify-content: center;
   gap: 0.45rem;
-  padding: 0.65rem 1.2rem;
-  border-radius: 12px;
+  padding: 0.6rem 1.15rem;
+  border: 0;
+  border-radius: var(--cm-radius-pill);
   color: var(--cm-muted);
+  background: transparent;
   font-size: 0.78rem;
   font-weight: 750;
-  text-decoration: none;
   white-space: nowrap;
+  transition: color var(--cm-ease), background-color var(--cm-ease), box-shadow var(--cm-ease);
 }
 
-.home-category-tabs a:hover,
-.home-category-tabs a:focus,
-.home-category-tabs a.is-active {
+.home-category-tabs button:hover {
   color: var(--cm-primary-dark);
   background: var(--cm-primary-soft);
 }
 
-.home-category-tabs a.is-active {
-  box-shadow: inset 0 -2px 0 var(--cm-primary);
+.home-category-tabs button.is-active {
+  color: #fff;
+  background: var(--cm-primary);
+  box-shadow: 0 6px 16px rgba(27, 76, 61, 0.22);
 }
 
 .home-category-tabs svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -451,6 +452,37 @@
 .home-listing-card:hover {
   box-shadow: var(--cm-shadow-md);
   transform: translateY(-4px);
+}
+
+/* Switching tabs: the grid animates its height while the old cards fade out and the new ones rise in. */
+.home-listing-grid.is-resizing {
+  overflow: hidden;
+  transition: height 260ms ease;
+}
+
+.home-listing-card.is-leaving {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.home-listing-grid .home-listing-card.is-entering {
+  animation: cm-reveal-up 420ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--i, 0) * 60ms) both;
+}
+
+.home-latest-filter-empty {
+  margin: 0;
+  padding: 2rem;
+  border: 1px dashed var(--cm-border-strong);
+  border-radius: var(--cm-radius-lg);
+  color: var(--cm-muted);
+  background: rgba(255, 255, 255, 0.55);
+  text-align: center;
+}
+
+.home-latest-filter-empty a {
+  margin-left: 0.35rem;
+  font-weight: 750;
 }
 
 .home-listing-image {
@@ -771,20 +803,6 @@
     font-size: 1.65rem;
   }
 
-  .home-category-tabs {
-    width: fit-content;
-    max-width: calc(100% - 2rem);
-    margin: 0.9rem 0 0 1.5rem;
-    padding: 0.4rem;
-  }
-
-  .home-category-tabs a {
-    flex: 0 0 auto;
-    justify-content: normal;
-    padding-inline: 0.9rem;
-    font-size: 0.7rem;
-  }
-
   .home-latest {
     padding: 1.8rem 0 0;
   }
@@ -830,8 +848,12 @@
 
   .home-category-tabs {
     width: 100%;
-    max-width: none;
-    margin-left: 0;
+    border-radius: 16px;
+  }
+
+  .home-category-tabs button {
+    padding-inline: 0.9rem;
+    font-size: 0.72rem;
   }
 
   .home-listing-grid {

@@ -8,7 +8,7 @@ namespace Tests;
 
 public class HomeControllerTests {
     [Fact]
-    public async Task Index_returns_the_three_latest_active_listings() {
+    public async Task Index_returns_the_latest_active_listings_newest_first() {
         await using var database = await TestDatabase.CreateAsync();
         var context = database.Context;
         context.Users.Add(new ApplicationUser {
@@ -38,7 +38,7 @@ public class HomeControllerTests {
         var view = Assert.IsType<ViewResult>(result);
         var model = Assert.IsType<HomeIndexViewModel>(view.Model);
         Assert.Equal(
-            ["Active 5", "Active 4", "Active 3"],
+            ["Active 5", "Active 4", "Active 3", "Active 2", "Active 1"],
             model.LatestListings.Select(listing => listing.Title));
     }
 
