@@ -54,19 +54,21 @@ public class ProfileController : Controller {
         ViewBag.CurrentUserId = visitorId;
         ViewBag.IsOwnProfile = isOwnProfile;
         var canWriteReview = false;
+        var hasAcceptedConnection = false;
         if (visitorId != null && visitorId != id) {
             var alreadyReviewed = await _context.Reviews.AnyAsync(review =>
                 review.ReviewerId == visitorId &&
                 review.ReviewedUserId == id);
 
-            canWriteReview = !alreadyReviewed &&
-                             await _context.ListingRequests.AnyAsync(request =>
-                                 request.Status == RequestStatus.Accepted &&
-                                 ((request.SenderId == visitorId && request.Listing!.OwnerId == id) ||
-                                  (request.SenderId == id && request.Listing!.OwnerId == visitorId)));
+            hasAcceptedConnection = await _context.ListingRequests.AnyAsync(request =>
+                request.Status == RequestStatus.Accepted &&
+                ((request.SenderId == visitorId && request.Listing!.OwnerId == id) ||
+                 (request.SenderId == id && request.Listing!.OwnerId == visitorId)));
+            canWriteReview = !alreadyReviewed && hasAcceptedConnection;
         }
 
         ViewBag.CanWriteReview = canWriteReview;
+        ViewBag.CanSeeContact = isOwnProfile || isAdmin || hasAcceptedConnection;
 
         int? compatibilityScore = null;
         if (visitorId != null && visitorId != id && !isAdmin) {
@@ -123,11 +125,6 @@ public class ProfileController : Controller {
                 (visitorId == null || listing.OwnerId != visitorId))
             .AsNoTracking()
             .AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(model.City)) {
-            var city = model.City.Trim();
-            listingsQuery = listingsQuery.Where(listing => listing.City.Contains(city));
-        }
 
         if (model.MinimumBudget.HasValue) {
             listingsQuery = listingsQuery.Where(listing =>
@@ -191,7 +188,9 @@ public class ProfileController : Controller {
             .OrderByDescending(listing => listing.CreatedAt)
             .ToListAsync();
 
+        var locationTerms = TextSearch.Terms(model.City);
         var results = listings
+            .Where(listing => TextSearch.MatchesAll(locationTerms, listing.City, listing.Address))
             .GroupBy(listing => listing.OwnerId)
             .Select(group => group.First())
             .Select(listing => {
@@ -211,7 +210,14 @@ public class ProfileController : Controller {
             .ThenBy(result => result.User.FullName)
             .ToList();
 
-        model.Results = results;
+        var totalPages = PaginationViewModel.TotalPagesFor(results.Count);
+        var page = PaginationViewModel.ClampPage(model.Page, totalPages);
+        model.TotalCount = results.Count;
+        model.Pagination = new PaginationViewModel(page, totalPages);
+        model.Results = results
+            .Skip((page - 1) * PaginationViewModel.DefaultPageSize)
+            .Take(PaginationViewModel.DefaultPageSize)
+            .ToList();
         return View(model);
     }
 

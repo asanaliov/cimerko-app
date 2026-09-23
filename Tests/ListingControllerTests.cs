@@ -18,7 +18,8 @@ public class ListingControllerTests {
         await using var database = await TestDatabase.CreateAsync();
         var controller = new ListingController(
             database.Context,
-            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(database.Context)) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext()
             }
@@ -64,7 +65,8 @@ public class ListingControllerTests {
 
         var controller = new ListingController(
             context,
-            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(context)) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext()
             }
@@ -105,7 +107,8 @@ public class ListingControllerTests {
 
         var controller = new ListingController(
             context,
-            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(context)) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext()
             }
@@ -177,7 +180,8 @@ public class ListingControllerTests {
         string userId) {
         return new ListingController(
             context,
-            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(context)) {
             TempData = Mock.Of<ITempDataDictionary>(),
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext {
@@ -187,6 +191,127 @@ public class ListingControllerTests {
                 }
             }
         };
+    }
+
+    [Fact]
+    public async Task Index_keyword_search_ignores_case_and_diacritics_and_checks_description_and_address() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.Add(CreateUser("owner"));
+        var balconyFlat = CreateListing("owner", "Sunny flat", null);
+        balconyFlat.Description = "Big BALCONY with a view.";
+        balconyFlat.City = "Štip";
+        balconyFlat.Address = "Karpoš 3";
+        context.Listings.AddRange(balconyFlat, CreateListing("owner", "Other flat", null));
+        await context.SaveChangesAsync();
+
+        var controller = new ListingController(
+            context,
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(context)) {
+            ControllerContext = new ControllerContext {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+
+        var result = await controller.Index(new ListingIndexViewModel {
+            Title = "balcony",
+            City = "karpos stip"
+        });
+
+        var model = Assert.IsType<ListingIndexViewModel>(Assert.IsType<ViewResult>(result).Model);
+        Assert.Equal("Sunny flat", Assert.Single(model.Listings).Title);
+    }
+
+    [Fact]
+    public async Task Index_sorts_by_price_and_pages_results() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.Add(CreateUser("owner"));
+        for (var index = 1; index <= 14; index++) {
+            var listing = CreateListing("owner", $"Listing {index}", null);
+            listing.MonthlyRent = index * 10;
+            context.Listings.Add(listing);
+        }
+        await context.SaveChangesAsync();
+
+        var controller = new ListingController(
+            context,
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(context)) {
+            ControllerContext = new ControllerContext {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+
+        var result = await controller.Index(new ListingIndexViewModel {
+            Sort = ListingSort.PriceHigh,
+            Page = 2
+        });
+
+        var model = Assert.IsType<ListingIndexViewModel>(Assert.IsType<ViewResult>(result).Model);
+        Assert.Equal(14, model.TotalCount);
+        Assert.Equal(new PaginationViewModel(2, 2), model.Pagination);
+        Assert.Equal([20m, 10m], model.Listings.Select(listing => listing.MonthlyRent));
+    }
+
+    [Fact]
+    public async Task Edit_keeps_an_approved_listing_live_when_only_the_price_changes() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.Add(CreateUser("owner"));
+        var listing = CreateListing("owner", "Live listing", null);
+        context.Listings.Add(listing);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var controller = CreateAuthenticatedController(context, "owner");
+
+        var form = CreateListing("owner", "Live listing", null);
+        form.Id = listing.Id;
+        form.MonthlyRent = 450;
+        await controller.Edit(listing.Id, form, null, null);
+
+        var saved = Assert.Single(context.Listings);
+        Assert.Equal(450, saved.MonthlyRent);
+        Assert.True(saved.IsActive);
+        Assert.Equal(ListingModerationStatus.Approved, saved.ModerationStatus);
+    }
+
+    [Fact]
+    public async Task Edit_sends_a_new_title_back_for_approval() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.Add(CreateUser("owner"));
+        var listing = CreateListing("owner", "Live listing", null);
+        context.Listings.Add(listing);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var controller = CreateAuthenticatedController(context, "owner");
+
+        var form = CreateListing("owner", "Renamed listing", null);
+        form.Id = listing.Id;
+        await controller.Edit(listing.Id, form, null, null);
+
+        var saved = Assert.Single(context.Listings);
+        Assert.False(saved.IsActive);
+        Assert.Equal(ListingModerationStatus.Pending, saved.ModerationStatus);
+    }
+
+    [Fact]
+    public async Task Details_counts_views_from_visitors_but_not_the_owner() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.AddRange(CreateUser("owner"), CreateUser("visitor"));
+        var listing = CreateListing("owner", "Viewed listing", null);
+        context.Listings.Add(listing);
+        await context.SaveChangesAsync();
+
+        await CreateAuthenticatedController(context, "visitor").Details(listing.Id);
+        await CreateAuthenticatedController(context, "visitor").Details(listing.Id);
+        await CreateAuthenticatedController(context, "owner").Details(listing.Id);
+
+        context.ChangeTracker.Clear();
+        Assert.Equal(2, context.Listings.Single().ViewCount);
     }
 
     private static ApplicationUser CreateUser(string id) {

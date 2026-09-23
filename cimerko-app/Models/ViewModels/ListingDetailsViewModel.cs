@@ -16,4 +16,6 @@ public class ListingDetailsViewModel {
     public double? OwnerAverageRating { get; set; }
 
     public int OwnerActiveListingCount { get; set; }
+
+    public int SaveCount { get; set; }
 }

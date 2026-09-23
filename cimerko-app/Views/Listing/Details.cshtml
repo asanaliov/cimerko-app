@@ -9,9 +9,7 @@
     var ownerName = string.IsNullOrWhiteSpace(owner?.FullName)
         ? "Cimerko member"
         : owner.FullName;
-    var ownerContactEmail = string.IsNullOrWhiteSpace(ownerProfile?.ContactEmail)
-        ? owner?.Email
-        : ownerProfile.ContactEmail;
+    var ownerContactEmail = ownerProfile?.ContactEmail;
     var ownerInitial = ownerName.Trim()[..1].ToUpperInvariant();
     var isRental = listing.Type == ListingType.PlaceForRent;
     var listingImages = listing.Images
@@ -278,8 +276,17 @@
                 </p>
 
                 @if (Model.IsOwner) {
+                    <p class="listing-detail-stats">
+                        <span><strong>@listing.ViewCount</strong> @(listing.ViewCount == 1 ? "view" : "views")</span>
+                        <span><strong>@Model.SaveCount</strong> @(Model.SaveCount == 1 ? "save" : "saves")</span>
+                    </p>
                     <div class="listing-detail-owner-actions">
                         <a asp-action="Edit" asp-route-id="@listing.Id" class="btn-cimerko-primary">Edit listing</a>
+                        @if (listing.IsActive) {
+                            <form asp-action="MarkTaken" asp-route-id="@listing.Id" method="post">
+                                <button type="submit" class="btn-cimerko-light listing-detail-wide">Mark as taken</button>
+                            </form>
+                        }
                         <a asp-action="Delete" asp-route-id="@listing.Id" class="btn-cimerko-light listing-detail-delete">Delete listing</a>
                     </div>
                 } else if (!listing.IsActive) {
@@ -289,7 +296,14 @@
                         <div class="listing-detail-notice is-@Model.ExistingRequest.Status.ToString().ToLowerInvariant()">
                             Your request is @Model.ExistingRequest.Status.ToString().ToLowerInvariant()
                         </div>
-                        <a asp-controller="ListingRequest" asp-action="Index" class="btn-cimerko-light listing-detail-wide">View my requests</a>
+                        @if (Model.ExistingRequest.Status == RequestStatus.Pending) {
+                            <form asp-controller="ListingRequest" asp-action="Withdraw" method="post">
+                                <input type="hidden" name="id" value="@Model.ExistingRequest.Id"/>
+                                <input type="hidden" name="returnTo" value="listing"/>
+                                <button type="submit" class="btn-cimerko-light listing-detail-wide">Withdraw request</button>
+                            </form>
+                        }
+                        <a asp-controller="ListingRequest" asp-action="Index" asp-route-view="sent" class="btn-cimerko-light listing-detail-wide">View my requests</a>
                     } else {
                         <form asp-controller="ListingRequest" asp-action="Create" method="post" class="listing-detail-request">
                             <input type="hidden" name="listingId" value="@listing.Id"/>
@@ -334,7 +348,7 @@
                     </div>
                 </div>
 
-                @if (!Model.IsOwner) {
+                @if (!Model.IsOwner && Model.ExistingRequest?.Status == RequestStatus.Accepted) {
                     <dl class="listing-detail-contact">
                         @if (!string.IsNullOrWhiteSpace(ownerContactEmail)) {
                             <div>
@@ -349,6 +363,8 @@
                             </div>
                         }
                     </dl>
+                } else if (!Model.IsOwner && listing.IsActive) {
+                    <small class="listing-detail-hint">Contact details are shared once the @contactRole accepts your request.</small>
                 }
             </div>
         </aside>
@@ -367,26 +383,4 @@
 
 @if (photoCount > 0) {
     <partial name="_ListingPhotoGallery" model="photoGallery"/>
-}
-
-@section Scripts {
-    <script>
-        document.querySelectorAll("[data-share-listing]").forEach(button => {
-            const label = button.querySelector("[data-share-label]");
-            button.addEventListener("click", async () => {
-                const url = window.location.href;
-                try {
-                    if (navigator.share) {
-                        await navigator.share({ title: document.title, url });
-                        return;
-                    }
-                    await navigator.clipboard.writeText(url);
-                    label.textContent = "Link copied";
-                    setTimeout(() => label.textContent = "Share", 2000);
-                } catch {
-                    window.prompt("Copy this listing link:", url);
-                }
-            });
-        });
-    </script>
 }

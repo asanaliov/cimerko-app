@@ -3776,3 +3776,212 @@
     flex: 1;
   }
 }
+
+.listing-sort {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.listing-sort label {
+  color: var(--cm-muted);
+  font-size: 0.88rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.listing-sort select {
+  min-height: 42px;
+  padding: 0 2.2rem 0 0.9rem;
+  border: 1px solid var(--cm-border);
+  border-radius: 999px;
+  color: var(--cm-ink);
+  background: var(--cm-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6258' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.8rem center / 14px;
+  font-weight: 650;
+  appearance: none;
+  cursor: pointer;
+}
+
+.listing-sort select:focus-visible {
+  border-color: var(--cm-primary);
+  outline: 3px solid rgba(27, 76, 61, 0.15);
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2.5rem;
+}
+
+.pager ol {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pager a,
+.pager span {
+  display: inline-flex;
+  min-width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0 0.85rem;
+  border: 1px solid var(--cm-border);
+  border-radius: 999px;
+  color: var(--cm-ink);
+  background: var(--cm-surface);
+  font-weight: 700;
+  text-decoration: none;
+  transition: border-color var(--cm-ease), background var(--cm-ease);
+}
+
+.pager a:hover {
+  border-color: var(--cm-primary);
+}
+
+.pager .is-current {
+  border-color: var(--cm-primary);
+  color: #fff;
+  background: var(--cm-primary);
+}
+
+.pager svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.listing-results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.listing-save-search button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.listing-save-search svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+@media (max-width: 767.98px) {
+  .listing-results-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .listing-results-actions {
+    justify-content: flex-start;
+  }
+}
+
+.listing-detail-stats {
+  display: flex;
+  gap: 1rem;
+  margin: 0 0 0.9rem;
+  color: var(--cm-muted);
+  font-size: 0.88rem;
+}
+
+.listing-detail-stats strong {
+  color: var(--cm-ink);
+}
+
+.saved-searches {
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-md);
+  background: var(--cm-surface);
+}
+
+.saved-searches h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.saved-searches p {
+  margin: 0.2rem 0 0.9rem;
+  color: var(--cm-muted);
+  font-size: 0.88rem;
+}
+
+.saved-searches ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.saved-searches li {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--cm-border);
+  border-radius: 999px;
+  background: var(--cm-surface-soft);
+}
+
+.saved-searches li a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.4rem 0.45rem 0.85rem;
+  color: var(--cm-ink);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.saved-searches li a:hover {
+  color: var(--cm-primary);
+}
+
+.saved-searches li button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  margin-right: 0.25rem;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: var(--cm-muted);
+  background: transparent;
+}
+
+.saved-searches li button:hover {
+  color: var(--cm-danger);
+  background: var(--cm-bg-deep);
+}
+
+.saved-searches svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}

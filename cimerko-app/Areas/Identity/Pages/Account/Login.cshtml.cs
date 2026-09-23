@@ -1,12 +1,16 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Encodings.Web;
 using cimerko_app.Data;
 using cimerko_app.Models;
 using cimerko_app.Models.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace cimerko_app.Areas.Identity.Pages.Account;
@@ -17,16 +21,22 @@ public class LoginModel : PageModel {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserStore<ApplicationUser> _userStore;
+    private readonly IEmailSender _emailSender;
+    private readonly ILogger<LoginModel> _logger;
 
     public LoginModel(
         ApplicationDbContext context,
         SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager,
-        IUserStore<ApplicationUser> userStore) {
+        IUserStore<ApplicationUser> userStore,
+        IEmailSender emailSender,
+        ILogger<LoginModel> logger) {
         _context = context;
         _signInManager = signInManager;
         _userManager = userManager;
         _userStore = userStore;
+        _emailSender = emailSender;
+        _logger = logger;
     }
 
     public LoginInputModel Login { get; private set; } = new();
@@ -66,7 +76,7 @@ public class LoginModel : PageModel {
             login.Email,
             login.Password,
             login.RememberMe,
-            lockoutOnFailure: false);
+            lockoutOnFailure: true);
 
         if (result.Succeeded) {
             return LocalRedirect(returnUrl);
@@ -144,9 +154,31 @@ public class LoginModel : PageModel {
         }
 
         await transaction.CommitAsync();
+        await SendConfirmationEmailAsync(user, registration.Email);
 
         await _signInManager.SignInAsync(user, isPersistent: false);
         return LocalRedirect(returnUrl);
+    }
+
+    private async Task SendConfirmationEmailAsync(ApplicationUser user, string email) {
+        try {
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = Url.Page(
+                "/Account/ConfirmEmail",
+                pageHandler: null,
+                values: new { area = "Identity", userId = user.Id, code },
+                protocol: Request.Scheme)!;
+
+            await _emailSender.SendEmailAsync(
+                email,
+                "Confirm your Cimerko email",
+                $"Welcome to Cimerko! <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Confirm your email address</a>.");
+        }
+        catch (Exception exception) {
+            // A mail server problem should not stop someone from creating their account.
+            _logger.LogError(exception, "Could not send the confirmation email to {Email}.", email);
+        }
     }
 
     private IUserEmailStore<ApplicationUser> GetEmailStore() {

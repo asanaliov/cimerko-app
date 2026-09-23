@@ -3,8 +3,12 @@ using cimerko_app.Data;
 using cimerko_app.Models;
 using cimerko_app.Models.Enums;
 using cimerko_app.Models.ViewModels;
+using cimerko_app.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Moq;
 
 namespace Tests;
 
@@ -50,6 +54,44 @@ public class AdminControllerTests {
         Assert.Equal(0, model.OpenReportCount);
         Assert.Equal(["Pending listing"], model.RecentPendingListings.Select(listing => listing.Title));
         Assert.Empty(model.RecentOpenReports);
+    }
+
+    [Fact]
+    public async Task ApproveListing_notifies_users_whose_saved_search_matches_once() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        var createdAt = new DateTime(2026, 7, 1, 10, 0, 0, DateTimeKind.Utc);
+        context.Users.AddRange(
+            CreateUser("owner", createdAt),
+            CreateUser("match", createdAt),
+            CreateUser("other", createdAt));
+        var listing = CreateListing("Room with balcony", "owner", ListingModerationStatus.Pending, createdAt);
+        listing.City = "Štip";
+        context.Listings.Add(listing);
+        context.SavedSearches.AddRange(
+            SavedSearchFor("match", new ListingSearchFilters { City = "stip", MaximumBudget = 600 }),
+            SavedSearchFor("match", new ListingSearchFilters { Title = "balcony" }),
+            SavedSearchFor("other", new ListingSearchFilters { City = "stip", MaximumBudget = 300 }),
+            SavedSearchFor("owner", new ListingSearchFilters { City = "stip" }));
+        await context.SaveChangesAsync();
+        var controller = new AdminController(context) {
+            TempData = Mock.Of<ITempDataDictionary>(),
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        await controller.ApproveListing(listing.Id);
+
+        var alert = Assert.Single(context.Notifications, notification =>
+            notification.Title == "New listing for your saved search");
+        Assert.Equal("match", alert.RecipientId);
+    }
+
+    private static SavedSearch SavedSearchFor(string userId, ListingSearchFilters filters) {
+        return new SavedSearch {
+            UserId = userId,
+            Name = filters.Describe(),
+            FiltersJson = SavedSearchAlerts.Serialize(filters)
+        };
     }
 
     private static ApplicationUser CreateUser(string id, DateTime createdAt) {

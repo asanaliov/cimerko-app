@@ -1,4 +1,5 @@
 @model cimerko_app.Models.ViewModels.ListingIndexViewModel
+@using cimerko_app.Models.ViewModels
 
 @{
     ViewData["Title"] = "Listings";
@@ -38,18 +39,21 @@
         @if (Model.Type.HasValue) {
             <input asp-for="Type" type="hidden"/>
         }
+        @if (!string.IsNullOrWhiteSpace(Model.Sort)) {
+            <input asp-for="Sort" type="hidden"/>
+        }
 
         <div class="listing-search-custom flex-column flex-md-row align-items-stretch align-items-md-center gap-3">
             <div class="search-input-group py-2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cimerko-muted)" stroke-width="2.5" class="flex-shrink-0" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input asp-for="Title" placeholder="Search listings" />
+                <input asp-for="Title" placeholder="Keyword, e.g. balcony or studio" aria-label="Keyword" />
             </div>
 
             <div class="search-divider d-none d-md-block"></div>
 
             <div class="search-input-group py-2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cimerko-muted)" stroke-width="2.5" class="flex-shrink-0" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                <input asp-for="City" placeholder="City or neighbourhood" />
+                <input asp-for="City" placeholder="City or neighbourhood" aria-label="City or neighbourhood" />
             </div>
 
             <button type="submit" class="btn-search-purple py-3 px-4 justify-content-center">
@@ -165,16 +169,24 @@
             </form>
             <nav class="listing-category-tabs" aria-label="Listing categories">
                 <a asp-action="Index"
+                   asp-route-Title="@Model.Title"
+                   asp-route-City="@Model.City"
                    class="@(!Model.Type.HasValue && !Model.BedroomCount.HasValue ? "is-active" : "")">All listings</a>
                 <a asp-action="Index"
                    asp-route-Type="@ListingType.PlaceForRent"
+                   asp-route-Title="@Model.Title"
+                   asp-route-City="@Model.City"
                    class="@(Model.Type == ListingType.PlaceForRent && !Model.BedroomCount.HasValue ? "is-active" : "")">Places for rent</a>
                 <a asp-action="Index"
                    asp-route-Type="@ListingType.LookingForRoommate"
+                   asp-route-Title="@Model.Title"
+                   asp-route-City="@Model.City"
                    class="@(Model.Type == ListingType.LookingForRoommate ? "is-active" : "")">Roommate listings</a>
                 <a asp-action="Index"
                    asp-route-Type="@ListingType.PlaceForRent"
                    asp-route-BedroomCount="0"
+                   asp-route-Title="@Model.Title"
+                   asp-route-City="@Model.City"
                    class="@(Model.Type == ListingType.PlaceForRent && Model.BedroomCount == 0 ? "is-active" : "")">Studios</a>
             </nav>
         </div>
@@ -193,20 +205,55 @@
         </aside>
     </section>
 
+    @if (TempData["SearchMessage"] != null) {
+        <div class="alert alert-info" role="status">@TempData["SearchMessage"]</div>
+    }
+
     <div class="listing-results-heading mb-4">
         <div>
             <h2>Available listings</h2>
             <p>
-                @if (Model.Listings.Count == 1) {
+                @if (Model.TotalCount == 1) {
                     <span>1 listing found</span>
                 }
                 else {
-                    <span>@Model.Listings.Count listings found</span>
+                    <span>@Model.TotalCount listings found</span>
                 }
                 @if (Model.HasActiveFilters) {
                     <span> for your search criteria</span>
                 }
             </p>
+        </div>
+        <div class="listing-results-actions">
+        @if (User.Identity?.IsAuthenticated == true && Model.HasActiveFilters) {
+            <form asp-controller="SavedSearch" asp-action="Create" method="post" class="listing-save-search">
+                @foreach (var item in Model.ToQueryValues()) {
+                    <input type="hidden" name="@item.Key" value="@item.Value"/>
+                }
+                <button type="submit" class="btn-cimerko-light">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
+                    Alert me about new matches
+                </button>
+            </form>
+        }
+        @if (Model.TotalCount > 1) {
+            <form asp-action="Index" method="get" class="listing-sort">
+                @foreach (var item in Context.Request.Query.Where(item =>
+                              !string.Equals(item.Key, "Sort", StringComparison.OrdinalIgnoreCase) &&
+                              !string.Equals(item.Key, "Page", StringComparison.OrdinalIgnoreCase))) {
+                    foreach (var value in item.Value) {
+                        <input type="hidden" name="@item.Key" value="@value"/>
+                    }
+                }
+                <label for="listingSort">Sort by</label>
+                <select id="listingSort" name="Sort" data-auto-submit>
+                    @foreach (var option in ListingSort.Options) {
+                        <option value="@option.Value" selected="@(option.Value == (Model.Sort ?? ListingSort.Newest))">@option.Label</option>
+                    }
+                </select>
+                <noscript><button type="submit" class="btn-cimerko-light">Sort</button></noscript>
+            </form>
+        }
         </div>
     </div>
 
@@ -282,7 +329,7 @@
                                 <h3><a asp-action="Details" asp-route-id="@listing.Id">@listing.Title</a></h3>
                                 <div class="listing-card-location-new">
                                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                                    <span>@listing.City</span>
+                                    <span>@(string.IsNullOrWhiteSpace(listing.Address) ? listing.City : $"{listing.Address} · {listing.City}")</span>
                                 </div>
                                 <div class="listing-card-reference-price">
                                     <strong>@listing.MonthlyRent.ToString("0") €</strong>
@@ -342,69 +389,6 @@
                 </div>
             }
         </div>
+        <partial name="_Pagination" model="Model.Pagination"/>
     }
 </div>
-
-@section Scripts {
-    <script>
-        (() => {
-            const filters = document.querySelector("[data-listing-filters]");
-            if (filters) {
-                filters.querySelector("[data-filters-close]").addEventListener("click", () => filters.open = false);
-                document.addEventListener("click", event => {
-                    if (filters.open && !filters.contains(event.target)) {
-                        filters.open = false;
-                    }
-                });
-                document.addEventListener("keydown", event => {
-                    if (event.key === "Escape" && filters.open) {
-                        filters.open = false;
-                        filters.querySelector("summary").focus();
-                    }
-                });
-            }
-
-            document.querySelectorAll(".listing-card-save-form").forEach(form => {
-                form.addEventListener("submit", async event => {
-                    event.preventDefault();
-
-                    const button = form.querySelector(".listing-card-save-btn");
-                    const listingTitle = form.dataset.listingTitle;
-                    button.disabled = true;
-
-                    try {
-                        const response = await fetch(form.action, {
-                            method: "POST",
-                            body: new FormData(form),
-                            headers: {
-                                "Accept": "application/json",
-                                "X-Requested-With": "XMLHttpRequest"
-                            }
-                        });
-
-                        if (!response.ok) {
-                            throw new Error(`Save request failed with status ${response.status}.`);
-                        }
-
-                        const result = await response.json();
-                        const isSaved = result.isSaved === true;
-                        const actionLabel = isSaved
-                            ? `Remove ${listingTitle} from saved listings`
-                            : `Save ${listingTitle}`;
-
-                        form.action = isSaved ? form.dataset.removeUrl : form.dataset.saveUrl;
-                        button.classList.toggle("is-saved", isSaved);
-                        button.title = isSaved ? "Remove from saved listings" : "Save listing";
-                        button.setAttribute("aria-label", actionLabel);
-                    }
-                    catch (error) {
-                        console.error(error);
-                    }
-                    finally {
-                        button.disabled = false;
-                    }
-                });
-            });
-        })();
-    </script>
-}

@@ -183,3 +183,139 @@ document.querySelectorAll("[data-photo-gallery]").forEach(gallery => {
         opener?.focus();
     });
 });
+
+(() => {
+    const revealTargets = [
+        ".home-section-heading",
+        ".home-listing-card",
+        ".home-steps li",
+        ".home-final-cta",
+        ".listing-results-heading",
+        ".listing-card",
+        ".roommate-card",
+        ".listing-detail-section",
+        ".listing-detail-aside",
+        ".profile-completion",
+        ".profile-content-card",
+        ".profile-listings-section",
+        ".profile-reviews-section",
+        ".profile-listing-card",
+        ".profile-review-card",
+        ".profile-compatibility-card",
+        ".profile-review-summary-card",
+        ".profile-review-form-card",
+        ".request-card",
+        ".notification-item"
+    ].join(",");
+
+    const elements = [...document.querySelectorAll(revealTargets)];
+
+    if (elements.length === 0 ||
+        !("IntersectionObserver" in window) ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+
+    document.documentElement.classList.add("reveal-ready");
+
+    const observer = new IntersectionObserver(entries => {
+        entries
+            .filter(entry => entry.isIntersecting)
+            .forEach((entry, batchIndex) => {
+                entry.target.style.setProperty("--reveal-delay", `${Math.min(batchIndex, 5) * 80}ms`);
+                entry.target.classList.add("is-revealed");
+                observer.unobserve(entry.target);
+            });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
+
+    elements.forEach(element => {
+        element.setAttribute("data-reveal", "");
+        observer.observe(element);
+    });
+})();
+
+document.querySelectorAll("[data-listing-filters]").forEach(filters => {
+    filters.querySelector("[data-filters-close]")?.addEventListener("click", () => filters.open = false);
+
+    document.addEventListener("click", event => {
+        if (filters.open && !filters.contains(event.target)) {
+            filters.open = false;
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && filters.open) {
+            filters.open = false;
+            filters.querySelector("summary").focus();
+        }
+    });
+});
+
+document.querySelectorAll("[data-auto-submit]").forEach(input => {
+    input.addEventListener("change", () => input.form?.submit());
+});
+
+document.querySelectorAll(".listing-card-save-form").forEach(form => {
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const button = form.querySelector(".listing-card-save-btn");
+        const listingTitle = form.dataset.listingTitle;
+        button.disabled = true;
+
+        try {
+            const response = await fetch(form.action, {
+                method: "POST",
+                body: new FormData(form),
+                headers: {
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Save request failed with status ${response.status}.`);
+            }
+
+            const result = await response.json();
+            const isSaved = result.isSaved === true;
+
+            form.action = isSaved ? form.dataset.removeUrl : form.dataset.saveUrl;
+            button.classList.toggle("is-saved", isSaved);
+            button.title = isSaved ? "Remove from saved listings" : "Save listing";
+            button.setAttribute("aria-label", isSaved
+                ? `Remove ${listingTitle} from saved listings`
+                : `Save ${listingTitle}`);
+        }
+        catch (error) {
+            console.error(error);
+        }
+        finally {
+            button.disabled = false;
+        }
+    });
+});
+
+document.querySelectorAll("[data-share-listing]").forEach(button => {
+    const label = button.querySelector("[data-share-label]");
+
+    button.addEventListener("click", async () => {
+        const url = window.location.href;
+
+        try {
+            if (navigator.share) {
+                await navigator.share({ title: document.title, url });
+                return;
+            }
+
+            await navigator.clipboard.writeText(url);
+            label.textContent = "Link copied";
+            setTimeout(() => label.textContent = "Share", 2000);
+        }
+        catch (error) {
+            if (error.name !== "AbortError") {
+                window.prompt("Copy this listing link:", url);
+            }
+        }
+    });
+});

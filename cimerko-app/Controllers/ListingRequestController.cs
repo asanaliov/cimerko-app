@@ -33,14 +33,16 @@ public class ListingRequestController : Controller {
             query = _context.ListingRequests
                 .Where(request => request.SenderId == userId)
                 .Include(request => request.Listing)
-                .ThenInclude(listing => listing!.Owner);
+                .ThenInclude(listing => listing!.Owner)
+                .ThenInclude(owner => owner!.RoommateProfile);
         }
         else {
             view = "received";
             query = _context.ListingRequests
                 .Where(request => request.Listing!.OwnerId == userId)
                 .Include(request => request.Listing)
-                .Include(request => request.Sender);
+                .Include(request => request.Sender)
+                .ThenInclude(sender => sender!.RoommateProfile);
         }
 
         ViewBag.CurrentView = view;
@@ -140,6 +142,19 @@ public class ListingRequestController : Controller {
 
         listingRequest.Status = status;
         var decision = status == RequestStatus.Accepted ? "accepted" : "rejected";
+        var listing = listingRequest.Listing;
+        var listingFilled = false;
+        if (status == RequestStatus.Accepted &&
+            listing.Type == ListingType.LookingForRoommate &&
+            listing.RoommatesNeeded.HasValue) {
+            listing.RoommatesNeeded = Math.Max(0, listing.RoommatesNeeded.Value - 1);
+            if (listing.RoommatesNeeded == 0) {
+                // Stays at 1 so the listing still passes validation if the owner reopens it later.
+                listing.RoommatesNeeded = 1;
+                listingFilled = true;
+            }
+        }
+
         _notificationService.Add(
             listingRequest.SenderId,
             userId,
@@ -150,9 +165,43 @@ public class ListingRequestController : Controller {
             $"/Listing/Details/{listingRequest.ListingId}",
             listingRequest.ListingId,
             listingRequest.Id);
+        if (listingFilled) {
+            await ListingClosure.CloseAsync(_context, _notificationService, listing, userId, listingRequest.Id);
+            TempData["RequestMessage"] = $"All roommate spots are filled, so {listing.Title} was marked as taken.";
+        }
+
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Withdraw(int id, string? returnTo) {
+        var userId = CurrentUserId();
+        if (userId == null) {
+            return Challenge();
+        }
+
+        var listingRequest = await _context.ListingRequests.FirstOrDefaultAsync(request =>
+            request.Id == id && request.SenderId == userId);
+        if (listingRequest == null) {
+            return NotFound();
+        }
+
+        if (listingRequest.Status == RequestStatus.Pending) {
+            var notifications = await _context.Notifications
+                .Where(notification => notification.ListingRequestId == id)
+                .ToListAsync();
+            _context.Notifications.RemoveRange(notifications);
+            _context.ListingRequests.Remove(listingRequest);
+            await _context.SaveChangesAsync();
+            TempData["RequestMessage"] = "Your request was withdrawn.";
+        }
+
+        return returnTo == "listing"
+            ? RedirectToAction("Details", "Listing", new { id = listingRequest.ListingId })
+            : RedirectToAction(nameof(Index), new { view = "sent" });
     }
 
     private string? CurrentUserId() {

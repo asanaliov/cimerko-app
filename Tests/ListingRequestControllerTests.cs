@@ -54,6 +54,48 @@ public class ListingRequestControllerTests {
         Assert.Empty(context.Notifications);
     }
 
+    [Fact]
+    public async Task Accepting_the_last_roommate_spot_closes_the_listing_and_other_pending_requests() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.AddRange(CreateUser("owner"), CreateUser("first"), CreateUser("second"));
+        var listing = CreateListing("owner");
+        listing.Type = ListingType.LookingForRoommate;
+        listing.RoommatesNeeded = 1;
+        var accepted = new ListingRequest { Listing = listing, SenderId = "first", Message = "Hi" };
+        var waiting = new ListingRequest { Listing = listing, SenderId = "second", Message = "Hello" };
+        context.ListingRequests.AddRange(accepted, waiting);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, "owner");
+
+        await controller.UpdateStatus(accepted.Id, RequestStatus.Accepted);
+
+        Assert.Equal(RequestStatus.Accepted, accepted.Status);
+        Assert.Equal(RequestStatus.Rejected, waiting.Status);
+        Assert.False(listing.IsActive);
+        Assert.Equal(ListingModerationStatus.Inactive, listing.ModerationStatus);
+        Assert.Contains(context.Notifications, notification =>
+            notification.RecipientId == "second" && notification.Title == "Listing no longer available");
+    }
+
+    [Fact]
+    public async Task Withdraw_removes_a_pending_request_and_its_notification() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.AddRange(CreateUser("owner"), CreateUser("student"));
+        var listing = CreateListing("owner");
+        context.Listings.Add(listing);
+        await context.SaveChangesAsync();
+        var controller = CreateController(context, "student");
+        await controller.Create(listing.Id, "I would like to view this place.");
+        var request = Assert.Single(context.ListingRequests);
+
+        await controller.Withdraw(request.Id, null);
+
+        Assert.Empty(context.ListingRequests);
+        Assert.Empty(context.Notifications);
+    }
+
     private static ListingRequestController CreateController(
         cimerko_app.Data.ApplicationDbContext context,
         string userId) {
