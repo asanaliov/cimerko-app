@@ -125,3 +125,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+.auth-single {
+  display: grid;
+  min-height: 60vh;
+  place-items: center;
+  padding: 2rem 0;
+}
+
+.auth-single .login-card {
+  width: min(460px, 100%);
+}

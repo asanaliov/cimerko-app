@@ -2,6 +2,7 @@ using cimerko_app.Data;
 using cimerko_app.Models;
 using cimerko_app.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,11 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<LocalImageStorage>();
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.Configure<SecurityStampValidatorOptions>(options => {
+    // Blocked users and role changes take effect within a minute instead of the default 30.
+    options.ValidationInterval = TimeSpan.FromMinutes(1);
+});
 
 var app = builder.Build();
 
