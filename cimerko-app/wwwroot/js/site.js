@@ -183,3 +183,53 @@ document.querySelectorAll("[data-photo-gallery]").forEach(gallery => {
         opener?.focus();
     });
 });
+
+(() => {
+    const revealTargets = [
+        ".home-section-heading",
+        ".home-listing-card",
+        ".home-steps li",
+        ".home-final-cta",
+        ".listing-results-heading",
+        ".listing-card",
+        ".roommate-card",
+        ".listing-detail-section",
+        ".listing-detail-aside",
+        ".profile-completion",
+        ".profile-content-card",
+        ".profile-listings-section",
+        ".profile-reviews-section",
+        ".profile-listing-card",
+        ".profile-review-card",
+        ".profile-compatibility-card",
+        ".profile-review-summary-card",
+        ".profile-review-form-card",
+        ".request-card",
+        ".notification-item"
+    ].join(",");
+
+    const elements = [...document.querySelectorAll(revealTargets)];
+
+    if (elements.length === 0 ||
+        !("IntersectionObserver" in window) ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+
+    document.documentElement.classList.add("reveal-ready");
+
+    const observer = new IntersectionObserver(entries => {
+        entries
+            .filter(entry => entry.isIntersecting)
+            .forEach((entry, batchIndex) => {
+                entry.target.style.setProperty("--reveal-delay", `${Math.min(batchIndex, 5) * 80}ms`);
+                entry.target.classList.add("is-revealed");
+                observer.unobserve(entry.target);
+            });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
+
+    elements.forEach(element => {
+        element.setAttribute("data-reveal", "");
+        observer.observe(element);
+    });
+})();
