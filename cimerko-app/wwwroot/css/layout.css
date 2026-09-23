@@ -66,70 +66,19 @@
   justify-content: flex-end;
 }
 
-/* Logo: a "C" ring drawn with a border plus an amber roof tile. */
+/* Logo (wwwroot/logo/cimerko-logo.png) */
 
 .site-brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
   margin-right: 1rem;
-  color: var(--cm-ink);
-  font-size: 1rem;
-  font-weight: 850;
-  line-height: 1;
-  letter-spacing: -0.04em;
+  padding: 0;
 }
 
-.site-brand:hover,
-.site-brand:focus {
-  color: var(--cm-ink);
-}
-
-.site-brand-mark {
-  position: relative;
+.site-brand-logo {
   display: block;
-  width: 47px;
-  height: 47px;
-}
-
-.site-brand-mark::before {
-  position: absolute;
-  inset: 3px;
-  border: 9px solid var(--cm-primary-dark);
-  border-right-color: transparent;
-  border-radius: 50%;
-  content: "";
-  transform: rotate(-5deg);
-}
-
-.site-brand-mark::after {
-  position: absolute;
-  top: 5px;
-  right: 3px;
-  width: 13px;
-  height: 9px;
-  border-radius: 2px;
-  background: var(--cm-amber);
-  content: "";
-  transform: rotate(-38deg);
-}
-
-.site-brand-copy {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.site-brand-copy strong {
-  font-size: 1.65rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-}
-
-.site-brand-copy small {
-  color: var(--cm-muted);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0;
+  width: auto;
+  height: 40px;
 }
 
 /* Main navigation, centred over the header on desktop. */
@@ -370,10 +319,13 @@
 }
 
 .site-footer-brand {
-  color: var(--cm-ink);
-  font-size: 1.1rem;
-  font-weight: 850;
-  text-decoration: none;
+  display: inline-block;
+}
+
+.site-footer-brand img {
+  display: block;
+  width: auto;
+  height: 30px;
 }
 
 .site-footer-content p {
@@ -551,8 +503,8 @@
     padding-inline: 1rem;
   }
 
-  .site-brand-copy small {
-    display: none;
+  .site-brand-logo {
+    height: 34px;
   }
 
   .site-footer-content {
