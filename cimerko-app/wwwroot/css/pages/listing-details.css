@@ -497,8 +497,8 @@
 
 .listing-detail-aside {
   position: sticky;
-  top: 1.25rem;
-  scroll-margin-top: 1rem;
+  top: var(--cm-sticky-top);
+  scroll-margin-top: var(--cm-sticky-top);
 }
 
 .listing-detail-card {
@@ -804,6 +804,11 @@
   .listing-detail-card {
     padding: 1.2rem;
     box-shadow: var(--cm-shadow-sm);
+  }
+
+  /* Keep the end of the page clear of the fixed price bar. */
+  body:has(.listing-detail-mobile-bar) .site-footer {
+    padding-bottom: 6rem;
   }
 
   .listing-detail-mobile-bar {

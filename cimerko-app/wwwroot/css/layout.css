@@ -1,4 +1,4 @@
-/* Page frame: containers, header, main navigation, account menu and the notification bell. */
+/* Page frame: containers, header, main navigation, account menu, notification bell and footer. */
 
 .container {
   width: calc(100% - 90px);
@@ -31,10 +31,23 @@
 
 /* Header */
 
+/* Sticky header: site.js adds .is-scrolled once the page moves, which tightens it and adds a backdrop. */
 .site-header {
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 1030;
   padding: 22px 0 16px;
+  transition:
+    padding var(--cm-ease),
+    background-color var(--cm-ease),
+    box-shadow var(--cm-ease);
+}
+
+.site-header.is-scrolled {
+  padding-block: 10px;
+  background: rgba(250, 246, 239, 0.9);
+  box-shadow: 0 1px 0 var(--cm-border), 0 10px 30px rgba(48, 40, 31, 0.06);
+  backdrop-filter: blur(14px);
 }
 
 .site-header-container {
@@ -341,6 +354,60 @@
   font-weight: 850;
 }
 
+/* Footer */
+
+.site-footer {
+  flex: 0 0 auto;
+  padding: 2.25rem 0 1.5rem;
+  border-top: 1px solid var(--cm-border);
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.site-footer-content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.site-footer-brand {
+  color: var(--cm-ink);
+  font-size: 1.1rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.site-footer-content p {
+  margin: 0.4rem 0 0;
+  color: var(--cm-muted);
+  font-size: 0.78rem;
+}
+
+.site-footer-content nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.site-footer-content nav a {
+  color: var(--cm-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.site-footer-content nav a:hover {
+  color: var(--cm-primary-dark);
+}
+
+.site-footer-copy {
+  margin: 1.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--cm-border);
+  color: var(--cm-muted);
+  font-size: 0.78rem;
+}
+
 @media (min-width: 992px) {
   .site-navbar {
     position: relative;
@@ -468,5 +535,10 @@
 
   .site-brand-copy small {
     display: none;
+  }
+
+  .site-footer-content {
+    flex-direction: column;
+    gap: 1rem;
   }
 }

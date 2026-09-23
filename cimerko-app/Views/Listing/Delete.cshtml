@@ -4,22 +4,37 @@
     ViewData["Title"] = "Delete listing";
 }
 
-<h1>Delete listing</h1>
+<div class="listing-delete-page">
+    <section class="listing-delete-card">
+        <div class="listing-delete-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>
+        </div>
+        <span class="listing-form-eyebrow">Delete listing</span>
+        <h1>Are you sure?</h1>
+        <p>
+            <strong>@Model.Title</strong> will be removed for good, together with its photos,
+            requests and saves. This cannot be undone.
+        </p>
 
-<div class="alert alert-warning">
-    Are you sure you want to delete <strong>@Model.Title</strong>?
+        <dl>
+            <div>
+                <dt>Type</dt>
+                <dd>@Model.Type.GetDisplayName()</dd>
+            </div>
+            <div>
+                <dt>City</dt>
+                <dd>@Model.City</dd>
+            </div>
+            <div>
+                <dt>Monthly rent</dt>
+                <dd>@Model.MonthlyRent.ToString("0") €</dd>
+            </div>
+        </dl>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id"/>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn listing-delete-cancel">Keep listing</a>
+            <button type="submit" class="btn listing-delete-confirm">Delete listing</button>
+        </form>
+    </section>
 </div>
-
-<dl class="row">
-    <dt class="col-sm-3">City</dt>
-    <dd class="col-sm-9">@Model.City</dd>
-
-    <dt class="col-sm-3">Monthly rent</dt>
-    <dd class="col-sm-9">@Model.MonthlyRent.ToString("0.00") €</dd>
-</dl>
-
-<form asp-action="Delete">
-    <input type="hidden" asp-for="Id"/>
-    <button type="submit" class="btn btn-danger">Delete</button>
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
-</form>

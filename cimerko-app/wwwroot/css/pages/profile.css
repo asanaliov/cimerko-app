@@ -42,7 +42,7 @@
 
 .account-manage-sidebar {
   position: sticky;
-  top: 6.5rem;
+  top: var(--cm-sticky-top);
   padding: 0.65rem;
 }
 
@@ -1002,7 +1002,7 @@
 
 .profile-photo-card {
   position: sticky;
-  top: 6.5rem;
+  top: var(--cm-sticky-top);
   padding: 1.35rem;
   text-align: center;
 }

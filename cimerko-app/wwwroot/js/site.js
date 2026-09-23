@@ -319,3 +319,9 @@ document.querySelectorAll("[data-share-listing]").forEach(button => {
         }
     });
 });
+
+document.querySelectorAll(".site-header").forEach(header => {
+    const update = () => header.classList.toggle("is-scrolled", window.scrollY > 8);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+});

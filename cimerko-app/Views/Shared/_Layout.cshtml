@@ -102,6 +102,23 @@
     </div>
 }
 
+<footer class="site-footer">
+    <div class="container">
+        <div class="site-footer-content">
+            <div>
+                <a class="site-footer-brand" asp-area="" asp-controller="Home" asp-action="Index">Cimerko</a>
+                <p>Student housing and roommate connections, kept simple.</p>
+            </div>
+            <nav aria-label="Footer navigation">
+                <a asp-area="" asp-controller="Listing" asp-action="Index">Browse listings</a>
+                <a asp-area="" asp-controller="Profile" asp-action="Roommates">Find a roommate</a>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">About &amp; privacy</a>
+            </nav>
+        </div>
+        <p class="site-footer-copy">&copy; @DateTime.Now.Year Cimerko. Built for student housing.</p>
+    </div>
+</footer>
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>

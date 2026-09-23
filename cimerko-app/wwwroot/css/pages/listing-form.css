@@ -539,7 +539,7 @@
 
 .listing-form-aside {
   position: sticky;
-  top: 6.5rem;
+  top: var(--cm-sticky-top);
   overflow: hidden;
   padding: 2rem 1.5rem 1.5rem;
 }
@@ -626,13 +626,124 @@
   font-size: 0.64rem;
 }
 
+/* Delete confirmation */
+
+.listing-delete-page {
+  width: min(100%, 720px);
+  margin-inline: auto;
+  padding: 1.5rem 0 4rem;
+}
+
+.listing-delete-card {
+  padding: clamp(1.75rem, 5vw, 3rem);
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-lg);
+  background: var(--cm-surface);
+  box-shadow: var(--cm-shadow-md);
+  text-align: center;
+}
+
+.listing-delete-icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 1.1rem;
+  place-items: center;
+  border-radius: 18px;
+  color: var(--cm-danger);
+  background: var(--cm-danger-soft);
+}
+
+.listing-delete-icon svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.listing-delete-card h1 {
+  margin: 0.55rem 0 0.8rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.listing-delete-card > p {
+  max-width: 480px;
+  margin: 0 auto;
+  color: var(--cm-muted);
+}
+
+.listing-delete-card > p strong {
+  color: var(--cm-ink);
+}
+
+.listing-delete-card dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 1.5rem 0;
+}
+
+.listing-delete-card dl div {
+  padding: 0.9rem;
+  border-radius: var(--cm-radius-sm);
+  background: var(--cm-surface-soft);
+}
+
+.listing-delete-card dt {
+  color: var(--cm-muted);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+.listing-delete-card dd {
+  margin: 0.2rem 0 0;
+  font-weight: 800;
+}
+
+.listing-delete-card form {
+  display: flex;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.listing-delete-confirm {
+  border: 1px solid var(--cm-danger);
+  color: #fff;
+  background: var(--cm-danger);
+}
+
+.listing-delete-confirm:hover,
+.listing-delete-confirm:focus {
+  border-color: #96343c;
+  color: #fff;
+  background: #96343c;
+}
+
+.listing-delete-cancel {
+  border: 1px solid var(--cm-border-strong);
+  color: var(--cm-ink);
+  background: var(--cm-surface);
+}
+
+.listing-delete-cancel:hover,
+.listing-delete-cancel:focus {
+  border-color: var(--cm-primary);
+  color: var(--cm-primary-dark);
+  background: var(--cm-primary-soft);
+}
+
 @media (max-width: 991.98px) {
   .listing-form-layout {
     grid-template-columns: 1fr;
   }
 
+  /* relative, not static: the accent bar (::before) is positioned against the card. */
   .listing-form-aside {
-    position: static;
+    position: relative;
+    top: auto;
     order: -1;
   }
 
@@ -642,6 +753,11 @@
 }
 
 @media (max-width: 767.98px) {
+  .listing-form-page,
+  .listing-delete-page {
+    padding-inline: 1rem;
+  }
+
   .listing-form-header {
     align-items: flex-start;
     flex-direction: column;
@@ -660,6 +776,14 @@
 }
 
 @media (max-width: 575.98px) {
+  .listing-delete-card dl {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-delete-card form {
+    flex-direction: column-reverse;
+  }
+
   .listing-form-section {
     padding: 1.3rem 1.1rem;
   }

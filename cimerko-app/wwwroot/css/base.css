@@ -36,10 +36,14 @@
   --cm-shadow-lg: 0 22px 58px rgba(48, 40, 31, 0.14);
 
   --cm-ease: 180ms ease;
+
+  /* Space the sticky header takes once scrolled; other sticky elements and anchors sit below it. */
+  --cm-sticky-top: 6.5rem;
 }
 
 html {
   min-height: 100%;
+  scroll-padding-top: var(--cm-sticky-top);
   background: var(--cm-bg);
   font-size: 14px;
   scroll-behavior: smooth;
