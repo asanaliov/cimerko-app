@@ -9,9 +9,7 @@
     var ownerName = string.IsNullOrWhiteSpace(owner?.FullName)
         ? "Cimerko member"
         : owner.FullName;
-    var ownerContactEmail = string.IsNullOrWhiteSpace(ownerProfile?.ContactEmail)
-        ? owner?.Email
-        : ownerProfile.ContactEmail;
+    var ownerContactEmail = ownerProfile?.ContactEmail;
     var ownerInitial = ownerName.Trim()[..1].ToUpperInvariant();
     var isRental = listing.Type == ListingType.PlaceForRent;
     var listingImages = listing.Images
@@ -334,7 +332,7 @@
                     </div>
                 </div>
 
-                @if (!Model.IsOwner) {
+                @if (!Model.IsOwner && isAuthenticated) {
                     <dl class="listing-detail-contact">
                         @if (!string.IsNullOrWhiteSpace(ownerContactEmail)) {
                             <div>
