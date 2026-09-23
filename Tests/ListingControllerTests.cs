@@ -189,6 +189,66 @@ public class ListingControllerTests {
         };
     }
 
+    [Fact]
+    public async Task Index_keyword_search_ignores_case_and_diacritics_and_checks_description_and_address() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.Add(CreateUser("owner"));
+        var balconyFlat = CreateListing("owner", "Sunny flat", null);
+        balconyFlat.Description = "Big BALCONY with a view.";
+        balconyFlat.City = "Štip";
+        balconyFlat.Address = "Karpoš 3";
+        context.Listings.AddRange(balconyFlat, CreateListing("owner", "Other flat", null));
+        await context.SaveChangesAsync();
+
+        var controller = new ListingController(
+            context,
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            ControllerContext = new ControllerContext {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+
+        var result = await controller.Index(new ListingIndexViewModel {
+            Title = "balcony",
+            City = "karpos stip"
+        });
+
+        var model = Assert.IsType<ListingIndexViewModel>(Assert.IsType<ViewResult>(result).Model);
+        Assert.Equal("Sunny flat", Assert.Single(model.Listings).Title);
+    }
+
+    [Fact]
+    public async Task Index_sorts_by_price_and_pages_results() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.Add(CreateUser("owner"));
+        for (var index = 1; index <= 14; index++) {
+            var listing = CreateListing("owner", $"Listing {index}", null);
+            listing.MonthlyRent = index * 10;
+            context.Listings.Add(listing);
+        }
+        await context.SaveChangesAsync();
+
+        var controller = new ListingController(
+            context,
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            ControllerContext = new ControllerContext {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+
+        var result = await controller.Index(new ListingIndexViewModel {
+            Sort = ListingSort.PriceHigh,
+            Page = 2
+        });
+
+        var model = Assert.IsType<ListingIndexViewModel>(Assert.IsType<ViewResult>(result).Model);
+        Assert.Equal(14, model.TotalCount);
+        Assert.Equal(new PaginationViewModel(2, 2), model.Pagination);
+        Assert.Equal([20m, 10m], model.Listings.Select(listing => listing.MonthlyRent));
+    }
+
     private static ApplicationUser CreateUser(string id) {
         return new ApplicationUser {
             Id = id,

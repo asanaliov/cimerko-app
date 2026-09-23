@@ -366,25 +366,3 @@
 @if (photoCount > 0) {
     <partial name="_ListingPhotoGallery" model="photoGallery"/>
 }
-
-@section Scripts {
-    <script>
-        document.querySelectorAll("[data-share-listing]").forEach(button => {
-            const label = button.querySelector("[data-share-label]");
-            button.addEventListener("click", async () => {
-                const url = window.location.href;
-                try {
-                    if (navigator.share) {
-                        await navigator.share({ title: document.title, url });
-                        return;
-                    }
-                    await navigator.clipboard.writeText(url);
-                    label.textContent = "Link copied";
-                    setTimeout(() => label.textContent = "Share", 2000);
-                } catch {
-                    window.prompt("Copy this listing link:", url);
-                }
-            });
-        });
-    </script>
-}

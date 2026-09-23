@@ -78,7 +78,15 @@ public class ListingIndexViewModel {
     [Display(Name = "Listings with photos")]
     public bool HasImages { get; set; }
 
+    public string? Sort { get; set; }
+
+    public int Page { get; set; } = 1;
+
     public IReadOnlyList<Listing> Listings { get; set; } = Array.Empty<Listing>();
+
+    public int TotalCount { get; set; }
+
+    public PaginationViewModel Pagination { get; set; } = new(1, 1);
 
     public HashSet<int> SavedListingIds { get; set; } = [];
 
@@ -129,4 +137,18 @@ public class ListingIndexViewModel {
             AvailableNow,
             HasImages
         }.Count(isActive => isActive);
+}
+
+public static class ListingSort {
+    public const string Newest = "newest";
+    public const string PriceLow = "price-low";
+    public const string PriceHigh = "price-high";
+    public const string AvailableSoonest = "available";
+
+    public static readonly (string Value, string Label)[] Options = [
+        (Newest, "Newest"),
+        (PriceLow, "Lowest price"),
+        (PriceHigh, "Highest price"),
+        (AvailableSoonest, "Available soonest")
+    ];
 }

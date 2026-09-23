@@ -46,16 +46,6 @@ public class ListingController : Controller {
                 listing.ModerationStatus == ListingModerationStatus.Approved)
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(model.Title)) {
-            var title = model.Title.Trim();
-            query = query.Where(listing => listing.Title.Contains(title));
-        }
-
-        if (!string.IsNullOrWhiteSpace(model.City)) {
-            var city = model.City.Trim();
-            query = query.Where(listing => listing.City.Contains(city));
-        }
-
         if (model.Type.HasValue) {
             query = query.Where(listing => listing.Type == model.Type.Value);
         }
@@ -183,9 +173,41 @@ public class ListingController : Controller {
             query = query.Where(listing => listing.Images.Any());
         }
 
-        model.Listings = await query
-            .OrderByDescending(listing => listing.CreatedAt)
-            .ToListAsync();
+        // Text matching runs in memory so it can ignore case and diacritics (SQLite can't).
+        var keywordTerms = TextSearch.Terms(model.Title);
+        var locationTerms = TextSearch.Terms(model.City);
+        var listings = (await query.ToListAsync())
+            .Where(listing =>
+                TextSearch.MatchesAll(
+                    keywordTerms,
+                    listing.Title,
+                    listing.Description,
+                    listing.City,
+                    listing.Address) &&
+                TextSearch.MatchesAll(locationTerms, listing.City, listing.Address));
+
+        listings = model.Sort switch {
+            ListingSort.PriceLow => listings
+                .OrderBy(listing => listing.MonthlyRent)
+                .ThenByDescending(listing => listing.CreatedAt),
+            ListingSort.PriceHigh => listings
+                .OrderByDescending(listing => listing.MonthlyRent)
+                .ThenByDescending(listing => listing.CreatedAt),
+            ListingSort.AvailableSoonest => listings
+                .OrderBy(listing => listing.AvailableFrom ?? DateTime.MinValue)
+                .ThenByDescending(listing => listing.CreatedAt),
+            _ => listings.OrderByDescending(listing => listing.CreatedAt)
+        };
+
+        var matchingListings = listings.ToList();
+        var totalPages = PaginationViewModel.TotalPagesFor(matchingListings.Count);
+        var page = PaginationViewModel.ClampPage(model.Page, totalPages);
+        model.TotalCount = matchingListings.Count;
+        model.Pagination = new PaginationViewModel(page, totalPages);
+        model.Listings = matchingListings
+            .Skip((page - 1) * PaginationViewModel.DefaultPageSize)
+            .Take(PaginationViewModel.DefaultPageSize)
+            .ToList();
 
         var userId = CurrentUserId();
         ViewBag.CurrentUserId = userId;

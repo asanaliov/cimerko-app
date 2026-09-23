@@ -124,11 +124,6 @@ public class ProfileController : Controller {
             .AsNoTracking()
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(model.City)) {
-            var city = model.City.Trim();
-            listingsQuery = listingsQuery.Where(listing => listing.City.Contains(city));
-        }
-
         if (model.MinimumBudget.HasValue) {
             listingsQuery = listingsQuery.Where(listing =>
                 listing.MonthlyRent >= model.MinimumBudget.Value);
@@ -191,7 +186,9 @@ public class ProfileController : Controller {
             .OrderByDescending(listing => listing.CreatedAt)
             .ToListAsync();
 
+        var locationTerms = TextSearch.Terms(model.City);
         var results = listings
+            .Where(listing => TextSearch.MatchesAll(locationTerms, listing.City, listing.Address))
             .GroupBy(listing => listing.OwnerId)
             .Select(group => group.First())
             .Select(listing => {
@@ -211,7 +208,14 @@ public class ProfileController : Controller {
             .ThenBy(result => result.User.FullName)
             .ToList();
 
-        model.Results = results;
+        var totalPages = PaginationViewModel.TotalPagesFor(results.Count);
+        var page = PaginationViewModel.ClampPage(model.Page, totalPages);
+        model.TotalCount = results.Count;
+        model.Pagination = new PaginationViewModel(page, totalPages);
+        model.Results = results
+            .Skip((page - 1) * PaginationViewModel.DefaultPageSize)
+            .Take(PaginationViewModel.DefaultPageSize)
+            .ToList();
         return View(model);
     }
 

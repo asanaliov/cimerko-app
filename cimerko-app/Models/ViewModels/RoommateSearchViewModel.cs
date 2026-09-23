@@ -57,8 +57,14 @@ public class RoommateSearchViewModel {
     [DataType(DataType.Date)]
     public DateTime? AvailableBy { get; set; }
 
+    public int Page { get; set; } = 1;
+
     public IReadOnlyList<RoommateSearchResultViewModel> Results { get; set; } =
         Array.Empty<RoommateSearchResultViewModel>();
+
+    public int TotalCount { get; set; }
+
+    public PaginationViewModel Pagination { get; set; } = new(1, 1);
 
     public bool HasActiveFilters =>
         !string.IsNullOrWhiteSpace(City) ||

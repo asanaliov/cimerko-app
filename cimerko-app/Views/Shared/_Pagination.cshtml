@@ -1,0 +1,40 @@
+@model cimerko_app.Models.ViewModels.PaginationViewModel
+
+@functions {
+    private string PageUrl(int page) {
+        var query = Context.Request.Query
+            .Where(item => !string.Equals(item.Key, "Page", StringComparison.OrdinalIgnoreCase))
+            .SelectMany(item => item.Value.Select(value => KeyValuePair.Create(item.Key, value)))
+            .Append(KeyValuePair.Create("Page", (string?)page.ToString()));
+
+        return $"{Context.Request.Path}{QueryString.Create(query)}";
+    }
+}
+
+@if (Model.TotalPages > 1) {
+    <nav class="pager" aria-label="Pages">
+        @if (Model.Page > 1) {
+            <a href="@PageUrl(Model.Page - 1)" class="pager-step" rel="prev">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                Previous
+            </a>
+        }
+        <ol>
+            @for (var pageNumber = 1; pageNumber <= Model.TotalPages; pageNumber++) {
+                <li>
+                    @if (pageNumber == Model.Page) {
+                        <span class="is-current" aria-current="page">@pageNumber</span>
+                    } else {
+                        <a href="@PageUrl(pageNumber)">@pageNumber</a>
+                    }
+                </li>
+            }
+        </ol>
+        @if (Model.Page < Model.TotalPages) {
+            <a href="@PageUrl(Model.Page + 1)" class="pager-step" rel="next">
+                Next
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </a>
+        }
+    </nav>
+}
