@@ -49,145 +49,10 @@ public class ListingController : Controller {
                 listing.ModerationStatus == ListingModerationStatus.Approved)
             .AsQueryable();
 
-        if (model.Type.HasValue) {
-            query = query.Where(listing => listing.Type == model.Type.Value);
-        }
+        query = ListingSearch.Apply(query, model);
 
-        if (model.MinimumBudget.HasValue) {
-            query = query.Where(listing => listing.MonthlyRent >= model.MinimumBudget.Value);
-        }
-
-        if (model.MaximumBudget.HasValue) {
-            query = query.Where(listing => listing.MonthlyRent <= model.MaximumBudget.Value);
-        }
-
-        if (model.BedroomCount.HasValue) {
-            query = query.Where(listing => listing.BedroomCount == model.BedroomCount.Value);
-        }
-
-        if (model.TenantTypePreference.HasValue) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.PlaceForRent &&
-                listing.TenantTypePreference == model.TenantTypePreference.Value);
-        }
-
-        if (model.RentalSmokingPolicy.HasValue) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.PlaceForRent &&
-                listing.RentalSmokingPolicy == model.RentalSmokingPolicy.Value);
-        }
-
-        if (model.RentalPetPolicy.HasValue) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.PlaceForRent &&
-                listing.RentalPetPolicy == model.RentalPetPolicy.Value);
-        }
-
-        if (model.RoommateGenderPreference.HasValue) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.RoommateGenderPreference == model.RoommateGenderPreference.Value);
-        }
-
-        if (model.RoommateHousingPlan.HasValue) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.RoommateHousingPlan == model.RoommateHousingPlan.Value);
-        }
-
-        if (model.RoommatePetFriendly) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.RoommatePetFriendly);
-        }
-
-        if (model.RoommateSmokeFree) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.RoommateSmokeFree);
-        }
-
-        if (model.RoommateEarlyBird) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.RoommateEarlyBird);
-        }
-
-        if (model.RoommateNightOwl) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.RoommateNightOwl);
-        }
-
-        if (model.RoommateTidy) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.RoommateTidy);
-        }
-
-        if (model.RoommateGuestsWelcome) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.RoommateGuestsWelcome);
-        }
-
-        if (!string.IsNullOrWhiteSpace(model.SmokingPreference)) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.Owner!.RoommateProfile != null &&
-                listing.Owner.RoommateProfile.SmokingPreference == model.SmokingPreference);
-        }
-
-        if (!string.IsNullOrWhiteSpace(model.PetsPreference)) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.Owner!.RoommateProfile != null &&
-                listing.Owner.RoommateProfile.PetsPreference == model.PetsPreference);
-        }
-
-        if (!string.IsNullOrWhiteSpace(model.CleanlinessLevel)) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.Owner!.RoommateProfile != null &&
-                listing.Owner.RoommateProfile.CleanlinessLevel == model.CleanlinessLevel);
-        }
-
-        if (!string.IsNullOrWhiteSpace(model.SleepSchedule)) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.Owner!.RoommateProfile != null &&
-                listing.Owner.RoommateProfile.SleepSchedule == model.SleepSchedule);
-        }
-
-        if (!string.IsNullOrWhiteSpace(model.GuestPreference)) {
-            query = query.Where(listing =>
-                listing.Type == ListingType.LookingForRoommate &&
-                listing.Owner!.RoommateProfile != null &&
-                listing.Owner.RoommateProfile.GuestPreference == model.GuestPreference);
-        }
-
-        if (model.AvailableNow) {
-            var today = DateTime.UtcNow.Date;
-            query = query.Where(listing =>
-                !listing.AvailableFrom.HasValue || listing.AvailableFrom.Value <= today);
-        }
-
-        if (model.HasImages) {
-            query = query.Where(listing => listing.Images.Any());
-        }
-
-        // Text matching runs in memory so it can ignore case and diacritics (SQLite can't).
-        var keywordTerms = TextSearch.Terms(model.Title);
-        var locationTerms = TextSearch.Terms(model.City);
         var listings = (await query.ToListAsync())
-            .Where(listing =>
-                TextSearch.MatchesAll(
-                    keywordTerms,
-                    listing.Title,
-                    listing.Description,
-                    listing.City,
-                    listing.Address) &&
-                TextSearch.MatchesAll(locationTerms, listing.City, listing.Address));
+            .Where(listing => ListingSearch.MatchesText(listing, model));
 
         listings = model.Sort switch {
             ListingSort.PriceLow => listings
@@ -261,6 +126,17 @@ public class ListingController : Controller {
                 .FirstOrDefaultAsync(request =>
                 request.SenderId == userId && request.ListingId == listing.Id);
 
+        var canSeeStats = isOwner || isAdmin;
+        if (!canSeeStats) {
+            await _context.Listings
+                .Where(item => item.Id == listing.Id)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.ViewCount, item => item.ViewCount + 1));
+        }
+
+        var saveCount = canSeeStats
+            ? await _context.SavedListings.CountAsync(savedListing => savedListing.ListingId == listing.Id)
+            : 0;
+
         var ownerSummary = await _context.Users
             .Where(user => user.Id == listing.OwnerId)
             .Select(user => new {
@@ -281,7 +157,8 @@ public class ListingController : Controller {
             ExistingRequest = existingRequest,
             OwnerReviewCount = ownerSummary?.ReviewCount ?? 0,
             OwnerAverageRating = ownerSummary?.AverageRating,
-            OwnerActiveListingCount = ownerSummary?.ActiveListingCount ?? 0
+            OwnerActiveListingCount = ownerSummary?.ActiveListingCount ?? 0,
+            SaveCount = saveCount
         });
     }
 

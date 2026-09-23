@@ -401,6 +401,7 @@ public class AdminController : Controller {
                 $"Your listing \"{listing.Title}\" is now visible.",
                 $"/Listing/Details/{listing.Id}",
                 listing.Id);
+            await SavedSearchAlerts.NotifyAsync(_context, _notificationService, listing, CurrentUserId());
         }
 
         await _context.SaveChangesAsync();

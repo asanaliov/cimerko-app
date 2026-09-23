@@ -205,6 +205,10 @@
         </aside>
     </section>
 
+    @if (TempData["SearchMessage"] != null) {
+        <div class="alert alert-info" role="status">@TempData["SearchMessage"]</div>
+    }
+
     <div class="listing-results-heading mb-4">
         <div>
             <h2>Available listings</h2>
@@ -220,6 +224,18 @@
                 }
             </p>
         </div>
+        <div class="listing-results-actions">
+        @if (User.Identity?.IsAuthenticated == true && Model.HasActiveFilters) {
+            <form asp-controller="SavedSearch" asp-action="Create" method="post" class="listing-save-search">
+                @foreach (var item in Model.ToQueryValues()) {
+                    <input type="hidden" name="@item.Key" value="@item.Value"/>
+                }
+                <button type="submit" class="btn-cimerko-light">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
+                    Alert me about new matches
+                </button>
+            </form>
+        }
         @if (Model.TotalCount > 1) {
             <form asp-action="Index" method="get" class="listing-sort">
                 @foreach (var item in Context.Request.Query.Where(item =>
@@ -238,6 +254,7 @@
                 <noscript><button type="submit" class="btn-cimerko-light">Sort</button></noscript>
             </form>
         }
+        </div>
     </div>
 
     @if (Model.Listings.Count == 0) {

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using cimerko_app.Data;
 using cimerko_app.Models;
 using cimerko_app.Models.Enums;
+using cimerko_app.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,14 @@ public class SavedListingController : Controller {
             .ThenInclude(listing => listing!.Images)
             .OrderByDescending(savedListing => savedListing.SavedAt)
             .ToListAsync();
+
+        ViewBag.SavedSearches = (await _context.SavedSearches
+                .AsNoTracking()
+                .Where(search => search.UserId == userId)
+                .OrderByDescending(search => search.CreatedAt)
+                .ToListAsync())
+            .Select(search => (Search: search, QueryValues: SavedSearchAlerts.Deserialize(search.FiltersJson).ToQueryValues()))
+            .ToList();
 
         return View(savedListings);
     }

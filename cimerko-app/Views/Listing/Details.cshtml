@@ -276,6 +276,10 @@
                 </p>
 
                 @if (Model.IsOwner) {
+                    <p class="listing-detail-stats">
+                        <span><strong>@listing.ViewCount</strong> @(listing.ViewCount == 1 ? "view" : "views")</span>
+                        <span><strong>@Model.SaveCount</strong> @(Model.SaveCount == 1 ? "save" : "saves")</span>
+                    </p>
                     <div class="listing-detail-owner-actions">
                         <a asp-action="Edit" asp-route-id="@listing.Id" class="btn-cimerko-primary">Edit listing</a>
                         @if (listing.IsActive) {

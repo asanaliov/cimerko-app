@@ -15,6 +15,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ListingImage> ListingImages { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<Report> Reports { get; set; }
+    public DbSet<SavedSearch> SavedSearches { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
@@ -52,6 +53,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<SavedListing>()
             .HasIndex(savedListing => new { savedListing.UserId, savedListing.ListingId })
             .IsUnique();
+
+        builder.Entity<SavedSearch>()
+            .HasOne(savedSearch => savedSearch.User)
+            .WithMany()
+            .HasForeignKey(savedSearch => savedSearch.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<ListingRequest>()
             .HasOne(request => request.Listing)

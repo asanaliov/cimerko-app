@@ -297,6 +297,23 @@ public class ListingControllerTests {
         Assert.Equal(ListingModerationStatus.Pending, saved.ModerationStatus);
     }
 
+    [Fact]
+    public async Task Details_counts_views_from_visitors_but_not_the_owner() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.AddRange(CreateUser("owner"), CreateUser("visitor"));
+        var listing = CreateListing("owner", "Viewed listing", null);
+        context.Listings.Add(listing);
+        await context.SaveChangesAsync();
+
+        await CreateAuthenticatedController(context, "visitor").Details(listing.Id);
+        await CreateAuthenticatedController(context, "visitor").Details(listing.Id);
+        await CreateAuthenticatedController(context, "owner").Details(listing.Id);
+
+        context.ChangeTracker.Clear();
+        Assert.Equal(2, context.Listings.Single().ViewCount);
+    }
+
     private static ApplicationUser CreateUser(string id) {
         return new ApplicationUser {
             Id = id,

@@ -92,6 +92,8 @@ public class Listing {
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    public int ViewCount { get; set; }
+
     [Required]
     public string OwnerId { get; set; } = string.Empty;
 

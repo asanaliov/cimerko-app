@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Saved listings";
     var savedListings = Model.ToList();
+    var savedSearches = ViewBag.SavedSearches as List<(SavedSearch Search, Dictionary<string, string> QueryValues)> ?? [];
 }
 
 <div class="saved-listings-page">
@@ -19,6 +20,29 @@
             </span>
         }
     </header>
+
+    @if (savedSearches.Count > 0) {
+        <section class="saved-searches" aria-labelledby="savedSearchesTitle">
+            <h2 id="savedSearchesTitle">Saved searches</h2>
+            <p>You get a notification when a new listing matches one of these.</p>
+            <ul>
+                @foreach (var (search, queryValues) in savedSearches) {
+                    <li>
+                        <a asp-controller="Listing" asp-action="Index" asp-all-route-data="queryValues">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                            @search.Name
+                        </a>
+                        <form asp-controller="SavedSearch" asp-action="Delete" method="post">
+                            <input type="hidden" name="id" value="@search.Id"/>
+                            <button type="submit" aria-label="Remove saved search @search.Name" title="Remove">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                            </button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </section>
+    }
 
     @if (savedListings.Count == 0) {
         <div class="listing-empty-state saved-listings-empty">

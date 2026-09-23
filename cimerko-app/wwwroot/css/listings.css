@@ -3861,3 +3861,127 @@
   stroke-linejoin: round;
   stroke-width: 2;
 }
+
+.listing-results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.listing-save-search button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.listing-save-search svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+@media (max-width: 767.98px) {
+  .listing-results-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .listing-results-actions {
+    justify-content: flex-start;
+  }
+}
+
+.listing-detail-stats {
+  display: flex;
+  gap: 1rem;
+  margin: 0 0 0.9rem;
+  color: var(--cm-muted);
+  font-size: 0.88rem;
+}
+
+.listing-detail-stats strong {
+  color: var(--cm-ink);
+}
+
+.saved-searches {
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid var(--cm-border);
+  border-radius: var(--cm-radius-md);
+  background: var(--cm-surface);
+}
+
+.saved-searches h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.saved-searches p {
+  margin: 0.2rem 0 0.9rem;
+  color: var(--cm-muted);
+  font-size: 0.88rem;
+}
+
+.saved-searches ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.saved-searches li {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--cm-border);
+  border-radius: 999px;
+  background: var(--cm-surface-soft);
+}
+
+.saved-searches li a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.4rem 0.45rem 0.85rem;
+  color: var(--cm-ink);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.saved-searches li a:hover {
+  color: var(--cm-primary);
+}
+
+.saved-searches li button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  margin-right: 0.25rem;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: var(--cm-muted);
+  background: transparent;
+}
+
+.saved-searches li button:hover {
+  color: var(--cm-danger);
+  background: var(--cm-bg-deep);
+}
+
+.saved-searches svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
