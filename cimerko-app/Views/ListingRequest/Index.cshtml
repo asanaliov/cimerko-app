@@ -21,6 +21,10 @@
         }
     </header>
 
+    @if (TempData["RequestMessage"] != null) {
+        <div class="alert alert-success" role="status">@TempData["RequestMessage"]</div>
+    }
+
     <nav class="requests-tabs" aria-label="Request type">
         <a asp-action="Index"
            asp-route-view="received"
@@ -76,6 +80,8 @@
                     : person.FullName;
                 var personInitial = personName.Trim()[..1].ToUpperInvariant();
                 var personLabel = isSentView ? "Listing owner" : "Sent by";
+                var contactEmail = person?.RoommateProfile?.ContactEmail;
+                var contactPhone = isSentView ? request.Listing?.ContactPhone : null;
                 var statusClass = request.Status switch {
                     RequestStatus.Accepted => "request-status-accepted",
                     RequestStatus.Rejected => "request-status-rejected",
@@ -127,6 +133,29 @@
                         <p>@request.Message</p>
                     </div>
 
+                    @if (request.Status == RequestStatus.Accepted) {
+                        <dl class="request-contact">
+                            @if (!string.IsNullOrWhiteSpace(contactEmail)) {
+                                <div>
+                                    <dt>Email</dt>
+                                    <dd><a href="mailto:@contactEmail">@contactEmail</a></dd>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(contactPhone)) {
+                                <div>
+                                    <dt>Phone</dt>
+                                    <dd><a href="tel:@contactPhone">@contactPhone</a></dd>
+                                </div>
+                            }
+                            @if (string.IsNullOrWhiteSpace(contactEmail) && string.IsNullOrWhiteSpace(contactPhone)) {
+                                <div>
+                                    <dt>Contact</dt>
+                                    <dd>@personName has not added contact details yet. Check their profile.</dd>
+                                </div>
+                            }
+                        </dl>
+                    }
+
                     <footer class="request-card-footer">
                         <a asp-controller="Listing"
                            asp-action="Details"
@@ -137,6 +166,13 @@
                                 <path d="m9 18 6-6-6-6"/>
                             </svg>
                         </a>
+
+                        @if (isSentView && request.Status == RequestStatus.Pending) {
+                            <form asp-action="Withdraw" method="post">
+                                <input type="hidden" name="id" value="@request.Id"/>
+                                <button type="submit" class="request-action request-reject-action">Withdraw</button>
+                            </form>
+                        }
 
                         @if (!isSentView && request.Status == RequestStatus.Pending) {
                             <div class="request-actions">

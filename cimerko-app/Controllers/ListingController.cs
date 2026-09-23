@@ -19,12 +19,15 @@ public class ListingController : Controller {
 
     private readonly ApplicationDbContext _context;
     private readonly LocalImageStorage _imageStorage;
+    private readonly NotificationService _notificationService;
 
     public ListingController(
         ApplicationDbContext context,
-        LocalImageStorage imageStorage) {
+        LocalImageStorage imageStorage,
+        NotificationService notificationService) {
         _context = context;
         _imageStorage = imageStorage;
+        _notificationService = notificationService;
     }
 
     [AllowAnonymous]
@@ -493,6 +496,21 @@ public class ListingController : Controller {
                 ? "Your changes were saved and submitted for admin approval."
                 : "Your listing was marked as inactive.";
         return RedirectToAction(nameof(Details), new { id = listing.Id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MarkTaken(int id) {
+        var listing = await _context.Listings.FirstOrDefaultAsync(item => item.Id == id);
+        if (listing == null || !CanManageListing(listing)) {
+            return NotFound();
+        }
+
+        await ListingClosure.CloseAsync(_context, _notificationService, listing, CurrentUserId()!);
+        await _context.SaveChangesAsync();
+
+        TempData["ListingMessage"] = "Your listing was marked as taken and is no longer visible to others.";
+        return RedirectToAction(nameof(Details), new { id });
     }
 
     public async Task<IActionResult> Delete(int? id) {

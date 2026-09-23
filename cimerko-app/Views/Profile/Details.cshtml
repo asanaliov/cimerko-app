@@ -235,7 +235,7 @@
                             <dt>Faculty</dt>
                             <dd>@(profile.StudyProgram ?? "Not specified")</dd>
                         </div>
-                        @if (!string.IsNullOrWhiteSpace(profile.ContactEmail) || isOwnProfile) {
+                        @if ((!string.IsNullOrWhiteSpace(profile.ContactEmail) && ViewBag.CanSeeContact == true) || isOwnProfile) {
                             <div>
                                 <dt>Contact email</dt>
                                 <dd>

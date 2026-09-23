@@ -278,6 +278,11 @@
                 @if (Model.IsOwner) {
                     <div class="listing-detail-owner-actions">
                         <a asp-action="Edit" asp-route-id="@listing.Id" class="btn-cimerko-primary">Edit listing</a>
+                        @if (listing.IsActive) {
+                            <form asp-action="MarkTaken" asp-route-id="@listing.Id" method="post">
+                                <button type="submit" class="btn-cimerko-light listing-detail-wide">Mark as taken</button>
+                            </form>
+                        }
                         <a asp-action="Delete" asp-route-id="@listing.Id" class="btn-cimerko-light listing-detail-delete">Delete listing</a>
                     </div>
                 } else if (!listing.IsActive) {
@@ -287,7 +292,14 @@
                         <div class="listing-detail-notice is-@Model.ExistingRequest.Status.ToString().ToLowerInvariant()">
                             Your request is @Model.ExistingRequest.Status.ToString().ToLowerInvariant()
                         </div>
-                        <a asp-controller="ListingRequest" asp-action="Index" class="btn-cimerko-light listing-detail-wide">View my requests</a>
+                        @if (Model.ExistingRequest.Status == RequestStatus.Pending) {
+                            <form asp-controller="ListingRequest" asp-action="Withdraw" method="post">
+                                <input type="hidden" name="id" value="@Model.ExistingRequest.Id"/>
+                                <input type="hidden" name="returnTo" value="listing"/>
+                                <button type="submit" class="btn-cimerko-light listing-detail-wide">Withdraw request</button>
+                            </form>
+                        }
+                        <a asp-controller="ListingRequest" asp-action="Index" asp-route-view="sent" class="btn-cimerko-light listing-detail-wide">View my requests</a>
                     } else {
                         <form asp-controller="ListingRequest" asp-action="Create" method="post" class="listing-detail-request">
                             <input type="hidden" name="listingId" value="@listing.Id"/>
@@ -332,7 +344,7 @@
                     </div>
                 </div>
 
-                @if (!Model.IsOwner && isAuthenticated) {
+                @if (!Model.IsOwner && Model.ExistingRequest?.Status == RequestStatus.Accepted) {
                     <dl class="listing-detail-contact">
                         @if (!string.IsNullOrWhiteSpace(ownerContactEmail)) {
                             <div>
@@ -347,6 +359,8 @@
                             </div>
                         }
                     </dl>
+                } else if (!Model.IsOwner && listing.IsActive) {
+                    <small class="listing-detail-hint">Contact details are shared once the @contactRole accepts your request.</small>
                 }
             </div>
         </aside>

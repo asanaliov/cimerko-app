@@ -54,19 +54,21 @@ public class ProfileController : Controller {
         ViewBag.CurrentUserId = visitorId;
         ViewBag.IsOwnProfile = isOwnProfile;
         var canWriteReview = false;
+        var hasAcceptedConnection = false;
         if (visitorId != null && visitorId != id) {
             var alreadyReviewed = await _context.Reviews.AnyAsync(review =>
                 review.ReviewerId == visitorId &&
                 review.ReviewedUserId == id);
 
-            canWriteReview = !alreadyReviewed &&
-                             await _context.ListingRequests.AnyAsync(request =>
-                                 request.Status == RequestStatus.Accepted &&
-                                 ((request.SenderId == visitorId && request.Listing!.OwnerId == id) ||
-                                  (request.SenderId == id && request.Listing!.OwnerId == visitorId)));
+            hasAcceptedConnection = await _context.ListingRequests.AnyAsync(request =>
+                request.Status == RequestStatus.Accepted &&
+                ((request.SenderId == visitorId && request.Listing!.OwnerId == id) ||
+                 (request.SenderId == id && request.Listing!.OwnerId == visitorId)));
+            canWriteReview = !alreadyReviewed && hasAcceptedConnection;
         }
 
         ViewBag.CanWriteReview = canWriteReview;
+        ViewBag.CanSeeContact = isOwnProfile || isAdmin || hasAcceptedConnection;
 
         int? compatibilityScore = null;
         if (visitorId != null && visitorId != id && !isAdmin) {

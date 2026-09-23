@@ -18,7 +18,8 @@ public class ListingControllerTests {
         await using var database = await TestDatabase.CreateAsync();
         var controller = new ListingController(
             database.Context,
-            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(database.Context)) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext()
             }
@@ -64,7 +65,8 @@ public class ListingControllerTests {
 
         var controller = new ListingController(
             context,
-            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(context)) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext()
             }
@@ -105,7 +107,8 @@ public class ListingControllerTests {
 
         var controller = new ListingController(
             context,
-            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(context)) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext()
             }
@@ -177,7 +180,8 @@ public class ListingControllerTests {
         string userId) {
         return new ListingController(
             context,
-            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(context)) {
             TempData = Mock.Of<ITempDataDictionary>(),
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext {
@@ -203,7 +207,8 @@ public class ListingControllerTests {
 
         var controller = new ListingController(
             context,
-            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(context)) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext()
             }
@@ -232,7 +237,8 @@ public class ListingControllerTests {
 
         var controller = new ListingController(
             context,
-            new LocalImageStorage(Mock.Of<IWebHostEnvironment>())) {
+            new LocalImageStorage(Mock.Of<IWebHostEnvironment>()),
+            new NotificationService(context)) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext()
             }
