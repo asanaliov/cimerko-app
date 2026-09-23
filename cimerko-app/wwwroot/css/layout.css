@@ -400,11 +400,30 @@
 }
 
 .site-footer-copy {
-  margin: 1.5rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem 1.5rem;
+  margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid var(--cm-border);
   color: var(--cm-muted);
   font-size: 0.78rem;
+}
+
+.site-footer-copy p {
+  margin: 0;
+}
+
+.site-footer-copy a {
+  color: var(--cm-ink);
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.site-footer-copy a:hover {
+  color: var(--cm-primary-dark);
+  text-decoration: underline;
 }
 
 @media (min-width: 992px) {
