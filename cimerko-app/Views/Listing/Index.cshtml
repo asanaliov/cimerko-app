@@ -329,7 +329,7 @@
                                 <h3><a asp-action="Details" asp-route-id="@listing.Id">@listing.Title</a></h3>
                                 <div class="listing-card-location-new">
                                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                                    <span>@listing.City</span>
+                                    <span>@(string.IsNullOrWhiteSpace(listing.Address) ? listing.City : $"{listing.Address} · {listing.City}")</span>
                                 </div>
                                 <div class="listing-card-reference-price">
                                     <strong>@listing.MonthlyRent.ToString("0") €</strong>
