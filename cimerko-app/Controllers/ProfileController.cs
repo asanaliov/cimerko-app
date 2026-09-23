@@ -41,6 +41,7 @@ public class ProfileController : Controller {
                 isOwnProfile ||
                 (listing.IsActive &&
                  listing.ModerationStatus == ListingModerationStatus.Approved)))
+            .ThenInclude(listing => listing.Images)
             .Include(item => item.ReviewsReceived)
             .ThenInclude(review => review.Reviewer)
             .FirstOrDefaultAsync(item => item.Id == id);
@@ -113,6 +114,7 @@ public class ProfileController : Controller {
         var listingsQuery = _context.Listings
             .Include(listing => listing.Owner)
             .ThenInclude(owner => owner!.RoommateProfile)
+            .Include(listing => listing.Images)
             .Where(listing =>
                 listing.IsActive &&
                 listing.ModerationStatus == ListingModerationStatus.Approved &&

@@ -11,7 +11,7 @@
 
 .login-tabs button.is-active {
   border-radius: 25px 25px 0 0;
-  color: var(--cm-violet);
+  color: var(--cm-primary);
   background: #fff;
 }
 
@@ -21,7 +21,7 @@
   bottom: 0;
   left: 18px;
   height: 2px;
-  background: var(--cm-violet);
+  background: var(--cm-primary);
   content: "";
 }
 
@@ -69,13 +69,13 @@
 }
 
 .account-type-option:has(input:checked) {
-  border-color: var(--cm-violet);
-  background: var(--cm-violet-soft);
+  border-color: var(--cm-primary);
+  background: var(--cm-primary-soft);
 }
 
 .account-type-option input {
   margin-top: 0.2rem;
-  accent-color: var(--cm-violet);
+  accent-color: var(--cm-primary);
 }
 
 .account-type-option span {
@@ -95,14 +95,14 @@
 .auth-text-button {
   padding: 0;
   border: 0;
-  color: var(--cm-violet);
+  color: var(--cm-primary);
   background: transparent;
   font-weight: 800;
 }
 
 .auth-text-button:hover,
 .auth-text-button:focus {
-  color: var(--cm-violet-dark);
+  color: var(--cm-primary-dark);
   text-decoration: underline;
   text-underline-offset: 0.18em;
 }

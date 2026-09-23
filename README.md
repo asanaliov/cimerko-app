@@ -112,6 +112,10 @@ dotnet run
 
 The application will then be available through the local development URL provided by ASP.NET Core.
 
+### 5. Demo data
+
+On first start the app seeds demo users, listings with photos and reviews so the pages are not empty. Every demo account uses the password `Demo123!`, for example `mila.stojanova@cimerko.local` (student) or `marko.georgiev@cimerko.local` (landlord). Set `"SeedDemoData": false` in `appsettings.json` to skip this.
+
 ---
 
 ## 🎯 Project Goals
