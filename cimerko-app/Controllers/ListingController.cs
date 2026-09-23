@@ -415,6 +415,20 @@ public class ListingController : Controller {
             return View(formListing);
         }
 
+        // Only changes other people could find misleading or offensive need a new admin review.
+        var needsReview =
+            listing.Title != formListing.Title ||
+            listing.Description != formListing.Description ||
+            listing.Type != formListing.Type ||
+            listing.City != formListing.City ||
+            listing.Address != formListing.Address ||
+            validImages.Count > 0;
+        var staysLive =
+            formListing.IsActive &&
+            !needsReview &&
+            listing.IsActive &&
+            listing.ModerationStatus == ListingModerationStatus.Approved;
+
         listing.Title = formListing.Title;
         listing.Description = formListing.Description;
         listing.Type = formListing.Type;
@@ -445,7 +459,7 @@ public class ListingController : Controller {
                 listing.ModerationStatus = ListingModerationStatus.Inactive;
             }
         }
-        else {
+        else if (!staysLive) {
             listing.IsActive = false;
             listing.ModerationStatus = formListing.IsActive
                 ? ListingModerationStatus.Pending
@@ -490,7 +504,7 @@ public class ListingController : Controller {
             DeleteLocalListingImage(image.ImageUrl);
         }
 
-        TempData["ListingMessage"] = User.IsInRole(AppRoles.Admin)
+        TempData["ListingMessage"] = User.IsInRole(AppRoles.Admin) || staysLive
             ? "Listing updated."
             : formListing.IsActive
                 ? "Your changes were saved and submitted for admin approval."

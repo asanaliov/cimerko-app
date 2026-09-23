@@ -255,6 +255,48 @@ public class ListingControllerTests {
         Assert.Equal([20m, 10m], model.Listings.Select(listing => listing.MonthlyRent));
     }
 
+    [Fact]
+    public async Task Edit_keeps_an_approved_listing_live_when_only_the_price_changes() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.Add(CreateUser("owner"));
+        var listing = CreateListing("owner", "Live listing", null);
+        context.Listings.Add(listing);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var controller = CreateAuthenticatedController(context, "owner");
+
+        var form = CreateListing("owner", "Live listing", null);
+        form.Id = listing.Id;
+        form.MonthlyRent = 450;
+        await controller.Edit(listing.Id, form, null, null);
+
+        var saved = Assert.Single(context.Listings);
+        Assert.Equal(450, saved.MonthlyRent);
+        Assert.True(saved.IsActive);
+        Assert.Equal(ListingModerationStatus.Approved, saved.ModerationStatus);
+    }
+
+    [Fact]
+    public async Task Edit_sends_a_new_title_back_for_approval() {
+        await using var database = await TestDatabase.CreateAsync();
+        var context = database.Context;
+        context.Users.Add(CreateUser("owner"));
+        var listing = CreateListing("owner", "Live listing", null);
+        context.Listings.Add(listing);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var controller = CreateAuthenticatedController(context, "owner");
+
+        var form = CreateListing("owner", "Renamed listing", null);
+        form.Id = listing.Id;
+        await controller.Edit(listing.Id, form, null, null);
+
+        var saved = Assert.Single(context.Listings);
+        Assert.False(saved.IsActive);
+        Assert.Equal(ListingModerationStatus.Pending, saved.ModerationStatus);
+    }
+
     private static ApplicationUser CreateUser(string id) {
         return new ApplicationUser {
             Id = id,
