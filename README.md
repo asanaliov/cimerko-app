@@ -2,7 +2,7 @@
 
 Cimerko is a web application for finding a place to live and the people to share it with. Landlords publish rooms and apartments, and people looking for housing can browse listings, send requests and find compatible roommates.
 
-![Cimerko home page](https://github.com/user-attachments/assets/9457ca82-49c2-4e90-b825-153d72079ee2)
+![Cimerko home page](docs/screenshots/home.png)
 
 ## Features
 
@@ -15,6 +15,14 @@ Cimerko is a web application for finding a place to live and the people to share
 - **Notifications** - in-app notifications for requests and saved search matches
 - **Roles** - separate Student, Landlord and Admin roles via ASP.NET Core Identity
 - **Admin panel** - approve listings, block users and handle reports
+
+## Screenshots
+
+| Listings                                        | Listing details                                        |
+| ----------------------------------------------- | ------------------------------------------------------ |
+| ![Listings](docs/screenshots/listings.png)      | ![Listing details](docs/screenshots/listing-details.png) |
+
+![Roommate search with match scores](docs/screenshots/roommates.png)
 
 ## Tech stack
 
@@ -43,6 +51,7 @@ cimerko-app/
 │   ├── Views/            Razor views
 │   ├── wwwroot/          Static files and uploaded images
 │   └── Dockerfile
+├── docs/screenshots/     README screenshots
 └── Tests/                xUnit test project
 ```
 
@@ -116,4 +125,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Author
 
-Asan Aliov - Skopje, North Macedonia
+Asan Aliov
