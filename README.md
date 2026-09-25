@@ -1,162 +1,128 @@
-# 🏠 Cimerko
+# Cimerko
 
-### Student Roommate & Housing Finder
+Cimerko is a web application for finding a place to live and the people to share it with. Landlords publish rooms and apartments, and people looking for housing can browse listings, send requests and find compatible roommates.
 
-Cimerko is a web application designed to help students **find roommates, discover available housing, and connect with other students** looking for a place to live.
+![Cimerko home page](docs/screenshots/home.png)
 
-The goal is to make student housing easier to discover by bringing **room listings, roommate matching, and student-oriented housing information** into one platform.
+## Features
 
----
+- **Listings** - create, edit and close room and apartment listings with photos
+- **Search and filtering** - filter by city, budget, bedrooms and lifestyle preferences, and save searches for alerts
+- **Roommate matching** - roommate profiles with a compatibility score between users
+- **Listing requests** - request a listing and let the owner accept or decline
+- **Saved listings** - bookmark listings to come back to later
+- **Reviews and reports** - review listings and report inappropriate content
+- **Notifications** - in-app notifications for requests and saved search matches
+- **Roles** - separate Student, Landlord and Admin roles via ASP.NET Core Identity
+- **Admin panel** - approve listings, block users and handle reports
 
-## ✨ Features
+## Screenshots
 
-* 👤 **User Accounts** - Register and manage your profile
-* 🏠 **Housing Listings** - Browse available rooms and apartments
-* 🔎 **Search & Filtering** - Find housing based on your preferences
-* 🤝 **Roommate Discovery** - Connect with students looking for roommates
-* 📍 **Location-Based Listings** - Find housing based on location
-* 💬 **User Interaction** - Connect with other students through the platform
-* 🔐 **Authentication & Authorization** - Secure account and role management
-* 📱 **Responsive UI** - Designed to work across different screen sizes
+| Listings                                        | Listing details                                        |
+| ----------------------------------------------- | ------------------------------------------------------ |
+| ![Listings](docs/screenshots/listings.png)      | ![Listing details](docs/screenshots/listing-details.png) |
 
----
+![Roommate search with match scores](docs/screenshots/roommates.png)
 
-## 🖥️ Screenshots
+## Tech stack
 
-### Home Page
+| Area           | Technology                         |
+| -------------- | ---------------------------------- |
+| Framework      | ASP.NET Core MVC (.NET 10)         |
+| Language       | C#                                 |
+| Data access    | Entity Framework Core              |
+| Database       | SQLite                             |
+| Authentication | ASP.NET Core Identity              |
+| UI             | Razor views, Bootstrap, custom CSS |
+| Testing        | xUnit, Moq                         |
+| Deployment     | Docker                             |
 
-<img width="1842" height="1242" alt="Cimerko Home Page" src="https://github.com/user-attachments/assets/9457ca82-49c2-4e90-b825-153d72079ee2" />
-
-### Cimerko
-
-<img width="266" height="82" alt="Cimerko Logo" src="https://github.com/user-attachments/assets/39ade965-169c-40d9-a876-efc76c51e181" />
-
----
-
-## 🛠️ Tech Stack
-
-| Technology                | Purpose                        |
-| ------------------------- | ------------------------------ |
-| **ASP.NET Core MVC**      | Web application framework      |
-| **C#**                    | Backend development            |
-| **Entity Framework Core** | Database access & ORM          |
-| **ASP.NET Core Identity** | Authentication & authorization |
-| **SQLite**                | Database                       |
-| **Razor**                 | Server-side UI rendering       |
-| **Bootstrap / CSS**       | Styling & responsive design    |
-| **Git & GitHub**          | Version control                |
-
----
-
-## 🏗️ Architecture
-
-Cimerko follows the **Model-View-Controller (MVC)** architecture:
+## Project structure
 
 ```text
-┌─────────────────────┐
-│        Views        │
-│     Razor / UI      │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│     Controllers     │
-│   Application Logic │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│       Models        │
-│   EF Core / Data    │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│      Database       │
-│       SQLite        │
-└─────────────────────┘
+cimerko-app/
+├── cimerko-app/          Web application
+│   ├── Areas/Identity/   Identity pages (login, register, account)
+│   ├── Controllers/      MVC controllers
+│   ├── Data/             DbContext, migrations and seed data
+│   ├── Models/           Entities, enums and view models
+│   ├── Services/         Business logic (search, notifications, storage, email)
+│   ├── ViewComponents/
+│   ├── Views/            Razor views
+│   ├── wwwroot/          Static files and uploaded images
+│   └── Dockerfile
+├── docs/screenshots/     README screenshots
+└── Tests/                xUnit test project
 ```
 
----
+## Getting started
 
-## 🚀 Getting Started
+### Prerequisites
 
-### 1. Clone the repository
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- EF Core CLI tools: `dotnet tool install --global dotnet-ef`
+
+### Run locally
 
 ```bash
 git clone https://github.com/asanaliov/cimerko-app.git
-cd cimerko-app
-```
-
-### 2. Configure the project
-
-Make sure you have the required **.NET SDK** installed.
-
-Restore the project dependencies:
-
-```bash
+cd cimerko-app/cimerko-app
 dotnet restore
-```
-
-### 3. Apply database migrations
-
-```bash
 dotnet ef database update
-```
-
-### 4. Run the application
-
-```bash
 dotnet run
 ```
 
-The application will then be available through the local development URL provided by ASP.NET Core.
+The app runs at `https://localhost:7221` (or `http://localhost:5201`).
 
-### 5. Demo data
+### Demo data
 
-On first start the app seeds demo users, listings with photos and reviews so the pages are not empty. Every demo account uses the password `Demo123!`, for example `mia.thompson@cimerko.local` (student) or `mark.johnson@cimerko.local` (landlord). Set `"SeedDemoData": false` in `appsettings.json` to skip this.
+On first start the app seeds demo users, listings with photos and reviews. Every demo account uses the password `Demo123!`, for example:
 
----
+| Role     | Email                         |
+| -------- | ----------------------------- |
+| Student  | `mia.thompson@cimerko.local`  |
+| Landlord | `mark.johnson@cimerko.local`  |
 
-## 🎯 Project Goals
+Set `"SeedDemoData": false` in `appsettings.json` to disable seeding.
 
-Cimerko was created with a focus on solving a real problem faced by students:
+## Configuration
 
-> **Finding affordable housing and compatible roommates shouldn't be complicated.**
+Settings live in `cimerko-app/appsettings.json` and can be overridden with environment variables (e.g. `ConnectionStrings__DefaultConnection`).
 
-The project combines housing discovery with student-focused roommate searching to create a simpler and more centralized experience.
+| Key                                   | Description                                   | Default                             |
+| ------------------------------------- | --------------------------------------------- | ----------------------------------- |
+| `ConnectionStrings:DefaultConnection` | SQLite connection string                      | `DataSource=app.db;Cache=Shared`    |
+| `SeedDemoData`                        | Seed demo users and listings on startup       | `true`                              |
+| `Email:Host`                          | SMTP host; if empty, emails are logged instead | empty                               |
+| `Email:Port`                          | SMTP port                                     | `587`                               |
+| `Email:EnableSsl`                     | Use SSL for SMTP                              | `true`                              |
+| `Email:UserName` / `Email:Password`   | SMTP credentials                              | empty                               |
+| `Email:From`                          | Sender address                                | falls back to `Email:UserName`      |
 
----
+Keep real SMTP credentials out of source control by using [user secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets) or environment variables.
 
-## 📚 What I Learned
+## Running tests
 
-Working on Cimerko provided hands-on experience with:
+From the repository root:
 
-* Building applications using **ASP.NET Core MVC**
-* Designing and working with relational databases
-* Using **Entity Framework Core**
-* Implementing authentication with **ASP.NET Core Identity**
-* Structuring applications using MVC principles
-* Working with Git and GitHub
-* Deploying .NET applications
-* Designing user-focused web interfaces
+```bash
+dotnet test
+```
 
----
+## Docker
 
-## 🚀 Future Development
+```bash
+cd cimerko-app
+docker build -t cimerko .
+docker run -p 10000:10000 cimerko
+```
 
-Cimerko already provides the core functionality required for student housing discovery and roommate finding. Future development would focus primarily on scalability, UX improvements, and expanding the matching system
+The container listens on port `10000`. The database must be migrated before the app starts, since migrations are not applied automatically.
 
----
+## License
 
-## 👨‍💻 Author
+This project is licensed under the [MIT License](LICENSE).
 
-**Asan Aliov**
+## Author
 
-Software Engineering Student
-
-📍 Skopje, North Macedonia
-
----
-
-⭐ If you find this project interesting, consider giving the repository a star!
+Asan Aliov

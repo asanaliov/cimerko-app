@@ -2,7 +2,7 @@
 @model cimerko_app.Models.ViewModels.HomeIndexViewModel
 
 @{
-    ViewData["Title"] = "Student housing and roommates";
+    ViewData["Title"] = "Homes and roommates";
 
     var featuredListings = Model.LatestListings
         .Take(3)
@@ -172,9 +172,9 @@
     }
     else {
         <section class="home-showcase-empty">
-            <span class="home-eyebrow">Student housing made simpler</span>
+            <span class="home-eyebrow">Housing made simpler</span>
             <h1>Find a room. Find a cimer. Feel at home.</h1>
-            <p>New student homes and roommate listings will appear here as soon as they are published.</p>
+            <p>New homes and roommate listings will appear here as soon as they are published.</p>
             <a asp-controller="Listing" asp-action="Create" class="btn home-primary-action">Post a listing</a>
         </section>
     }
@@ -225,7 +225,7 @@
     <section class="home-latest" aria-labelledby="latestListingsTitle">
         <div class="home-section-heading home-section-heading-row">
             <div>
-                <h2 id="latestListingsTitle">Top places for students</h2>
+                <h2 id="latestListingsTitle">Latest places</h2>
                 <p>Recently added homes and roommate opportunities.</p>
             </div>
             <a asp-controller="Listing" asp-action="Index" data-home-view-all>
